@@ -53,7 +53,7 @@
         <developer>
           <id>etj</id>
           <name>Emanuele Tajariol</name>
-          <email>etj@geosolutions.it</email>          
+          <email>etj AT geosolutions.it</email>          
           <organization>GeoSolutions</organization>
           <organizationUrl>http://www.geosolutions.it</organizationUrl>
           <roles>
@@ -103,7 +103,7 @@
         </repository>
         <site>
             <id>demo.geosolutions</id>
-            <url>scp://demo.geosolutions.it/var/www/share/javadoc/gsman</url>
+            <url>scp://demo.geo-solutions.it/var/www/share/javadoc/gsman</url>
         </site>
     </distributionManagement>
 
