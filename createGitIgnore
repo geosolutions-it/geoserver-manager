@@ -1,0 +1,26 @@
+OUTFILE=gitignore
+
+cat >$OUTFILE <<EOF
+##
+## This file has been automatically generated with the command line:
+## for pom in \$(find -name "pom.xml") ; do path=\${pom%*pom.xml} ; echo '#' \$path ; echo ; echo \${path}target ; echo ; done > .gitignore
+##
+## - ETj
+
+nb*.xml
+.classpath
+.project
+.settings
+EOF
+
+for pom in $(find -name "pom.xml")
+do 
+	path=${pom%*pom.xml}
+	echo '#' $path     >>$OUTFILE
+	echo               >>$OUTFILE
+	echo ${path}target >>$OUTFILE
+	echo               >>$OUTFILE
+done
+
+echo New file gitignore has been created. You may now want to replace your original .gitignore file.
+echo
