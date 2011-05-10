@@ -93,6 +93,11 @@
         <tag>master</tag>
         <url>https://github.com/geosolutions-it/geoserver-manager</url>
     </scm>
+
+    <ciManagement>
+        <system>jenkins</system>    
+        <url>http://ci.geo-solutions.it/</url>
+    </ciManagement>
     
     <distributionManagement>
         <downloadUrl>http://maven.geo-solutions.it</downloadUrl>
