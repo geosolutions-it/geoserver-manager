@@ -400,8 +400,6 @@ public class GeoServerRESTPublisher {
      * @param mosaicDir the directory where the raster images are located
      * @return true if the operation completed successfully.
      * @throws FileNotFoundException
-     *
-     * @deprecated work in progress
      */
     public RESTCoverageStore configureExternaMosaicDatastore(String workspace, String storeName, File mosaicDir) throws FileNotFoundException {
         if (!mosaicDir.isDirectory()) {
@@ -432,8 +430,11 @@ public class GeoServerRESTPublisher {
     public RESTCoverageStore publishExternalMosaic(String workspace, String storeName, File mosaicDir, String srs, String defaultStyle) throws FileNotFoundException {
         GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
         coverageEncoder.setSRS(srs);
+
+        GSLayerEncoder layerEncoder = new GSLayerEncoder();
+        layerEncoder.setDefaultStyle(defaultStyle);
         
-        return publishExternalMosaic(workspace, storeName, mosaicDir, coverageEncoder, defaultStyle);
+        return publishExternalMosaic(workspace, storeName, mosaicDir, coverageEncoder, layerEncoder);
     }
             
     /**
@@ -446,15 +447,28 @@ public class GeoServerRESTPublisher {
      * @param workspace an existing workspace
      * @param storeName the name of the coverageStore to be created
      * @param mosaicDir the directory where the raster images are located
-     * @param coverageEncoder the set of parameters to be set to the coverage
-     * @param defaultStyle may be null
+     * @param coverageEncoder the set of parameters to be set to the coverage (bbox, srs, ...)
+     * @param layerEncoder  the set of parameters to be set to the layer (defaultstyle, wmspath, ...)
      * 
      * @return true if the operation completed successfully.
      * 
      * @throws FileNotFoundException
      */
-    public RESTCoverageStore publishExternalMosaic(String workspace, String storeName, File mosaicDir, GSCoverageEncoder coverageEncoder, String defaultStyle) throws FileNotFoundException {
+    public RESTCoverageStore publishExternalMosaic(String workspace, String storeName, File mosaicDir, GSCoverageEncoder coverageEncoder, GSLayerEncoder layerEncoder) throws FileNotFoundException {
         RESTCoverageStore store = configureExternaMosaicDatastore(workspace, storeName, mosaicDir);
+        
+        if(coverageEncoder == null ) {
+            if(LOGGER.isDebugEnabled())
+                LOGGER.debug("no coverageEncoder provided for " + workspace + ":" + storeName);
+            coverageEncoder = new GSCoverageEncoder();
+        }
+
+        if(layerEncoder == null ) {
+            if(LOGGER.isDebugEnabled())
+                LOGGER.debug("no layerEncoder provided for " + workspace + ":" + storeName);
+            layerEncoder = new GSLayerEncoder();
+        }
+        
         if (store != null ) {
             try {
 //              // retrieve coverage name
@@ -467,10 +481,6 @@ public class GeoServerRESTPublisher {
                 String coverageName = covList.get(0).getName();
                 
                 configureCoverage(coverageEncoder, workspace, storeName, coverageName);
-
-                // config layer props (style, ...)
-                GSLayerEncoder layerEncoder = new GSLayerEncoder();
-                layerEncoder.setDefaultStyle(defaultStyle);
                 configureLayer(layerEncoder, storeName);
 
             } catch (Exception e) {

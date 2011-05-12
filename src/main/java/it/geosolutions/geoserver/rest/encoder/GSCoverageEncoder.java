@@ -25,14 +25,39 @@
 
 package it.geosolutions.geoserver.rest.encoder;
 
+import java.util.HashMap;
+import java.util.Map;
+import org.jdom.Element;
+
 /**
  *
  * @author ETj (etj at geo-solutions.it)
  */
 public class GSCoverageEncoder extends GSResourceEncoder {
 
+    private Map<String, String> metadata = new HashMap<String, String>();
+    
     public GSCoverageEncoder() {
         super("coverage");
         set("enabled", "true");
+    }
+    
+    public void addMetadata(String key, String value) {
+        metadata.put(key, value);
+    }
+
+    @Override
+    protected void addNodesBeforeOutput(Element e) {
+        super.addNodesBeforeOutput(e);
+        
+        if( ! metadata.isEmpty() ) {
+            Element md = new Element("metadata");
+            for (Map.Entry<String, String> entry : metadata.entrySet()) {
+                md.addContent("entry")
+                        .setAttribute("key", entry.getKey())
+                        .setText(entry.getValue());
+            }
+            e.addContent(md);
+        }
     }
 }

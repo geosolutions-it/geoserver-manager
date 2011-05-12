@@ -77,7 +77,12 @@ public class PropertyXMLEncoder {
             add(layer, key, value);
         }
 
+        addNodesBeforeOutput(layer);
         return OUTPUTTER.outputString(layer);
+    }
+
+    protected void addNodesBeforeOutput(Element e) {
+    
     }
     
     private void add(Element e, String key, String value) {
