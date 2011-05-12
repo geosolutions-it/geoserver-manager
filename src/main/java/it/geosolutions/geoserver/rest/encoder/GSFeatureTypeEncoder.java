@@ -29,7 +29,7 @@ package it.geosolutions.geoserver.rest.encoder;
  *
  * @author ETj (etj at geo-solutions.it)
  */
-public class GSFeatureTypeEncoder extends PropertyXMLEncoder {
+public class GSFeatureTypeEncoder extends GSResourceEncoder {
 
     public GSFeatureTypeEncoder() {
         super("featureType");
@@ -38,14 +38,5 @@ public class GSFeatureTypeEncoder extends PropertyXMLEncoder {
 
     public void setName(String name) {
         setOrRemove("name", name);
-    }    
-        
-    public void setSRS(String srs) {
-        setOrRemove("srs", srs);
-    }    
-    
-//    public void setNativeCRS(String crs) {
-//        setOrRemove("nativeCRS", crs);
-//    }    
-    
+    }
 }

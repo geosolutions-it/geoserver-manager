@@ -29,10 +29,21 @@ package it.geosolutions.geoserver.rest.encoder;
  *
  * @author ETj (etj at geo-solutions.it)
  */
-public class GSCoverageEncoder extends GSResourceEncoder {
+public abstract class GSResourceEncoder extends PropertyXMLEncoder {
 
-    public GSCoverageEncoder() {
-        super("coverage");
-        set("enabled", "true");
+    protected GSResourceEncoder(String rootName) {
+        super(rootName);
+    }
+    
+    public void setSRS(String srs) {
+        setOrRemove("srs", srs);
+    }  
+
+    public void setLatLonBoundingBox(double minx, double maxy, double maxx, double miny, String crs) {
+        setOrRemove("latLonBoundingBox/minx", String.valueOf(minx));
+        setOrRemove("latLonBoundingBox/maxy", String.valueOf(maxy));
+        setOrRemove("latLonBoundingBox/maxx", String.valueOf(maxx));
+        setOrRemove("latLonBoundingBox/miny", String.valueOf(miny));
+        setOrRemove("latLonBoundingBox/crs", crs);
     }
 }

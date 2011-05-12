@@ -422,13 +422,38 @@ public class GeoServerRESTPublisher {
      * @param workspace an existing workspace
      * @param storeName the name of the coverageStore to be created
      * @param mosaicDir the directory where the raster images are located
+     * @param srs the coverage declared SRS
      * @param defaultStyle may be null
+     * 
      * @return true if the operation completed successfully.
+     * 
      * @throws FileNotFoundException
-     *
-     * @deprecated work in progress
      */
     public RESTCoverageStore publishExternalMosaic(String workspace, String storeName, File mosaicDir, String srs, String defaultStyle) throws FileNotFoundException {
+        GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
+        coverageEncoder.setSRS(srs);
+        
+        return publishExternalMosaic(workspace, storeName, mosaicDir, coverageEncoder, defaultStyle);
+    }
+            
+    /**
+     * Publish a Mosaic already in a filesystem readable by GeoServer.
+     *
+     * <P> Sample cUrl usage:<BR>
+     * <TT>curl -u admin:geoserver -XPUT -H 'Content-type: text' -d "file:$ABSPORTDIR"
+     *          http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$BAREDIR/external.imagemosaic </TT>
+     *
+     * @param workspace an existing workspace
+     * @param storeName the name of the coverageStore to be created
+     * @param mosaicDir the directory where the raster images are located
+     * @param coverageEncoder the set of parameters to be set to the coverage
+     * @param defaultStyle may be null
+     * 
+     * @return true if the operation completed successfully.
+     * 
+     * @throws FileNotFoundException
+     */
+    public RESTCoverageStore publishExternalMosaic(String workspace, String storeName, File mosaicDir, GSCoverageEncoder coverageEncoder, String defaultStyle) throws FileNotFoundException {
         RESTCoverageStore store = configureExternaMosaicDatastore(workspace, storeName, mosaicDir);
         if (store != null ) {
             try {
@@ -440,13 +465,8 @@ public class GeoServerRESTPublisher {
                     return null;
                 }
                 String coverageName = covList.get(0).getName();
-
                 
-                // config coverage props (srs)
-                GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
-                coverageEncoder.setSRS(srs);
                 configureCoverage(coverageEncoder, workspace, storeName, coverageName);
-
 
                 // config layer props (style, ...)
                 GSLayerEncoder layerEncoder = new GSLayerEncoder();
