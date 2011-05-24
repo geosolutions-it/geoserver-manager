@@ -23,29 +23,49 @@
  * THE SOFTWARE.
  */
 
-package it.geosolutions.geoserver.rest.encoder;
+package it.geosolutions.geoserver.rest.encoder.utils;
 
-import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import org.jdom.Element;
 
 /**
+ * Encodes lists of entries with key attribute.
+ * <br/>e.g.:
+ * <PRE>
+ * {@code 
+ *  <listName>
+ *   <entry key="k1">val1</entry>
+ *   <entry key="k2">val2</entry>
+ *   <entry key="k3">val3</entry>
+ * </listName>}
+ * <PRE>
  *
  * @author ETj (etj at geo-solutions.it)
  */
-public abstract class GSResourceEncoder extends PropertyXMLEncoder {
+public class EntryKeyListEncoder {
 
-    protected GSResourceEncoder(String rootName) {
-        super(rootName);
+    private Map<String, String> metadata = new HashMap<String, String>();
+    private final String listName;
+
+    public EntryKeyListEncoder(String listName) {
+        this.listName = listName;
     }
     
-    public void setSRS(String srs) {
-        setOrRemove("srs", srs);
-    }  
+    public void add(String key, String value) {
+        metadata.put(key, value);
+    }
 
-    public void setLatLonBoundingBox(double minx, double maxy, double maxx, double miny, String crs) {
-        setOrRemove("latLonBoundingBox/minx", String.valueOf(minx));
-        setOrRemove("latLonBoundingBox/maxy", String.valueOf(maxy));
-        setOrRemove("latLonBoundingBox/maxx", String.valueOf(maxx));
-        setOrRemove("latLonBoundingBox/miny", String.valueOf(miny));
-        setOrRemove("latLonBoundingBox/crs", crs);
+    public void attachList(Element e) {
+        
+        if( ! metadata.isEmpty() ) {
+            Element md = new Element(listName);
+            for (Map.Entry<String, String> entry : metadata.entrySet()) {
+                md.addContent("entry")
+                        .setAttribute("key", entry.getKey())
+                        .setText(entry.getValue());
+            }
+            e.addContent(md);
+        }
     }
 }

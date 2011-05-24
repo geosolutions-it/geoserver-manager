@@ -22,7 +22,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageList;
@@ -30,6 +29,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.encoder.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 
 import java.io.File;
@@ -67,7 +67,6 @@ public class GeoServerRESTPublisher {
         this.gsuser = username;
         this.gspass = password;
     }
-
 
     //==========================================================================
     //=== WORKSPACES
@@ -139,8 +138,9 @@ public class GeoServerRESTPublisher {
      */
     public boolean publishStyle(File sldFile, String name) {
         String sUrl = restURL + "/rest/styles";
-        if(name != null)
+        if (name != null) {
             sUrl += "?name=" + encode(name);
+        }
         LOGGER.debug("POSTing new style " + name + " to " + sUrl);
         String result = HTTPUtils.post(sUrl, sldFile, "application/vnd.ogc.sld+xml", gsuser, gspass);
         return result != null;
@@ -160,6 +160,25 @@ public class GeoServerRESTPublisher {
         styleName = encode(styleName); // spaces may
         String sUrl = restURL + "/rest/styles/" + styleName + "?purge=true";
         return HTTPUtils.delete(sUrl, gsuser, gspass);
+    }
+
+    //==========================================================================
+    //=== DATASTORE
+    //==========================================================================
+
+    /**
+     * Create a PostGIS datastore.
+     *
+     * @param workspace Name of the workspace to contain the database. This will also be the prefix of any layer names created from tables in the database.
+     * @param datastoreEncoder the set of parameters to be set to the datastore (including connection params)
+     *
+     * @return <TT>true</TT> if the PostGIS datastore has been successfully created, <TT>false</TT> otherwise
+     */
+    public boolean createPostGISDatastore(String workspace, GSPostGISDatastoreEncoder datastoreEncoder) {          
+        String sUrl = restURL + "/rest/workspaces/" + workspace + "/datastores/";
+        String xml = datastoreEncoder.encodeXml();
+        String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
+        return result != null;
     }
 
     //==========================================================================
@@ -201,6 +220,7 @@ public class GeoServerRESTPublisher {
                 layerEncoder.setDefaultStyle(defaultStyle);
                 configureLayer(layerEncoder, layerName);
             } catch (Exception e) {
+                LOGGER.warn("Error in publishing shapefile " + e.getMessage(), e);
                 sent = false;
             }
         }
@@ -226,7 +246,10 @@ public class GeoServerRESTPublisher {
      */
     public boolean publishShp(String workspace, String storename, String layername, File zipFile, String srs) throws FileNotFoundException {
         // build full URL
-        StringBuilder sbUrl = new StringBuilder(restURL).append("/rest/workspaces/").append(workspace).append("/datastores/").append(storename).append("/file.shp?");
+        StringBuilder sbUrl = new StringBuilder(restURL)
+                .append("/rest/workspaces/").append(workspace)
+                .append("/datastores/").append(storename)
+                .append("/file.shp?");
 //        if (workspace != null) {
 //            sbUrl.append("namespace=").append(workspace);
 //        }
@@ -246,7 +269,7 @@ public class GeoServerRESTPublisher {
             GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
             fte.setName(layername);
             fte.setSRS(srs);
-            
+
             String configuredResult = HTTPUtils.putXml(postUrl.toString(), fte.encodeXml(), this.gsuser, this.gspass);
             boolean shpConfigured = configuredResult != null;
 
@@ -288,13 +311,13 @@ public class GeoServerRESTPublisher {
         fte.setName(layername);
         fte.setSRS(srs); // srs=null?"EPSG:4326":srs);
         String ftypeXml = fte.encodeXml();
-        
+
         String configuredResult = HTTPUtils.postXml(postUrl.toString(), ftypeXml, this.gsuser, this.gspass);
         boolean published = configuredResult != null;
         boolean configured = false;
 
         if (!published) {
-            LOGGER.warn("Error in publishing ("+configuredResult+") "
+            LOGGER.warn("Error in publishing (" + configuredResult + ") "
                     + workspace + ":" + storename + "/" + layername);
         } else {
             LOGGER.info("DB layer successfully added (layer:" + layername + ")");
@@ -304,7 +327,7 @@ public class GeoServerRESTPublisher {
             configured = configureLayer(layerEncoder, layername);
 
             if (!configured) {
-                LOGGER.warn("Error in configuring ("+configuredResult+") "
+                LOGGER.warn("Error in configuring (" + configuredResult + ") "
                         + workspace + ":" + storename + "/" + layername);
             } else {
                 LOGGER.info("DB layer successfully configured (layer:" + layername + ")");
@@ -353,12 +376,12 @@ public class GeoServerRESTPublisher {
         String sendResult = HTTPUtils.put(sUrl, geotiff.toURI().toString(), "text/plain", gsuser, gspass);
         RESTCoverageStore store = RESTCoverageStore.build(sendResult);
 
-        if (store!=null) {
+        if (store != null) {
             try {
 //              // retrieve coverage name
                 GeoServerRESTReader reader = new GeoServerRESTReader(restURL, gsuser, gspass);
                 RESTCoverageList covList = reader.getCoverages(workspace, storeName);
-                if(covList.isEmpty()) {
+                if (covList.isEmpty()) {
                     LOGGER.error("No coverages found in new coveragestore " + storeName);
                     return null;
                 }
@@ -433,10 +456,10 @@ public class GeoServerRESTPublisher {
 
         GSLayerEncoder layerEncoder = new GSLayerEncoder();
         layerEncoder.setDefaultStyle(defaultStyle);
-        
+
         return publishExternalMosaic(workspace, storeName, mosaicDir, coverageEncoder, layerEncoder);
     }
-            
+
     /**
      * Publish a Mosaic already in a filesystem readable by GeoServer.
      *
@@ -456,30 +479,32 @@ public class GeoServerRESTPublisher {
      */
     public RESTCoverageStore publishExternalMosaic(String workspace, String storeName, File mosaicDir, GSCoverageEncoder coverageEncoder, GSLayerEncoder layerEncoder) throws FileNotFoundException {
         RESTCoverageStore store = configureExternaMosaicDatastore(workspace, storeName, mosaicDir);
-        
-        if(coverageEncoder == null ) {
-            if(LOGGER.isDebugEnabled())
+
+        if (coverageEncoder == null) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("no coverageEncoder provided for " + workspace + ":" + storeName);
+            }
             coverageEncoder = new GSCoverageEncoder();
         }
 
-        if(layerEncoder == null ) {
-            if(LOGGER.isDebugEnabled())
+        if (layerEncoder == null) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("no layerEncoder provided for " + workspace + ":" + storeName);
+            }
             layerEncoder = new GSLayerEncoder();
         }
-        
-        if (store != null ) {
+
+        if (store != null) {
             try {
 //              // retrieve coverage name
                 GeoServerRESTReader reader = new GeoServerRESTReader(restURL, gsuser, gspass);
                 RESTCoverageList covList = reader.getCoverages(workspace, storeName);
-                if(covList.isEmpty()) {
+                if (covList.isEmpty()) {
                     LOGGER.error("No coverages found in new coveragestore " + storeName);
                     return null;
                 }
                 String coverageName = covList.get(0).getName();
-                
+
                 configureCoverage(coverageEncoder, workspace, storeName, coverageName);
                 configureLayer(layerEncoder, storeName);
 
@@ -636,12 +661,12 @@ public class GeoServerRESTPublisher {
     public boolean removeWorkspace(String workspace) {
         workspace = sanitize(workspace);
         try {
-            URL deleteUrl = new URL(restURL + "/rest/workspaces/" + workspace );
+            URL deleteUrl = new URL(restURL + "/rest/workspaces/" + workspace);
             boolean deleted = HTTPUtils.delete(deleteUrl.toExternalForm(), gsuser, gspass);
             if (!deleted) {
-                LOGGER.warn("Could not delete Workspace " + workspace );
+                LOGGER.warn("Could not delete Workspace " + workspace);
             } else {
-                LOGGER.info("Workspace successfully deleted " + workspace );
+                LOGGER.info("Workspace successfully deleted " + workspace);
             }
 
             return deleted;
@@ -691,7 +716,7 @@ public class GeoServerRESTPublisher {
                 LOGGER.info("Layer successfully configured: " + layerName);
             }
         } else {
-            LOGGER.warn("Error configuring layer " + layerName + " ("+sendResult+")");
+            LOGGER.warn("Error configuring layer " + layerName + " (" + sendResult + ")");
         }
 
         return sendResult != null;
@@ -703,16 +728,16 @@ public class GeoServerRESTPublisher {
      */
     protected boolean configureCoverage(final GSCoverageEncoder ce, String wsname, String csname, String cname) {
 
-        final String url = restURL + "/rest/workspaces/"+wsname+"/coveragestores/"+csname+"/coverages/"+cname+".xml";
+        final String url = restURL + "/rest/workspaces/" + wsname + "/coveragestores/" + csname + "/coverages/" + cname + ".xml";
 
         String xmlBody = ce.encodeXml();
         String sendResult = HTTPUtils.putXml(url, xmlBody, gsuser, gspass);
         if (sendResult != null) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Coverage successfully configured "+wsname+":"+csname+":"+cname);
+                LOGGER.debug("Coverage successfully configured " + wsname + ":" + csname + ":" + cname);
             }
         } else {
-            LOGGER.warn("Error configuring coverage " + wsname+":"+csname+":"+cname +" ("+sendResult+")");
+            LOGGER.warn("Error configuring coverage " + wsname + ":" + csname + ":" + cname + " (" + sendResult + ")");
         }
 
         return sendResult != null;
@@ -722,13 +747,13 @@ public class GeoServerRESTPublisher {
      *
      */
     protected String sanitize(String s) {
-        if(s.indexOf(".")!=-1)
-            return s+".DUMMY";
+        if (s.indexOf(".") != -1) {
+            return s + ".DUMMY";
+        }
         return s;
     }
 
     protected String encode(String s) {
         return URLEncoder.encode(s);
     }
-
 }

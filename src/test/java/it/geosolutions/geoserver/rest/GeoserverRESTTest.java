@@ -42,9 +42,14 @@ import org.apache.log4j.Logger;
 /**
  * Initializes REST params.
  * <P>
- * Default target geoserver instance is at <TT>http://localhost:8080/geoserver</TT>.
- * <BR>Connection parameters can be customized by defining env vars
- * <I>resturl</I>, <I>restuser</I>, <I>restpw</I>,
+ * <B>These tests are destructive, so you have to explicitly enable them</B>
+ * by setting the env var <TT>resttest</TT> to <TT>true</TT>.
+ * <P>
+ * The target geoserver instance can be customized by defining the following env vars: <ul>
+ * <LI><TT>resturl</TT> (default <TT>http://localhost:8080/geoserver</TT>)</LI>
+ * <LI><TT>restuser</TT> (default: <TT>admin</TT>)</LI>
+ * <LI><TT>restpw</TT> (default: <TT>geoserver</TT>)</LI>
+ * </ul>
  *
  * @author etj
  */

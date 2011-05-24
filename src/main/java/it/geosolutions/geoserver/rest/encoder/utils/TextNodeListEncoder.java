@@ -23,29 +23,57 @@
  * THE SOFTWARE.
  */
 
-package it.geosolutions.geoserver.rest.encoder;
+package it.geosolutions.geoserver.rest.encoder.utils;
 
-import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import org.jdom.Element;
 
 /**
- *
+ * Encodes lists of simple text nodes.
+ * <br/>e.g.:
+ * <PRE>
+ * {@code 
+ *  <parentnodename>
+ *   <nodename1>nodetext1</nodename1>
+ *   <nodename2>nodetext2</nodename2>
+ *   <nodename3>nodetext3</nodename3>
+ * </parentnodename>}
+ * <PRE>
+ * 
  * @author ETj (etj at geo-solutions.it)
  */
-public abstract class GSResourceEncoder extends PropertyXMLEncoder {
+public class TextNodeListEncoder {
 
-    protected GSResourceEncoder(String rootName) {
-        super(rootName);
+    private List<Pair> list = new ArrayList<Pair>();
+    private final String listName;
+
+    public TextNodeListEncoder(String listName) {
+        this.listName = listName;
+    }   
+                    
+    public void add(String nodename, String nodetext) {
+        list.add(new Pair(nodename, nodetext));
+    }
+
+    public void attachList(Element e) {
+        
+        if( ! list.isEmpty() ) {
+            Element elist = new Element(listName);
+            for (Pair pair : list) {
+                elist.addContent(pair.v1).setText(pair.v2);
+            }
+            e.addContent(elist);
+        }
     }
     
-    public void setSRS(String srs) {
-        setOrRemove("srs", srs);
-    }  
+    class Pair {
+        String v1;
+        String v2;
 
-    public void setLatLonBoundingBox(double minx, double maxy, double maxx, double miny, String crs) {
-        setOrRemove("latLonBoundingBox/minx", String.valueOf(minx));
-        setOrRemove("latLonBoundingBox/maxy", String.valueOf(maxy));
-        setOrRemove("latLonBoundingBox/maxx", String.valueOf(maxx));
-        setOrRemove("latLonBoundingBox/miny", String.valueOf(miny));
-        setOrRemove("latLonBoundingBox/crs", crs);
+        public Pair(String v1, String v2) {
+            this.v1 = v1;
+            this.v2 = v2;
+        }
     }
 }

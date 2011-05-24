@@ -25,6 +25,8 @@
 
 package it.geosolutions.geoserver.rest.encoder;
 
+import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+
 /**
  *
  * @author ETj (etj at geo-solutions.it)
