@@ -61,7 +61,8 @@ public class TextNodeListEncoder {
         if( ! list.isEmpty() ) {
             Element elist = new Element(listName);
             for (Pair pair : list) {
-                elist.addContent(pair.v1).setText(pair.v2);
+                Element entry = new Element(pair.v1).setText(pair.v2);
+                elist.addContent(entry);
             }
             e.addContent(elist);
         }
