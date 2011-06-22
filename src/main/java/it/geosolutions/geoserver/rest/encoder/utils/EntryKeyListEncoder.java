@@ -61,9 +61,10 @@ public class EntryKeyListEncoder {
         if( ! metadata.isEmpty() ) {
             Element md = new Element(listName);
             for (Map.Entry<String, String> entry : metadata.entrySet()) {
-                md.addContent("entry")
-                        .setAttribute("key", entry.getKey())
-                        .setText(entry.getValue());
+                Element entryeElem = new Element("entry")
+                                    .setAttribute("key", entry.getKey())
+                                    .setText(entry.getValue());
+                md.addContent(entryeElem);
             }
             e.addContent(md);
         }
