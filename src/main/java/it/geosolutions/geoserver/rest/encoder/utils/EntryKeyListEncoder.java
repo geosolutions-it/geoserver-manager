@@ -25,7 +25,7 @@
 
 package it.geosolutions.geoserver.rest.encoder.utils;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.jdom.Element;
 
@@ -45,7 +45,7 @@ import org.jdom.Element;
  */
 public class EntryKeyListEncoder {
 
-    private Map<String, String> metadata = new HashMap<String, String>();
+    private Map<String, String> metadata = new LinkedHashMap<String, String>();
     private final String listName;
 
     public EntryKeyListEncoder(String listName) {
