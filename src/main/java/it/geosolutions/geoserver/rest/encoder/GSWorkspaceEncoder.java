@@ -25,11 +25,14 @@
 
 package it.geosolutions.geoserver.rest.encoder;
 
+import org.jdom.Element;
+
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
 /**
  *
  * @author ETj (etj at geo-solutions.it)
+ * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GSWorkspaceEncoder extends PropertyXMLEncoder {
 
@@ -43,7 +46,15 @@ public class GSWorkspaceEncoder extends PropertyXMLEncoder {
     }
     
     public void setName(String name) {
-        setOrRemove("name", name);
+        add("name", name);
+    }
+    
+    public String getName(){
+    	final Element el=get("name");
+    	if (el!=null)
+    		return el.getName();
+    	else
+    		return "";
     }
 
 }

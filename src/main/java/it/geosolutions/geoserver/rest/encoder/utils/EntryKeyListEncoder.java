@@ -25,13 +25,14 @@
 
 package it.geosolutions.geoserver.rest.encoder.utils;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
+
 import org.jdom.Element;
 
 /**
- * Encodes lists of entries with key attribute.
- * <br/>e.g.:
+ * Encodes lists of entries with key attribute. <br/>
+ * e.g.:
+ * 
  * <PRE>
  * {@code 
  *  <listName>
@@ -39,34 +40,71 @@ import org.jdom.Element;
  *   <entry key="k2">val2</entry>
  *   <entry key="k3">val3</entry>
  * </listName>}
+ * 
  * <PRE>
- *
+ * 
+ * This can be also used in compounded to the PropertyXMLEncoder 
+ * or other objects overriding the toString() method
+ * <br/>
+ * e.g.:
+ * 
+ * <PRE>
+ * {@code 
+ * <listName>
+ *  <entry key="time">
+ *   	<dimensionInfo>
+ * 			<enabled>false</enabled>
+ * 		</dimensionInfo>
+ * 	</entry>
+ * 	<entry key="elevation">
+ * 		<dimensionInfo>
+ * 			<enabled>true</enabled>
+ * 			<attribute>ele</attribute>
+ * 			<presentation>LIST</presentation>
+ * 		</dimensionInfo>
+ * 	</entry>
+ * </listName>}
+ * 
+ * <PRE>
+ * 
  * @author ETj (etj at geo-solutions.it)
+ * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * 
  */
-public class EntryKeyListEncoder {
+public class EntryKeyListEncoder <T> extends XMLSerializer{
 
-    private Map<String, String> metadata = new LinkedHashMap<String, String>();
-    private final String listName;
+	private final Element root;
+	
+	public EntryKeyListEncoder(String listName) {
+		root=new Element(listName);
+	}
 
-    public EntryKeyListEncoder(String listName) {
-        this.listName = listName;
-    }
-    
-    public void add(String key, String value) {
-        metadata.put(key, value);
-    }
+	public void add(String key, T value) {
+		final Element entryElem = new Element("entry");
+		entryElem.setAttribute("key", key);
+		if (value instanceof String)
+			entryElem.setText((String)value);
+		else if (value instanceof Element)
+			entryElem.addContent((Element)value);
+		else if (value instanceof GSDimensionInfoEncoder)
+			entryElem.addContent(((GSDimensionInfoEncoder)value).getElement());
+		else
+			throw new IllegalArgumentException("Unable to add entry: unrecognized object");
+		
+		root.addContent(entryElem);
+	}
+	
 
-    public void attachList(Element e) {
-        
-        if( ! metadata.isEmpty() ) {
-            Element md = new Element(listName);
-            for (Map.Entry<String, String> entry : metadata.entrySet()) {
-                Element entryeElem = new Element("entry")
-                                    .setAttribute("key", entry.getKey())
-                                    .setText(entry.getValue());
-                md.addContent(entryeElem);
-            }
-            e.addContent(md);
-        }
-    }
+	/**
+     * add a node to the root
+     * 
+     * @param el the node to add
+     */
+	public void addContent(final Element el){
+		root.addContent(el);
+	}
+	
+	public Element getElement() {
+			return root;
+	}
 }

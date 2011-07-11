@@ -25,11 +25,7 @@
 
 package it.geosolutions.geoserver.rest.encoder.utils;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 
 /**
  * Creates an XML document by mapping properties to XML nodes.<br/>
@@ -44,47 +40,57 @@ import org.jdom.output.XMLOutputter;
  * <PRE> {@code        <k1><k2><k3>value</k3></k2></k1> }</pre>
  * 
  * @author ETj (etj at geo-solutions.it)
+ * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
-public class PropertyXMLEncoder {
+public class PropertyXMLEncoder extends XMLSerializer{
 
-    private final static XMLOutputter OUTPUTTER = new XMLOutputter(Format.getCompactFormat());
-    private final Map<String, String> configElements = new HashMap<String, String>();
-    private final String rootName;
+//    private final Map<String, String> configElements = new HashMap<String, String>();
+    private final Element root;
 
-    public PropertyXMLEncoder(String rootName) {
-        this.rootName = rootName;
+    public PropertyXMLEncoder(final String rootName) {
+    	root=new Element(rootName);
     }
-        
+    
+    /**
+     * add a node (as child) to the root node
+     * 
+     * @param el the node to add
+     */
+    @Override
+    public void addContent(final Element el){
+    	root.addContent(el);
+    }
+    
+    /**
+     * @Deprecated use add()
+     */
+    @Deprecated
     protected void setOrRemove(String key, String value) {
-        if (value != null) {
-            configElements.put(key, value);
+    	final Element e=root.getChild(key);
+        if (value != null && e==null) {
+            add(root, key, value);
         } else {
-            configElements.remove(key);
+            root.removeChild(key);
         }
     }
-
-    protected void set(String key, String value) {
-        setOrRemove(key, value);
+    
+    protected void add(String key, String value) {
+    	final Element e=root.getChild(key);
+        if (value != null && e==null) {
+            add(root, key, value);
+        }
     }
 
     public boolean isEmpty() {
-        return configElements.isEmpty();
+//        return configElements.isEmpty();
+        return root.getChildren().isEmpty();
     }
 
-    /**
-     * @return an xml document representing the stored properties.
-     */
-    public String encodeXml() {
-
-        Element root = new Element(rootName);
-        for (String key : configElements.keySet()) {
-            final String value = configElements.get(key);
-            add(root, key, value);
-        }
-
-        addNodesBeforeOutput(root);
-        return OUTPUTTER.outputString(root);
+    public Element get(final String key){
+    	return root.getChild(key);
+//    	return configElements.get(key);
     }
+
 
     /**
      * Subclasses may need to override this method if some more info in the XML
@@ -92,10 +98,11 @@ public class PropertyXMLEncoder {
      * 
      * @param root the root element that will be converted into String by encodeXml 
      */
-    protected void addNodesBeforeOutput(Element root) {
-        // nothing to do, just override when needed.
+    @Override
+	public Element getElement(){
+    	return root;
     }
-    
+
     private void add(Element e, String key, String value) {
         if( ! key.contains("/") ) {
             e.addContent(new Element(key).setText(value));
@@ -114,4 +121,6 @@ public class PropertyXMLEncoder {
         }
 
     }
+
+
 }

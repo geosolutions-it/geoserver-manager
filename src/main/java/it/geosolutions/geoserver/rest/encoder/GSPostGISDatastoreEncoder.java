@@ -27,7 +27,6 @@ package it.geosolutions.geoserver.rest.encoder;
 
 import it.geosolutions.geoserver.rest.encoder.utils.EntryKeyListEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
-import org.jdom.Element;
 
 /**
  * Geoserver datastore XML encoder.
@@ -37,7 +36,7 @@ import org.jdom.Element;
  */
 public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
 
-    private EntryKeyListEncoder connectionParameters = new EntryKeyListEncoder("connectionParameters");
+    private EntryKeyListEncoder<String> connectionParameters = new EntryKeyListEncoder<String>("connectionParameters");
 
 
     public GSPostGISDatastoreEncoder() {
@@ -70,19 +69,19 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     }
 
     public void setName(String name) {
-        setOrRemove("name", name);
+        add("name", name);
     }
 
     public void setDescription(String description) {
-        setOrRemove("description", description);
+        add("description", description);
     }
 
     public void setType(String type) {
-        setOrRemove("type", type);
+        add("type", type);
     }
 
     public void setEnabled(boolean enabled) {
-        setOrRemove("enabled", Boolean.toString(enabled));
+        add("enabled", Boolean.toString(enabled));
     }
     
     public void setNamespace(String namespace) {
@@ -159,12 +158,6 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     
     public void setMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
     	connectionParameters.add("Max open prepared statements", Integer.toString(maxOpenPreparedStatements));
-    }
-
-    @Override
-    protected void addNodesBeforeOutput(Element e) {
-        super.addNodesBeforeOutput(e);
-        connectionParameters.attachList(e);
     }
 
 }

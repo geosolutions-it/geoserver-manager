@@ -23,44 +23,18 @@
  * THE SOFTWARE.
  */
 
-package it.geosolutions.geoserver.rest.encoder.utils;
+package it.geosolutions.geoserver.rest.encoder.feature;
 
-import org.jdom.Element;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 
 /**
- * Encodes lists of simple text nodes.
- * <br/>e.g.:
- * <PRE>
- * {@code 
- *  <parentnodename>
- *   <nodename1>nodetext1</nodename1>
- *   <nodename2>nodetext2</nodename2>
- *   <nodename3>nodetext3</nodename3>
- * </parentnodename>}
- * <PRE>
- * 
+ *
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
-public class TextNodeListEncoder extends XMLSerializer{
+public class GSFeatureTypeEncoder extends GSResourceEncoder<GSFeatureDimensionInfoEncoder> {
 
-    private final Element root;
-    public TextNodeListEncoder(String listName) {
-    	root=new Element(listName);
-    }   
-                    
-    public void add(String nodename, String nodetext) {
-    	final Element el=new Element(nodename);
-    	el.setText(nodetext);
-    	root.addContent(el);
+    public GSFeatureTypeEncoder() {
+        super("featureType");
     }
-
-    public Element getElement() {
-        return root;
-    }
-    
-    public void addContent(final Element el){
-		root.addContent(el);
-	}
-
 }

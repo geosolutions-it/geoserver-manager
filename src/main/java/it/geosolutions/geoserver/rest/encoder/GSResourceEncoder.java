@@ -25,27 +25,83 @@
 
 package it.geosolutions.geoserver.rest.encoder;
 
+import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSMetadataEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.TextNodeListEncoder;
 
 /**
- *
+ * 
  * @author ETj (etj at geo-solutions.it)
+ * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
-public abstract class GSResourceEncoder extends PropertyXMLEncoder {
+public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder> extends PropertyXMLEncoder {
+	
+	final private GSMetadataEncoder<T> metadata=new GSMetadataEncoder<T>();
+	
 
-    protected GSResourceEncoder(String rootName) {
-        super(rootName);
-    }
-    
-    public void setSRS(String srs) {
-        setOrRemove("srs", srs);
-    }  
+	public void addMetadata(String key, T dimensionInfo) {
+		metadata.add(key, dimensionInfo);
+	}
 
-    public void setLatLonBoundingBox(double minx, double maxy, double maxx, double miny, String crs) {
-        setOrRemove("latLonBoundingBox/minx", String.valueOf(minx));
-        setOrRemove("latLonBoundingBox/maxy", String.valueOf(maxy));
-        setOrRemove("latLonBoundingBox/maxx", String.valueOf(maxx));
-        setOrRemove("latLonBoundingBox/miny", String.valueOf(miny));
-        setOrRemove("latLonBoundingBox/crs", crs);
+	private TextNodeListEncoder keywordsListEncoder = new TextNodeListEncoder("keywords");
+
+	/**
+	 * NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED
+	 */
+	public enum ProjectionPolicy {
+		REPROJECT_TO_DECLARED, FORCE_DECLARED, NONE
+	}
+	
+	protected GSResourceEncoder(final String rootName) {
+		super(rootName);
+		add("enabled", "true");
+
+        // Link members to the parent
+		addContent(metadata.getElement());
+		addContent(keywordsListEncoder.getElement());
+	}
+	
+	public void setName(final String name) {
+		add("name", name);
     }
+	
+	public void setTitle(final String title) {
+		add("title", title);
+    }
+
+	public void setSRS(final String srs) {
+		add("srs", srs);
+	}
+
+	public void setLatLonBoundingBox(double minx, double maxy, double maxx,
+			double miny, final String crs) {
+		add("latLonBoundingBox/minx", String.valueOf(minx));
+		add("latLonBoundingBox/maxy", String.valueOf(maxy));
+		add("latLonBoundingBox/maxx", String.valueOf(maxx));
+		add("latLonBoundingBox/miny", String.valueOf(miny));
+		add("latLonBoundingBox/crs", crs);
+	}
+
+	public void setNativeBoundingBox(double minx, double maxy, double maxx,
+			double miny, final String crs) {
+		add("nativeBoundingBox/minx", String.valueOf(minx));
+		add("nativeBoundingBox/maxy", String.valueOf(maxy));
+		add("nativeBoundingBox/maxx", String.valueOf(maxx));
+		add("nativeBoundingBox/miny", String.valueOf(miny));
+		add("nativeBoundingBox/crs", crs);
+	}
+
+	/**
+	 * NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED
+	 */
+	public void setProjectionPolicy(ProjectionPolicy policy) {
+		add("projectionPolicy", policy.toString());
+	}
+
+
+	public void addKeyword(String keyword) {
+		keywordsListEncoder.add("string", keyword);
+	}
+
 }

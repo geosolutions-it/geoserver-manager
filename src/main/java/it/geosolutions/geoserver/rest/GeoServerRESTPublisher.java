@@ -26,11 +26,11 @@ package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageList;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
-import it.geosolutions.geoserver.rest.encoder.GSCoverageEncoder;
-import it.geosolutions.geoserver.rest.encoder.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
+import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
+import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -88,7 +88,7 @@ public class GeoServerRESTPublisher {
     public boolean createWorkspace(String workspace) {
         String sUrl = restURL + "/rest/workspaces";
         GSWorkspaceEncoder wsenc = new GSWorkspaceEncoder(workspace);
-        String wsxml = wsenc.encodeXml();
+        String wsxml = wsenc.toString();
         String result = HTTPUtils.postXml(sUrl, wsxml, gsuser, gspass);
         return result != null;
     }
@@ -176,7 +176,7 @@ public class GeoServerRESTPublisher {
      */
     public boolean createPostGISDatastore(String workspace, GSPostGISDatastoreEncoder datastoreEncoder) {          
         String sUrl = restURL + "/rest/workspaces/" + workspace + "/datastores/";
-        String xml = datastoreEncoder.encodeXml();
+        String xml = datastoreEncoder.toString();
         String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
         return result != null;
     }
@@ -270,7 +270,7 @@ public class GeoServerRESTPublisher {
             fte.setName(layername);
             fte.setSRS(srs);
 
-            String configuredResult = HTTPUtils.putXml(postUrl.toString(), fte.encodeXml(), this.gsuser, this.gspass);
+            String configuredResult = HTTPUtils.putXml(postUrl.toString(), fte.toString(), this.gsuser, this.gspass);
             boolean shpConfigured = configuredResult != null;
 
             if (!shpConfigured) {
@@ -310,7 +310,7 @@ public class GeoServerRESTPublisher {
         GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
         fte.setName(layername);
         fte.setSRS(srs); // srs=null?"EPSG:4326":srs);
-        String ftypeXml = fte.encodeXml();
+        String ftypeXml = fte.toString();
 
         String configuredResult = HTTPUtils.postXml(postUrl.toString(), ftypeXml, this.gsuser, this.gspass);
         boolean published = configuredResult != null;
@@ -498,14 +498,14 @@ public class GeoServerRESTPublisher {
             try {
 //              // retrieve coverage name
                 GeoServerRESTReader reader = new GeoServerRESTReader(restURL, gsuser, gspass);
-                RESTCoverageList covList = reader.getCoverages(workspace, storeName);
+                RESTCoverageList covList = reader.getCoverages(store.getWorkspaceName(), storeName);
                 if (covList.isEmpty()) {
                     LOGGER.error("No coverages found in new coveragestore " + storeName);
                     return null;
                 }
                 String coverageName = covList.get(0).getName();
 
-                configureCoverage(coverageEncoder, workspace, storeName, coverageName);
+                configureCoverage(coverageEncoder, store.getWorkspaceName(), storeName, coverageName);
                 configureLayer(layerEncoder, storeName);
 
             } catch (Exception e) {
@@ -709,7 +709,7 @@ public class GeoServerRESTPublisher {
 
         final String url = restURL + "/rest/layers/" + layerName;
 
-        String layerXml = layer.encodeXml();
+        String layerXml = layer.toString();
         String sendResult = HTTPUtils.putXml(url, layerXml, gsuser, gspass);
         if (sendResult != null) {
             if (LOGGER.isInfoEnabled()) {
@@ -730,7 +730,7 @@ public class GeoServerRESTPublisher {
 
         final String url = restURL + "/rest/workspaces/" + wsname + "/coveragestores/" + csname + "/coverages/" + cname + ".xml";
 
-        String xmlBody = ce.encodeXml();
+        String xmlBody = ce.toString();
         String sendResult = HTTPUtils.putXml(url, xmlBody, gsuser, gspass);
         if (sendResult != null) {
             if (LOGGER.isDebugEnabled()) {

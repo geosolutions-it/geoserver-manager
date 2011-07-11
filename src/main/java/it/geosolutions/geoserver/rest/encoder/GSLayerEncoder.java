@@ -35,15 +35,16 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
 
     public GSLayerEncoder() {
         super("layer");
-        set("enabled", "true");
+        // enable layer
+        add("enabled","true");
     }
     
-    public void setWmsPath(String wmspath) {
-        setOrRemove("wmspath", wmspath);
-    }
+//    public void setWmsPath(String wmspath) {
+//        add("wmspath", wmspath);
+//    }
 
     public void setDefaultStyle(String defaultStyle) {
-        setOrRemove("defaultStyle", defaultStyle);
+        add("defaultStyle", defaultStyle);
     }
 
 }
