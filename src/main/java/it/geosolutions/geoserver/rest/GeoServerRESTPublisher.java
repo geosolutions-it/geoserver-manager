@@ -38,6 +38,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -217,7 +218,7 @@ public class GeoServerRESTPublisher {
 
             try {
                 GSLayerEncoder layerEncoder = new GSLayerEncoder();
-                layerEncoder.setDefaultStyle(defaultStyle);
+                layerEncoder.addDefaultStyle(defaultStyle);
                 configureLayer(layerEncoder, layerName);
             } catch (Exception e) {
                 LOGGER.warn("Error in publishing shapefile " + e.getMessage(), e);
@@ -267,8 +268,8 @@ public class GeoServerRESTPublisher {
                     .append("/featuretypes/").append(layername);
 
             GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
-            fte.setName(layername);
-            fte.setSRS(srs);
+            fte.addName(layername);
+            fte.addSRS(srs);
 
             String configuredResult = HTTPUtils.putXml(postUrl.toString(), fte.toString(), this.gsuser, this.gspass);
             boolean shpConfigured = configuredResult != null;
@@ -308,8 +309,8 @@ public class GeoServerRESTPublisher {
                 .append("/featuretypes");
 
         GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
-        fte.setName(layername);
-        fte.setSRS(srs); // srs=null?"EPSG:4326":srs);
+        fte.addName(layername);
+        fte.addSRS(srs); // srs=null?"EPSG:4326":srs);
         String ftypeXml = fte.toString();
 
         String configuredResult = HTTPUtils.postXml(postUrl.toString(), ftypeXml, this.gsuser, this.gspass);
@@ -323,7 +324,7 @@ public class GeoServerRESTPublisher {
             LOGGER.info("DB layer successfully added (layer:" + layername + ")");
 
             GSLayerEncoder layerEncoder = new GSLayerEncoder();
-            layerEncoder.setDefaultStyle(defaultStyle);
+            layerEncoder.addDefaultStyle(defaultStyle);
             configured = configureLayer(layerEncoder, layername);
 
             if (!configured) {
@@ -385,16 +386,17 @@ public class GeoServerRESTPublisher {
                     LOGGER.error("No coverages found in new coveragestore " + storeName);
                     return null;
                 }
-                String coverageName = covList.get(0).getName();
+                final String coverageName = covList.get(0).getName();
 
                 // config coverage props (srs)
                 GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
-                coverageEncoder.setSRS(srs);
+                coverageEncoder.addName(FilenameUtils.getBaseName(geotiff.getName()));
+                coverageEncoder.addSRS(srs);
                 configureCoverage(coverageEncoder, workspace, storeName, coverageName);
 
                 // config layer props (style, ...)
                 GSLayerEncoder layerEncoder = new GSLayerEncoder();
-                layerEncoder.setDefaultStyle(defaultStyle);
+                layerEncoder.addDefaultStyle(defaultStyle);
                 configureLayer(layerEncoder, coverageName);
 
             } catch (Exception e) {
@@ -452,10 +454,10 @@ public class GeoServerRESTPublisher {
      */
     public RESTCoverageStore publishExternalMosaic(String workspace, String storeName, File mosaicDir, String srs, String defaultStyle) throws FileNotFoundException {
         GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
-        coverageEncoder.setSRS(srs);
-
+        coverageEncoder.addSRS(srs);
+        coverageEncoder.addName(FilenameUtils.getBaseName(mosaicDir.getName()));
         GSLayerEncoder layerEncoder = new GSLayerEncoder();
-        layerEncoder.setDefaultStyle(defaultStyle);
+        layerEncoder.addDefaultStyle(defaultStyle);
 
         return publishExternalMosaic(workspace, storeName, mosaicDir, coverageEncoder, layerEncoder);
     }
@@ -754,6 +756,11 @@ public class GeoServerRESTPublisher {
     }
 
     protected String encode(String s) {
-        return URLEncoder.encode(s);
+//        try {
+//			return URLEncoder.encode(s,"UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			LOGGER.warn("Error encoding :"+s+" with UTF-8: "+e.getLocalizedMessage());
+			return URLEncoder.encode(s);
+//		}
     }
 }

@@ -42,15 +42,15 @@ public class GSWorkspaceEncoder extends PropertyXMLEncoder {
 
     public GSWorkspaceEncoder(String name) {
         this();
-        setName(name);
+        addName(name);
     }
     
-    public void setName(String name) {
+    public void addName(String name) {
         add("name", name);
     }
     
     public String getName(){
-    	final Element el=get("name");
+    	final Element el=contains("name");
     	if (el!=null)
     		return el.getName();
     	else

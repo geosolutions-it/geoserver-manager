@@ -17,11 +17,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package it.geosolutions.geoserver.rest.encoder.utils;
+package it.geosolutions.geoserver.rest.encoder.feature;
 
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.DiscretePresentation;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
 
 import java.math.BigDecimal;
 
@@ -48,7 +48,7 @@ public class GSFeatureEncoderTest extends TestCase {
 		feature.addKeyword("KEYWORD_N");
 		GSFeatureDimensionInfoEncoder dim2 = new GSFeatureDimensionInfoEncoder(
 				"ELE");
-		dim2.setPresentation(DiscretePresentation.DISCRETE_INTERVAL,
+		dim2.addPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
 				BigDecimal.valueOf(10));
 		feature.addMetadata("elevation", dim2);
 

@@ -36,13 +36,13 @@ public class EntryKeyListEncoderTest extends TestCase {
 
     @Test
     public void testAll() {
-        EntryKeyListEncoder ekle = new EntryKeyListEncoder("EKL");
+        NestedElementEncoder ekle = new NestedElementEncoder("EKL");
         ekle.add("k1", "v1");
         ekle.add("k2", "v2");
         ekle.add("k3", "v3");
 
         Element root = new Element("root");
-        root.addContent(ekle.getElement());
+        root.addContent(ekle);
 
         assertEquals(1, root.getChildren().size());
         assertNotNull(root.getChild("EKL"));
