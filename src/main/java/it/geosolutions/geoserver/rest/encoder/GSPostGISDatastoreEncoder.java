@@ -25,7 +25,7 @@
 
 package it.geosolutions.geoserver.rest.encoder;
 
-import it.geosolutions.geoserver.rest.encoder.utils.EntryKeyListEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
 /**
@@ -33,16 +33,17 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  *  
  * @author Eric Grosso
  * @author ETj
+ * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
 
-    private EntryKeyListEncoder<String> connectionParameters = new EntryKeyListEncoder<String>("connectionParameters");
+    private NestedElementEncoder<String> connectionParameters = new NestedElementEncoder<String>("connectionParameters");
 
 
     public GSPostGISDatastoreEncoder() {
         super("dataStore");
-        setType("PostGIS"); // may be overwritten with e.g. "PostGIS (JNDI)"
-        setDatabaseType("postgis");
+        addType("PostGIS"); // may be overwritten with e.g. "PostGIS (JNDI)"
+        addDatabaseType("postgis");
     }
     
     /**
@@ -59,104 +60,104 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
      * </ul>
      */
     public void defaultInit() {
-        setMinConnections(1);
-        setMaxConnections(10);
-        setFetchSize(1000);
-        setConnectionTimeout(20);
-        setLooseBBox(true);
-        setPreparedStatements(false);
-        setMaxOpenPreparedStatements(50);
+        addMinConnections(1);
+        addMaxConnections(10);
+        addFetchSize(1000);
+        addConnectionTimeout(20);
+        addLooseBBox(true);
+        addPreparedStatements(false);
+        addMaxOpenPreparedStatements(50);
     }
 
-    public void setName(String name) {
+    public void addName(String name) {
         add("name", name);
     }
 
-    public void setDescription(String description) {
+    public void addDescription(String description) {
         add("description", description);
     }
 
-    public void setType(String type) {
+    public void addType(String type) {
         add("type", type);
     }
 
-    public void setEnabled(boolean enabled) {
+    public void addEnabled(boolean enabled) {
         add("enabled", Boolean.toString(enabled));
     }
     
-    public void setNamespace(String namespace) {
+    public void addNamespace(String namespace) {
         connectionParameters.add("namespace", namespace);
     }
     
-    public void setHost(String host) {
+    public void addHost(String host) {
         connectionParameters.add("host", host);
     }
 
-    public void setPort(int port) {
+    public void addPort(int port) {
         connectionParameters.add("port", Integer.toString(port));
     }
 
-    public void setDatabase(String database) {
+    public void addDatabase(String database) {
         connectionParameters.add("database", database);
     }
 
-    public void setSchema(String schema) {
+    public void addSchema(String schema) {
         connectionParameters.add("schema", schema);
     }
 
-    public void setUser(String user) {
+    public void addUser(String user) {
         connectionParameters.add("user", user);
     }
 
-    public void setPassword(String password) {
+    public void addPassword(String password) {
         connectionParameters.add("passwd", password);
     }
 
-    public void setDatabaseType(String dbtype) {
+    public void addDatabaseType(String dbtype) {
         connectionParameters.add("dbtype", dbtype);
     }
 
-    public void setJndiReferenceName(String jndiReferenceName) {
+    public void addJndiReferenceName(String jndiReferenceName) {
         connectionParameters.add("jndiReferenceName", jndiReferenceName);
     }
 
-    public void setExposePrimaryKeys(boolean exposePrimaryKeys) {
+    public void addExposePrimaryKeys(boolean exposePrimaryKeys) {
     	connectionParameters.add("Expose primary keys", Boolean.toString(exposePrimaryKeys));
     }
     
-    public void setMaxConnections(int maxConnections) {
+    public void addMaxConnections(int maxConnections) {
     	connectionParameters.add("max connections", Integer.toString(maxConnections));
     }
     
-    public void setMinConnections(int minConnections) {
+    public void addMinConnections(int minConnections) {
     	connectionParameters.add("min connections", Integer.toString(minConnections));
     }
     
-    public void setFetchSize(int fetchSize) {
+    public void addFetchSize(int fetchSize) {
     	connectionParameters.add("fetch size", Integer.toString(fetchSize));
     }
     
-    public void setConnectionTimeout(int seconds) {
+    public void addConnectionTimeout(int seconds) {
     	connectionParameters.add("Connection timeout", Integer.toString(seconds));
     }
     
-    public void setValidateConnections(boolean validateConnections) {
+    public void addValidateConnections(boolean validateConnections) {
     	connectionParameters.add("validate connections", Boolean.toString(validateConnections));
     }
     
-    public void setPrimaryKeyMetadataTable(String primaryKeyMetadataTable) {
+    public void addPrimaryKeyMetadataTable(String primaryKeyMetadataTable) {
     	connectionParameters.add("Primary key metadata table", primaryKeyMetadataTable);
     }
     
-    public void setLooseBBox(boolean looseBBox) {
+    public void addLooseBBox(boolean looseBBox) {
     	connectionParameters.add("Loose bbox", Boolean.toString(looseBBox));
     }
     
-    public void setPreparedStatements(boolean preparedStatements) {
+    public void addPreparedStatements(boolean preparedStatements) {
     	connectionParameters.add("preparedStatements", Boolean.toString(preparedStatements));
     }
     
-    public void setMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
+    public void addMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
     	connectionParameters.add("Max open prepared statements", Integer.toString(maxOpenPreparedStatements));
     }
 

@@ -39,73 +39,9 @@ import org.jdom.Element;
  * 
  */
 public class GSCoverageEncoder extends GSResourceEncoder<GSDimensionInfoEncoder> {
-
-	
-	final private Element parameters=new Element("parameters");
     
 	public GSCoverageEncoder() {
         super("coverage");
-        // Link members to the parent
-		addContent(parameters);
-	}
-
-	
-	/**
-	 * @param val
-	 */
-	public void setAllowMultithreading(final boolean val){
-		final Element param=new Element("entry");
-		param.addContent(new Element("string").setText("AllowMultithreading"));
-		param.addContent(new Element("string").setText((val)?"true":"false"));
-		parameters.addContent(param);
 	}
 	
-	public void setFilter(final String val){
-		final Element param=new Element("entry");
-		param.addContent(new Element("string").setText("Filter"));
-		param.addContent(new Element("string").setText(val));
-		parameters.addContent(param);
-	}
-	
-	public void setMaxAllowedTiles(final int val){
-		final Element param=new Element("entry");
-		param.addContent(new Element("string").setText("MaxAllowedTiles"));
-		param.addContent(new Element("string").setText(String.valueOf(val)));
-		parameters.addContent(param);
-	}
-	
-	public void setInputTransparentColor(final String val){
-		final Element param=new Element("entry");
-		param.addContent(new Element("string").setText("InputTransparentColor"));
-		param.addContent(new Element("string").setText(val));
-		parameters.addContent(param);
-	}
-	
-	public void setOutputTransparentColor(final String val){
-		final Element param=new Element("entry");
-		param.addContent(new Element("string").setText("OutputTransparentColor"));
-		param.addContent(new Element("string").setText(val));
-		parameters.addContent(param);
-	}
-	
-	public void setSUGGESTED_TILE_SIZE(final String val){
-		final Element param=new Element("entry");
-		param.addContent(new Element("string").setText("SUGGESTED_TILE_SIZE"));
-		param.addContent(new Element("string").setText(val));
-		parameters.addContent(param);
-	}
-	
-	public void setUSE_JAI_IMAGEREAD(final boolean val){
-		final Element param=new Element("entry");
-		param.addContent(new Element("string").setText("USE_JAI_IMAGEREAD"));
-		param.addContent(new Element("string").setText((val)?"true":"false"));
-		parameters.addContent(param);
-	}
-	
-	public void setBackgroundValues(final String val){
-		final Element param=new Element("entry");
-		param.addContent(new Element("string").setText("BackgroundValues"));
-		param.addContent(new Element("string").setText(val));
-		parameters.addContent(param);
-	}
 }

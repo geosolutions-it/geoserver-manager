@@ -29,6 +29,8 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 
 /**
  *
+ * Encode a GeoServer resource as FeatureType 
+ *
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */

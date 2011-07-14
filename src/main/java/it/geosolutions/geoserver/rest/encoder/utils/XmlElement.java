@@ -25,42 +25,55 @@
 
 package it.geosolutions.geoserver.rest.encoder.utils;
 
+
 import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 /**
- * Encodes lists of simple text nodes.
- * <br/>e.g.:
- * <PRE>
- * {@code 
- *  <parentnodename>
- *   <nodename1>nodetext1</nodename1>
- *   <nodename2>nodetext2</nodename2>
- *   <nodename3>nodetext3</nodename3>
- * </parentnodename>}
- * <PRE>
  * 
- * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ *
  */
-public class TextNodeListEncoder extends XMLSerializer{
-
-    private final Element root;
-    public TextNodeListEncoder(String listName) {
-    	root=new Element(listName);
-    }   
-                    
-    public void add(String nodename, String nodetext) {
-    	final Element el=new Element(nodename);
-    	el.setText(nodetext);
-    	root.addContent(el);
-    }
-
-    public Element getElement() {
-        return root;
-    }
-    
-    public void addContent(final Element el){
-		root.addContent(el);
+public abstract class XmlElement extends Element {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private final static XMLOutputter OUTPUTTER = new XMLOutputter(Format.getCompactFormat());
+	
+	public XmlElement(final String name){
+		super(name);
 	}
-
+	
+	private XmlElement(){};
+	
+	public boolean isEmpty() {
+        return getChildren().isEmpty();
+    }
+	
+	public boolean remove(final Element el){
+		return ElementUtils.remove(this,el);
+	}
+	
+	public Element contains(final Element el){
+		return ElementUtils.contains(this,el);
+	}
+	
+	public Element contains(final String key, final String val){
+		return ElementUtils.contains(this,key,val);
+	}
+	
+	public Element contains(final String key){
+		return ElementUtils.contains(this,key);
+	}
+	
+	/**
+     * @return an xml String 
+     */
+    @Override
+    public String toString() {
+		return OUTPUTTER.outputString(this);
+    }
 }

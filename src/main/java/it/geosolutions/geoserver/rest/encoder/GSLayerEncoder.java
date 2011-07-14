@@ -30,6 +30,8 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 /**
  *
  * @author ETj (etj at geo-solutions.it)
+ * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * 
  */
 public class GSLayerEncoder extends PropertyXMLEncoder {
 
@@ -38,12 +40,8 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
         // enable layer
         add("enabled","true");
     }
-    
-//    public void setWmsPath(String wmspath) {
-//        add("wmspath", wmspath);
-//    }
 
-    public void setDefaultStyle(String defaultStyle) {
+    public void addDefaultStyle(String defaultStyle) {
         add("defaultStyle", defaultStyle);
     }
 

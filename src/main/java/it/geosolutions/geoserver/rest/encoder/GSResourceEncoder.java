@@ -25,26 +25,55 @@
 
 package it.geosolutions.geoserver.rest.encoder;
 
+import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
+import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSMetadataEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
-import it.geosolutions.geoserver.rest.encoder.utils.TextNodeListEncoder;
+
+import org.jdom.Element;
 
 /**
+ * 
+ * Encode a GeoServer resouce.
+ * The <T> type regards the GDSDimensionInfoEncoder metadata Type which has
+ * different specialization for Features.
+ * 
+ *  @see GSDimensionInfoEncoder
+ *  @see GSFeatureDimensionInfoEncoder
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder> extends PropertyXMLEncoder {
 	
+	/**
+	 * @param rootName Actually 'feature' or 'coverage'
+	 * @see GSFeatureTypeEncoder
+	 * @see GSCoverageEncoder
+	 */
+	protected GSResourceEncoder(final String rootName) {
+		super(rootName);
+		add("enabled", "true");
+
+        // Link members to the parent
+		addContent(metadata);
+		addContent(keywordsListEncoder);
+	}
+	
 	final private GSMetadataEncoder<T> metadata=new GSMetadataEncoder<T>();
 	
-
 	public void addMetadata(String key, T dimensionInfo) {
 		metadata.add(key, dimensionInfo);
 	}
 
-	private TextNodeListEncoder keywordsListEncoder = new TextNodeListEncoder("keywords");
+	final private Element keywordsListEncoder = new Element("keywords");
+	
+	public void addKeyword(String keyword) {
+		final Element el=new Element("string");
+		el.setText(keyword);
+		keywordsListEncoder.addContent(el);
+	}
 
 	/**
 	 * NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED
@@ -52,29 +81,32 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder> extend
 	public enum ProjectionPolicy {
 		REPROJECT_TO_DECLARED, FORCE_DECLARED, NONE
 	}
-	
-	protected GSResourceEncoder(final String rootName) {
-		super(rootName);
-		add("enabled", "true");
 
-        // Link members to the parent
-		addContent(metadata.getElement());
-		addContent(keywordsListEncoder.getElement());
+	/**
+	 * NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED
+	 */
+	public void addProjectionPolicy(ProjectionPolicy policy) {
+		add("projectionPolicy", policy.toString());
 	}
 	
-	public void setName(final String name) {
+	/**
+	 * Add the 'name' node with a text value from 'name'
+	 * @note REQUIRED to configure a resource
+	 * 
+	 */
+	public void addName(final String name) {
 		add("name", name);
     }
 	
-	public void setTitle(final String title) {
+	public void addTitle(final String title) {
 		add("title", title);
     }
 
-	public void setSRS(final String srs) {
+	public void addSRS(final String srs) {
 		add("srs", srs);
 	}
 
-	public void setLatLonBoundingBox(double minx, double maxy, double maxx,
+	public void addLatLonBoundingBox(double minx, double maxy, double maxx,
 			double miny, final String crs) {
 		add("latLonBoundingBox/minx", String.valueOf(minx));
 		add("latLonBoundingBox/maxy", String.valueOf(maxy));
@@ -83,7 +115,7 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder> extend
 		add("latLonBoundingBox/crs", crs);
 	}
 
-	public void setNativeBoundingBox(double minx, double maxy, double maxx,
+	public void addNativeBoundingBox(double minx, double maxy, double maxx,
 			double miny, final String crs) {
 		add("nativeBoundingBox/minx", String.valueOf(minx));
 		add("nativeBoundingBox/maxy", String.valueOf(maxy));
@@ -92,16 +124,5 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder> extend
 		add("nativeBoundingBox/crs", crs);
 	}
 
-	/**
-	 * NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED
-	 */
-	public void setProjectionPolicy(ProjectionPolicy policy) {
-		add("projectionPolicy", policy.toString());
-	}
-
-
-	public void addKeyword(String keyword) {
-		keywordsListEncoder.add("string", keyword);
-	}
 
 }

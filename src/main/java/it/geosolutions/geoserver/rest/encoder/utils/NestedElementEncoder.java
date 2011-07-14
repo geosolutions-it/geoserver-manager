@@ -25,8 +25,6 @@
 
 package it.geosolutions.geoserver.rest.encoder.utils;
 
-import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
-
 import org.jdom.Element;
 
 /**
@@ -43,9 +41,7 @@ import org.jdom.Element;
  * 
  * <PRE>
  * 
- * This can be also used in compounded to the PropertyXMLEncoder 
- * or other objects overriding the toString() method
- * <br/>
+ * This can be also add compounded Elements <br/>
  * e.g.:
  * 
  * <PRE>
@@ -71,40 +67,26 @@ import org.jdom.Element;
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  * 
  */
-public class EntryKeyListEncoder <T> extends XMLSerializer{
+public class NestedElementEncoder<T> extends XmlElement {
 
-	private final Element root;
-	
-	public EntryKeyListEncoder(String listName) {
-		root=new Element(listName);
+	public NestedElementEncoder(String listName) {
+		super(listName);
 	}
 
 	public void add(String key, T value) {
 		final Element entryElem = new Element("entry");
-		entryElem.setAttribute("key", key);
-		if (value instanceof String)
-			entryElem.setText((String)value);
-		else if (value instanceof Element)
-			entryElem.addContent((Element)value);
-		else if (value instanceof GSDimensionInfoEncoder)
-			entryElem.addContent(((GSDimensionInfoEncoder)value).getElement());
-		else
-			throw new IllegalArgumentException("Unable to add entry: unrecognized object");
-		
-		root.addContent(entryElem);
-	}
-	
+		if (key != null)
+			entryElem.setAttribute("key", key);
 
-	/**
-     * add a node to the root
-     * 
-     * @param el the node to add
-     */
-	public void addContent(final Element el){
-		root.addContent(el);
+		if (value instanceof String)
+			entryElem.setText((String) value);
+		else if (value instanceof Element)
+			entryElem.addContent((Element) value);
+		else
+			throw new IllegalArgumentException(
+					"Unable to add entry: unrecognized object");
+
+		this.addContent(entryElem);
 	}
-	
-	public Element getElement() {
-			return root;
-	}
+
 }
