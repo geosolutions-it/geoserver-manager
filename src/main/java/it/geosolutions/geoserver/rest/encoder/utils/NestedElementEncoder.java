@@ -67,26 +67,30 @@ import org.jdom.Element;
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  * 
  */
-public class NestedElementEncoder<T> extends XmlElement {
+public class NestedElementEncoder extends XmlElement {
 
 	public NestedElementEncoder(String listName) {
 		super(listName);
 	}
 
-	public void add(String key, T value) {
+	public void add(String key, String value) {
+		final Element entryElem = new Element("entry");
+
+		if (key != null)
+			entryElem.setAttribute("key", key);
+
+		entryElem.setText(value);
+		
+		this.addContent(entryElem);
+	}
+	
+	public void add(String key, Element value) {
 		final Element entryElem = new Element("entry");
 		if (key != null)
 			entryElem.setAttribute("key", key);
 
-		if (value instanceof String)
-			entryElem.setText((String) value);
-		else if (value instanceof Element)
-			entryElem.addContent((Element) value);
-		else
-			throw new IllegalArgumentException(
-					"Unable to add entry: unrecognized object");
+		entryElem.addContent(value);
 
 		this.addContent(entryElem);
 	}
-
 }

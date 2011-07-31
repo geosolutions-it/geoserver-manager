@@ -59,7 +59,7 @@ public class PropertyXMLEncoder extends XmlElement {
 
 	protected void add(String key, String value) {
 		if (key != null && value != null) {
-			add(this, key, value);
+			add(this.getRoot(), key, value);
 		}
 	}
 

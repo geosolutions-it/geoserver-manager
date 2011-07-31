@@ -26,6 +26,7 @@
 package it.geosolutions.geoserver.rest.encoder.utils;
 
 
+import org.jdom.Content;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -35,7 +36,10 @@ import org.jdom.output.XMLOutputter;
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  *
  */
-public abstract class XmlElement extends Element {
+public class XmlElement{
+	
+	private final Element root;
+	
 	/**
 	 * 
 	 */
@@ -44,29 +48,38 @@ public abstract class XmlElement extends Element {
 	private final static XMLOutputter OUTPUTTER = new XMLOutputter(Format.getCompactFormat());
 	
 	public XmlElement(final String name){
-		super(name);
+		root=new Element(name);
 	}
 	
-	private XmlElement(){};
+	public Element getRoot(){
+		return root;
+	}
+	
+	private XmlElement(){root=null;};
+	
+
+	public Element addContent(Content child){
+		return root.addContent(child);
+	}
 	
 	public boolean isEmpty() {
-        return getChildren().isEmpty();
+        return root.getChildren().isEmpty();
     }
 	
 	public boolean remove(final Element el){
-		return ElementUtils.remove(this,el);
+		return ElementUtils.remove(root,el);
 	}
 	
 	public Element contains(final Element el){
-		return ElementUtils.contains(this,el);
+		return ElementUtils.contains(root,el);
 	}
 	
 	public Element contains(final String key, final String val){
-		return ElementUtils.contains(this,key,val);
+		return ElementUtils.contains(root,key,val);
 	}
 	
 	public Element contains(final String key){
-		return ElementUtils.contains(this,key);
+		return ElementUtils.contains(root,key);
 	}
 	
 	/**
@@ -74,6 +87,6 @@ public abstract class XmlElement extends Element {
      */
     @Override
     public String toString() {
-		return OUTPUTTER.outputString(this);
+		return OUTPUTTER.outputString(root);
     }
 }
