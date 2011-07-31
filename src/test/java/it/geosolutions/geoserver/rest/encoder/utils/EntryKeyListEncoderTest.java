@@ -42,7 +42,7 @@ public class EntryKeyListEncoderTest extends TestCase {
         ekle.add("k3", "v3");
 
         Element root = new Element("root");
-        root.addContent(ekle);
+        root.addContent(ekle.getRoot());
 
         assertEquals(1, root.getChildren().size());
         assertNotNull(root.getChild("EKL"));

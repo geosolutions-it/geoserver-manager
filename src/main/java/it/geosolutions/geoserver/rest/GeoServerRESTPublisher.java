@@ -86,11 +86,11 @@ public class GeoServerRESTPublisher {
      *      http://$GSIP:$GSPORT/$SERVLET/rest/workspaces
      * }</PRE>
      */
-    public boolean createWorkspace(String workspace) {
-        String sUrl = restURL + "/rest/workspaces";
-        GSWorkspaceEncoder wsenc = new GSWorkspaceEncoder(workspace);
-        String wsxml = wsenc.toString();
-        String result = HTTPUtils.postXml(sUrl, wsxml, gsuser, gspass);
+    public boolean createWorkspace(final String workspace) {
+    	final String sUrl = restURL + "/rest/workspaces";
+        final GSWorkspaceEncoder wsenc = new GSWorkspaceEncoder(workspace);
+        final String wsxml = wsenc.toString();
+        final String result = HTTPUtils.postXml(sUrl, wsxml, gsuser, gspass);
         return result != null;
     }
 

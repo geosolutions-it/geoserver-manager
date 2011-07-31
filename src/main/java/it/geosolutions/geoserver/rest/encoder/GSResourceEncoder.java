@@ -57,14 +57,14 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder> extend
 		add("enabled", "true");
 
         // Link members to the parent
-		addContent(metadata);
+		addContent(metadata.getRoot());
 		addContent(keywordsListEncoder);
 	}
 	
 	final private GSMetadataEncoder<T> metadata=new GSMetadataEncoder<T>();
 	
 	public void addMetadata(String key, T dimensionInfo) {
-		metadata.add(key, dimensionInfo);
+		metadata.add(key, dimensionInfo.getRoot());
 	}
 
 	final private Element keywordsListEncoder = new Element("keywords");

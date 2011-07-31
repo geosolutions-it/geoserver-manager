@@ -37,7 +37,7 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  */
 public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
 
-    private NestedElementEncoder<String> connectionParameters = new NestedElementEncoder<String>("connectionParameters");
+    private NestedElementEncoder connectionParameters = new NestedElementEncoder("connectionParameters");
 
 
     public GSPostGISDatastoreEncoder() {

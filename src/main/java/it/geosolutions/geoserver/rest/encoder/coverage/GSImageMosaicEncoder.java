@@ -35,11 +35,11 @@ import org.jdom.Element;
  */
 public class GSImageMosaicEncoder extends GSCoverageEncoder {
 
-	final private NestedElementEncoder<Element> parameters=new NestedElementEncoder<Element>("parameters");
+	final private NestedElementEncoder parameters=new NestedElementEncoder("parameters");
 	
 	public GSImageMosaicEncoder() {
         // Link members to the parent
-		addContent(parameters);
+		addContent(parameters.getRoot());
 	}
 
 	/**
