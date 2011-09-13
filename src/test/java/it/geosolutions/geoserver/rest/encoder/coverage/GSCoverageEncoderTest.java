@@ -90,7 +90,8 @@ public class GSCoverageEncoderTest extends TestCase {
     	dim2.addPresentation(Presentation.LIST);
     	encoder.addMetadata("elev", dim2);
 
-    	LOGGER.info(encoder.toString());
+    	if (LOGGER.isInfoEnabled())
+    		LOGGER.info(encoder.toString());
     	
     	final Element el=encoder.contains("metadata");
     	Assert.assertNotNull(el);

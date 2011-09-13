@@ -56,28 +56,22 @@ public class PropertyXMLEncoder extends XmlElement {
 	public PropertyXMLEncoder(final String rootName) {
 		super(rootName);
 	}
-
-	protected void add(final String key, final String value) {
-		if (key != null && value != null) {
-			add(this.getRoot(), key, value);
-		}
-	}
 	
-	protected void set(final String key, final String value) {
-		set(getRoot(), key, value);
+	public void set(final String key, final String value) {
+		if (key != null && value != null) {
+			set(getRoot(), key, value);
+		}
 	}
 	
 	private void set(final Element e, final String key, final String value){
 		if (!key.contains("/")) {
-			if (key != null && value != null) {
 				Element pp = null;
 				if ((pp = contains(key)) == null)
-					add(key, value);
+					add(e,key, value);
 				else {
 					remove(pp);
-					add(key, value);
+					add(e,key, value);
 				}
-			}
 		} else {
 			final int i = key.indexOf("/");
 			final String childName = key.substring(0, i);
@@ -86,8 +80,16 @@ public class PropertyXMLEncoder extends XmlElement {
 			Element child = e.getChild(childName);
 			if (child == null) {
 				child = new Element(childName);
+				e.addContent(child);
+				add(child,newkey,value);
 			}
 			set(child, newkey, value);
+		}
+	}
+
+	public void add(final String key, final String value) {
+		if (key != null && value != null) {
+			add(this.getRoot(), key, value);
 		}
 	}
 
