@@ -64,14 +64,30 @@ public class PropertyXMLEncoder extends XmlElement {
 	}
 	
 	protected void set(final String key, final String value) {
-		if (key != null && value != null) {
-			Element pp = null;
-			if ((pp = contains(key)) == null)
-				add(key, value);
-			else {
-				remove(pp);
-				add(key, value);
+		set(getRoot(), key, value);
+	}
+	
+	private void set(final Element e, final String key, final String value){
+		if (!key.contains("/")) {
+			if (key != null && value != null) {
+				Element pp = null;
+				if ((pp = contains(key)) == null)
+					add(key, value);
+				else {
+					remove(pp);
+					add(key, value);
+				}
 			}
+		} else {
+			final int i = key.indexOf("/");
+			final String childName = key.substring(0, i);
+			final String newkey = key.substring(i + 1);
+
+			Element child = e.getChild(childName);
+			if (child == null) {
+				child = new Element(childName);
+			}
+			set(child, newkey, value);
 		}
 	}
 

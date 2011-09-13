@@ -19,6 +19,8 @@
  */
 package it.geosolutions.geoserver.rest.encoder.coverage;
 
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
@@ -42,6 +44,37 @@ public class GSCoverageEncoderTest extends TestCase {
      * Default logger
      */
     protected final static Logger LOGGER = Logger.getLogger(GSCoverageEncoderTest.class);
+    
+	/**
+	 * test set or reset of reprojection
+	 */
+	@Test
+	public void testReprojection(){
+		GSResourceEncoder<GSDimensionInfoEncoder> re=new GSCoverageEncoder();
+		
+		re.setProjectionPolicy(ProjectionPolicy.FORCE_DECLARED);
+		Assert.assertNotNull(re.contains("projectionPolicy",ProjectionPolicy.FORCE_DECLARED.toString()));
+		
+		re.setProjectionPolicy(ProjectionPolicy.NONE);
+		Assert.assertNull(re.contains("projectionPolicy",ProjectionPolicy.FORCE_DECLARED.toString()));
+		Assert.assertNotNull(re.contains("projectionPolicy",ProjectionPolicy.NONE.toString()));
+	}
+	
+	/**
+	 * test set or reset of BB
+	 */
+	@Test
+	public void testBB(){
+		GSResourceEncoder<GSDimensionInfoEncoder> re=new GSCoverageEncoder();
+		
+		re.setLatLonBoundingBox(-180d, 90d, 180d, -90d, null);
+		Assert.assertNotNull(re.contains("minx","-180.0"));
+		
+		re.setLatLonBoundingBox(-90d, 45d, 180d, -90d, null);
+		
+		Assert.assertNull(re.contains("minx","-180.0"));
+		Assert.assertNotNull(re.contains("minx","-90.0"));
+	}
     
     @Test
     public void testAll() {
