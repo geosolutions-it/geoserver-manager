@@ -79,7 +79,5 @@ public class GSCoverageEncoderTest extends TestCase {
     	Assert.assertNull(el4);
     	if (el4==null)
     		LOGGER.info("REMOVED");
-    	
-    	
     }
 }

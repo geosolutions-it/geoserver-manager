@@ -29,6 +29,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 
@@ -392,6 +393,7 @@ public class GeoServerRESTPublisher {
                 GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
                 coverageEncoder.addName(FilenameUtils.getBaseName(geotiff.getName()));
                 coverageEncoder.addSRS(srs);
+                coverageEncoder.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
                 configureCoverage(coverageEncoder, workspace, storeName, coverageName);
 
                 // config layer props (style, ...)

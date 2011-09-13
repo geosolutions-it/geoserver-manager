@@ -57,9 +57,21 @@ public class PropertyXMLEncoder extends XmlElement {
 		super(rootName);
 	}
 
-	protected void add(String key, String value) {
+	protected void add(final String key, final String value) {
 		if (key != null && value != null) {
 			add(this.getRoot(), key, value);
+		}
+	}
+	
+	protected void set(final String key, final String value) {
+		if (key != null && value != null) {
+			Element pp = null;
+			if ((pp = contains(key)) == null)
+				add(key, value);
+			else {
+				remove(pp);
+				add(key, value);
+			}
 		}
 	}
 
