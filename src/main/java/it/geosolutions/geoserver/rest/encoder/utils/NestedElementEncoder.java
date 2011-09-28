@@ -73,18 +73,52 @@ public class NestedElementEncoder extends XmlElement {
 		super(listName);
 	}
 
-	public void add(String key, String value) {
+	public void set(final String key, final String value) {
+		final Element entryElem = new Element("entry");
+
+		if (key != null) {
+			entryElem.setAttribute("key", key);
+		}
+		entryElem.setText(value);
+		
+		final Element el = contains(entryElem);
+		if (el != null) {
+			addContent(entryElem);
+		}
+
+	}
+	
+	public void set(final String key, final Element value) {
+		final Element entryElem = new Element("entry");
+
+		if (key != null) {
+			entryElem.setAttribute("key", key);
+		}
+		entryElem.addContent(value);
+		
+		final Element el = contains(entryElem);
+		
+		if (el != null) {
+			addContent(entryElem);
+		} else {
+			if (remove(el))
+				addContent(entryElem);
+		}
+
+	}
+
+	public void add(final String key, final String value) {
 		final Element entryElem = new Element("entry");
 
 		if (key != null)
 			entryElem.setAttribute("key", key);
 
 		entryElem.setText(value);
-		
+
 		this.addContent(entryElem);
 	}
-	
-	public void add(String key, Element value) {
+
+	public void add(final String key, final Element value) {
 		final Element entryElem = new Element("entry");
 		if (key != null)
 			entryElem.setAttribute("key", key);
