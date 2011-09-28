@@ -680,14 +680,21 @@ public class GeoServerRESTPublisher {
         }
     }
 
+    public boolean reload() {
+        String sUrl = restURL + "/rest/reload";
+        String result = HTTPUtils.post(sUrl, "", "text/plain", gsuser, gspass);
+        return result != null;
+    }
+    
     public boolean removeLayerGroup(String name) {
         try {
             URL deleteUrl = new URL(restURL + "/rest/layergroups/" + name);
             boolean deleted = HTTPUtils.delete(deleteUrl.toExternalForm(), gsuser, gspass);
             if (!deleted) {
-                LOGGER.warn("Could not delete layergroup " + name);
+            		LOGGER.warn("Could not delete layergroup " + name);
             } else {
-                LOGGER.info("Layergroup successfully deleted: " + name);
+            	if (LOGGER.isInfoEnabled())
+            		LOGGER.info("Layergroup successfully deleted: " + name);
             }
 
             return deleted;
