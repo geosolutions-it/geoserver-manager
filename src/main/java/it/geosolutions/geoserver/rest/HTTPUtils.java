@@ -426,5 +426,18 @@ class HTTPUtils {
             }
         }
     }
+    
+    /**
+     * recursively remove ending slashes
+     * 
+     * @param geoserverURL
+     * @return
+     */
+    public static String decurtSlash(String geoserverURL) {
+        if (geoserverURL.endsWith("/")) {
+            geoserverURL = decurtSlash(geoserverURL.substring(0, geoserverURL.length() - 1));
+        }
+        return geoserverURL;
+    }
 
 }
