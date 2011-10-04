@@ -65,7 +65,7 @@ public class GeoServerRESTPublisher {
      * @param password password auth credential
      */
     public GeoServerRESTPublisher(String restURL, String username, String password) {
-        this.restURL = restURL;
+        this.restURL = HTTPUtils.decurtSlash(restURL);
         this.gsuser = username;
         this.gspass = password;
     }
@@ -680,8 +680,26 @@ public class GeoServerRESTPublisher {
         }
     }
 
+    /**
+     * reload the target geoserver configuration
+     * @return true if success
+     * 
+     * @see http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
+     */
     public boolean reload() {
         String sUrl = restURL + "/rest/reload";
+        String result = HTTPUtils.post(sUrl, "", "text/plain", gsuser, gspass);
+        return result != null;
+    }
+    
+    /**
+     * reset the target geoserver configuration
+     * @return true if success
+     * 
+     * @see http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
+     */
+    public boolean reset() {
+        String sUrl = restURL + "/rest/reset";
         String result = HTTPUtils.post(sUrl, "", "text/plain", gsuser, gspass);
         return result != null;
     }
