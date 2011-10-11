@@ -48,6 +48,8 @@ import org.jdom.Element;
 public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		extends PropertyXMLEncoder {
 
+	final private GSMetadataEncoder<T> metadata = new GSMetadataEncoder<T>();
+	final private Element keywordsListEncoder = new Element("keywords");
 	/**
 	 * @param rootName
 	 *            Actually 'feature' or 'coverage'
@@ -63,13 +65,11 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		addContent(keywordsListEncoder);
 	}
 
-	final private GSMetadataEncoder<T> metadata = new GSMetadataEncoder<T>();
 
 	public void addMetadata(String key, T dimensionInfo) {
 		metadata.add(key, dimensionInfo.getRoot());
 	}
 
-	final private Element keywordsListEncoder = new Element("keywords");
 
 	public void addKeyword(String keyword) {
 		final Element el = new Element("string");

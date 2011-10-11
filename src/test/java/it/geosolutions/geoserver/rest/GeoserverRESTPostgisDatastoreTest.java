@@ -83,8 +83,9 @@ public class GeoserverRESTPostgisDatastoreTest extends GeoserverRESTTest {
         if (!enabled()) {
             return;
         }
-
-        String wsName = "it.geosolutions";
+        deleteAll();
+        
+        String wsName = DEFAULT_WS;
         String datastoreName = "resttestpostgis";
         String description = "description";
         String dsNamespace = "http://www.geo-solutions.it";
@@ -106,7 +107,9 @@ public class GeoserverRESTPostgisDatastoreTest extends GeoserverRESTTest {
         datastoreEncoder.addExposePrimaryKeys(exposePrimaryKeys);
         datastoreEncoder.addValidateConnections(validateConnections);
         datastoreEncoder.addPrimaryKeyMetadataTable(primaryKeyMetadataTable);
-
+        
+        assertTrue(publisher.createWorkspace(wsName));
+        
         // creation test
         boolean created = publisher.createPostGISDatastore(wsName, datastoreEncoder);
 
@@ -125,6 +128,8 @@ public class GeoserverRESTPostgisDatastoreTest extends GeoserverRESTTest {
             assertTrue("PostGIS datastore not removed", removed);
         else if( ! removed )
             LOGGER.error("*** Datastore " + datastoreName + " has not been removed.");
+        
+        assertTrue(publisher.removeWorkspace(wsName));
     }
 
 }
