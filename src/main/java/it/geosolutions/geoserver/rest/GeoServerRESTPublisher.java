@@ -730,7 +730,7 @@ public class GeoServerRESTPublisher {
      * Allows to configure some layer attributes such as WmsPath and DefaultStyle
      *
      */
-    protected boolean configureLayer(final GSLayerEncoder layer, final String layerName) {
+    public boolean configureLayer(final GSLayerEncoder layer, final String layerName) {
 
         if (layer.isEmpty()) {
             return true;
