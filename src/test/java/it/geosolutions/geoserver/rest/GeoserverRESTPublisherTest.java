@@ -50,7 +50,6 @@ import org.springframework.core.io.ClassPathResource;
 public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = Logger.getLogger(GeoserverRESTPublisherTest.class);
-    private static final String DEFAULT_WS = "it.geosolutions";
 
     public GeoserverRESTPublisherTest(String testName) {
         super(testName);
@@ -152,6 +151,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         if (publisher.removeDatastore(ns, storeName)) {
             LOGGER.info("Cleared stale datastore " + storeName);
         }
+
         assertFalse("Cleanup failed", existsLayer(layerName));
     }
 
@@ -172,18 +172,20 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
             return;
         }
 //        Assume.assumeTrue(enabled);
+        deleteAllWorkspaces();
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
-        String ns = "it.geosolutions";
+//        String ns = "it.geosolutions";
         String storeName = "resttestshp";
         String layerName = "cities";
 
         File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
 
         // known state?
-        cleanupTestFT(layerName, ns, storeName);
+        cleanupTestFT(layerName, DEFAULT_WS, storeName);
 
         // test insert
-        boolean published = publisher.publishShp(ns, storeName, layerName, zipFile);
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
         assertTrue("publish() failed", published);
         assertTrue(existsLayer(layerName));
 
@@ -192,12 +194,12 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         LOGGER.info("Layer style is " + layer.getDefaultStyle());
 
         //test delete
-        boolean ok = publisher.unpublishFeatureType(ns, storeName, layerName);
+        boolean ok = publisher.unpublishFeatureType(DEFAULT_WS, storeName, layerName);
         assertTrue("Unpublish() failed", ok);
         assertFalse(existsLayer(layerName));
 
         // remove also datastore
-        boolean dsRemoved = publisher.removeDatastore(ns, storeName);
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName);
         assertTrue("removeDatastore() failed", dsRemoved);
 
     }
@@ -208,7 +210,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         }
 //        Assume.assumeTrue(enabled);
 
-        String ns = "it.geosolutions";
+        String ns = "geosolutions";
         String storeName = "resttestshp";
         String layerName = "cities";
 
@@ -344,7 +346,6 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
             return;
         }
 
-        String ws = "it.geosolutions";
         String storeName = "resttestshp";
         String layerName = "cities";
 
@@ -370,10 +371,10 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
 
         // known state?
-        cleanupTestFT(layerName, ws, storeName);
+        cleanupTestFT(layerName, DEFAULT_WS, storeName);
 
         // test insert
-        boolean published = publisher.publishShp(ws, storeName, layerName, zipFile, "EPSG:4326", styleName);
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile, "EPSG:4326", styleName);
         assertTrue("publish() failed", published);
         assertTrue(existsLayer(layerName));
 
@@ -385,7 +386,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
 
         GSLayerEncoder le = new GSLayerEncoder();
         le.addDefaultStyle(styleName2);
-        publisher.configureLayer(ws, layerName, le);
+        publisher.configureLayer(DEFAULT_WS, layerName, le);
 
         {
             RESTLayer layer = reader.getLayer(layerName);
@@ -395,9 +396,9 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
 
 
         // remove layer and datastore
-        boolean ok = publisher.unpublishFeatureType(ws, storeName, layerName);
+        boolean ok = publisher.unpublishFeatureType(DEFAULT_WS, storeName, layerName);
         assertFalse(existsLayer(layerName));
-        boolean dsRemoved = publisher.removeDatastore(ws, storeName);
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName);
         assertTrue("removeDatastore() failed", dsRemoved);
     }
 

@@ -727,16 +727,32 @@ public class GeoServerRESTPublisher {
     //==========================================================================
 
     /**
+     * @deprecated please use {@link configureLayer(String workspace, String layerName, GSLayerEncoder layer) }
+     */
+    public boolean configureLayer(final GSLayerEncoder layer, final String layerName)
+    {
+        return configureLayer(null, layerName, layer);
+    }
+
+    /**
      * Allows to configure some layer attributes such as WmsPath and DefaultStyle
      *
      */
     public boolean configureLayer(final String workspace, final String layerName, final GSLayerEncoder layer) {
 
+        // TODO: check this usecase, layer should always be defined
         if (layer.isEmpty()) {
+            LOGGER.warn("Null layer name while configuring layer -- This behavior is suspicious.");
             return true;
         }
 
         String fqLayerName = workspace + ":" + layerName;
+
+        // this null check is here only for backward compatibility. workspace shall be mandatory.
+        if(workspace == null) {
+            LOGGER.warn("Null workspace while configuring layer : " + layerName + " -- This behavior is deprecated.");
+            fqLayerName = layerName;
+        }
 
         final String url = restURL + "/rest/layers/" + fqLayerName;
 

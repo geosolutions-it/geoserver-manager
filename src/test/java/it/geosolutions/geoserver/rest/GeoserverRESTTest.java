@@ -56,6 +56,8 @@ import org.apache.log4j.Logger;
 public abstract class GeoserverRESTTest extends TestCase {
     private final static Logger LOGGER = Logger.getLogger(GeoserverRESTTest.class);
 
+    protected static final String DEFAULT_WS = "geosolutions";
+
 	public static final String RESTURL;
 	public static final String RESTUSER;
 	public static final String RESTPW;
@@ -68,13 +70,6 @@ public abstract class GeoserverRESTTest extends TestCase {
     private static Boolean existgs = null;
     
 	static {
-//        for (String propName : System.getProperties().stringPropertyNames()) {
-//            System.out.println("PROP " + propName);
-//        }
-        for (String envName : System.getenv().keySet()) {
-            System.out.println("ENVVAR " + envName + " = \""+System.getenv(envName)+"\"");
-        }
-
         RESTURL  = getenv("gsmgr_resturl",  "http://localhost:8080/geoserver");
         RESTUSER = getenv("gsmgr_restuser", "admin");
         RESTPW   = getenv("gsmgr_restpw",   "geoserver");
@@ -221,7 +216,7 @@ public abstract class GeoserverRESTTest extends TestCase {
         }
     }
 
-    private void deleteAllWorkspaces() {
+    protected void deleteAllWorkspaces() {
         List<String> workspaces = reader.getWorkspaceNames();
         for (String workspace : workspaces) {
                 LOGGER.warn("Deleting Workspace " + workspace );
