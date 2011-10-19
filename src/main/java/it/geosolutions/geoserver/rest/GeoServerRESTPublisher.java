@@ -220,7 +220,7 @@ public class GeoServerRESTPublisher {
             try {
                 GSLayerEncoder layerEncoder = new GSLayerEncoder();
                 layerEncoder.addDefaultStyle(defaultStyle);
-                configureLayer(layerEncoder, layerName);
+                configureLayer(workspace, layerName, layerEncoder);
             } catch (Exception e) {
                 LOGGER.warn("Error in publishing shapefile " + e.getMessage(), e);
                 sent = false;
@@ -326,7 +326,7 @@ public class GeoServerRESTPublisher {
 
             GSLayerEncoder layerEncoder = new GSLayerEncoder();
             layerEncoder.addDefaultStyle(defaultStyle);
-            configured = configureLayer(layerEncoder, layername);
+            configured = configureLayer(workspace, layername, layerEncoder);
 
             if (!configured) {
                 LOGGER.warn("Error in configuring (" + configuredResult + ") "
@@ -399,7 +399,7 @@ public class GeoServerRESTPublisher {
                 // config layer props (style, ...)
                 GSLayerEncoder layerEncoder = new GSLayerEncoder();
                 layerEncoder.addDefaultStyle(defaultStyle);
-                configureLayer(layerEncoder, coverageName);
+                configureLayer(workspace, coverageName, layerEncoder);
 
             } catch (Exception e) {
                 LOGGER.warn("Could not configure external GEOTiff:" + storeName, e);
@@ -510,7 +510,7 @@ public class GeoServerRESTPublisher {
                 String coverageName = covList.get(0).getName();
 
                 configureCoverage(coverageEncoder, store.getWorkspaceName(), storeName, coverageName);
-                configureLayer(layerEncoder, storeName);
+                configureLayer(workspace, storeName, layerEncoder);
 
             } catch (Exception e) {
                 LOGGER.warn("Could not configure external mosaic:" + storeName, e);
@@ -730,22 +730,24 @@ public class GeoServerRESTPublisher {
      * Allows to configure some layer attributes such as WmsPath and DefaultStyle
      *
      */
-    public boolean configureLayer(final GSLayerEncoder layer, final String layerName) {
+    public boolean configureLayer(final String workspace, final String layerName, final GSLayerEncoder layer) {
 
         if (layer.isEmpty()) {
             return true;
         }
 
-        final String url = restURL + "/rest/layers/" + layerName;
+        String fqLayerName = workspace + ":" + layerName;
+
+        final String url = restURL + "/rest/layers/" + fqLayerName;
 
         String layerXml = layer.toString();
         String sendResult = HTTPUtils.putXml(url, layerXml, gsuser, gspass);
         if (sendResult != null) {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Layer successfully configured: " + layerName);
+                LOGGER.info("Layer successfully configured: " + fqLayerName);
             }
         } else {
-            LOGGER.warn("Error configuring layer " + layerName + " (" + sendResult + ")");
+            LOGGER.warn("Error configuring layer " + fqLayerName + " (" + sendResult + ")");
         }
 
         return sendResult != null;

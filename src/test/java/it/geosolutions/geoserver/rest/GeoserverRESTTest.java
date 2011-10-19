@@ -65,14 +65,22 @@ public abstract class GeoserverRESTTest extends TestCase {
 	public static final GeoServerRESTPublisher publisher;
 
     private static boolean enabled = false;
+    private static Boolean existgs = null;
     
 	static {
-        RESTURL  = System.getProperty("resturl",  "http://localhost:8080/geoserver");
-        RESTUSER = System.getProperty("restuser", "admin");
-        RESTPW   = System.getProperty("restpw",   "geoserver");
+//        for (String propName : System.getProperties().stringPropertyNames()) {
+//            System.out.println("PROP " + propName);
+//        }
+        for (String envName : System.getenv().keySet()) {
+            System.out.println("ENVVAR " + envName + " = \""+System.getenv(envName)+"\"");
+        }
+
+        RESTURL  = getenv("gsmgr_resturl",  "http://localhost:8080/geoserver");
+        RESTUSER = getenv("gsmgr_restuser", "admin");
+        RESTPW   = getenv("gsmgr_restpw",   "geoserver");
         
         // These tests will destroy data, so let's make sure we do want to run them
-        enabled  = System.getProperty("resttest", "false").equalsIgnoreCase("true");
+        enabled  = getenv("gsmgr_resttest", "false").equalsIgnoreCase("true");
         if( ! enabled )
             LOGGER.warn("Tests are disabled. Please read the documentation to enable them.");
 
@@ -87,6 +95,13 @@ public abstract class GeoserverRESTTest extends TestCase {
         publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
 	}
 
+    private static String getenv(String envName, String envDefault) {
+        String env = System.getenv(envName);
+        String ret = System.getProperty(envName, env);
+        LOGGER.debug("env var " + envName + " is " + ret);
+        return ret != null? ret : envDefault;
+    }
+
     public GeoserverRESTTest(String testName) {
         super(testName);
     }
@@ -97,18 +112,23 @@ public abstract class GeoserverRESTTest extends TestCase {
         super.setUp();
 
         if(enabled) {
-            if( ! reader.existGeoserver()) {
-                System.out.println(getClass().getSimpleName() + ": TESTS WILL BE SKIPPED SINCE NO GEOSERVER WAS FOUND AT " + RESTURL + " ("+ RESTUSER+":"+RESTPW+")");
-                enabled = false;
-            } else {
-                System.out.println(getClass().getSimpleName() + ": using geoserver instance " + RESTUSER+":"+RESTPW+ " @ " + RESTURL);
+            if(existgs == null) {
+                existgs = reader.existGeoserver();
+                if ( ! existgs ) {
+                    LOGGER.error("TESTS WILL FAIL BECAUSE NO GEOSERVER WAS FOUND AT " + RESTURL + " ("+ RESTUSER+":"+RESTPW+")");
+                } else {
+                    LOGGER.info("Using geoserver instance " + RESTUSER+":"+RESTPW+ " @ " + RESTURL);
+                }
             }
-        }
 
-        if(enabled)
+            if ( ! existgs ) {
+                System.out.println("Failing test " + this.getClass().getSimpleName() + "::" + this.getName() + " : geoserver not found");
+                fail("GeoServer not found");
+            }
             System.out.println("\n-------------------> RUNNING TEST " + this.getName());
-        else
+        } else {
             System.out.println("Skipping test " + this.getClass().getSimpleName() + "::" + this.getName());
+        }
     }
 
     protected boolean enabled() {
