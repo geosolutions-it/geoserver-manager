@@ -28,8 +28,6 @@ package it.geosolutions.geoserver.rest.encoder.coverage;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 
-import org.jdom.Element;
-
 
 /**
  * Creates an XML 

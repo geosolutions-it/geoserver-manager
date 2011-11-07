@@ -27,6 +27,7 @@ package it.geosolutions.geoserver.rest.encoder;
 
 import org.jdom.Element;
 
+import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
 /**
@@ -35,13 +36,15 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GSWorkspaceEncoder extends PropertyXMLEncoder {
+	public final static String WORKSPACE="workspace";
+	public final static String NAME="name";
 
     public GSWorkspaceEncoder() {
-        super("workspace");
+        super(WORKSPACE);
     }
 
     public GSWorkspaceEncoder(String name) {
-    	super("workspace");
+    	super(WORKSPACE);
         addName(name);
     }
     
@@ -49,11 +52,12 @@ public class GSWorkspaceEncoder extends PropertyXMLEncoder {
      * Add the name to this workspace
      * @param name
      * @throws IllegalStateException if name is already set
+     * @deprecated will be set to protected in the next release
      */
     public void addName(String name) {
-    	final Element el=contains("name");
+    	final Element el=ElementUtils.contains(getRoot(),NAME);
     	if (el==null)
-    		add("name", name);
+    		add(NAME, name);
     	else
     		throw new IllegalStateException("Workspace name is already set: "+el.getText());
     }
@@ -63,15 +67,15 @@ public class GSWorkspaceEncoder extends PropertyXMLEncoder {
      * @param name
      */
     public void setName(String name) {
-    	final Element el=contains("name");
+    	final Element el=ElementUtils.contains(getRoot(),NAME);
     	if (el==null)
-    		add("name", name);
+    		add(NAME, name);
     	else
     		el.setText(name);
     }
     
     public String getName(){
-    	final Element el=contains("name");
+    	final Element el=ElementUtils.contains(getRoot(),NAME);
     	if (el!=null)
     		return el.getTextTrim();
     	else

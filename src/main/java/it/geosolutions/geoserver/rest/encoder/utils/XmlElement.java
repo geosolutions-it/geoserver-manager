@@ -28,6 +28,7 @@ package it.geosolutions.geoserver.rest.encoder.utils;
 
 import org.jdom.Content;
 import org.jdom.Element;
+import org.jdom.Text;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
@@ -40,9 +41,6 @@ public class XmlElement{
 	
 	private final Element root;
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	private final static XMLOutputter OUTPUTTER = new XMLOutputter(Format.getCompactFormat());
@@ -55,9 +53,33 @@ public class XmlElement{
 		return root;
 	}
 	
+	@SuppressWarnings("unused")
 	private XmlElement(){root=null;};
 	
-
+	public void add(final String nodename, final String nodetext) {
+    	add(nodename,new Text(nodetext));
+    }
+	
+	public void add(final String nodename, final Content nodetext) {
+    	final Element el=new Element(nodename);
+    	el.setContent(nodetext);
+    	this.addContent(el);
+    }
+    
+	public void set(final String nodename, final String nodetext) {
+    	set(nodename,new Text(nodetext));
+    }
+	
+    public void set(final String nodename, final Content nodeContent) {
+    	final Element el=ElementUtils.contains(getRoot(),nodename);
+    	if (el==null){
+    		add(nodename,nodeContent);
+    	}
+    	else {
+    		el.setContent(nodeContent);
+    	}
+    }
+    
 	public Element addContent(Content child){
 		return root.addContent(child);
 	}
@@ -66,20 +88,13 @@ public class XmlElement{
         return root.getChildren().isEmpty();
     }
 	
-	public boolean remove(final Element el){
-		return ElementUtils.remove(root,el);
-	}
-	
-	public Element contains(final Element el){
-		return ElementUtils.contains(root,el);
-	}
-	
-	public Element contains(final String key, final String val){
-		return ElementUtils.contains(root,key,val);
-	}
-	
-	public Element contains(final String key){
-		return ElementUtils.contains(root,key);
+	public boolean remove(final String key){
+		final Element el=ElementUtils.contains(root,key);
+		if (el!=null){
+			return ElementUtils.remove(root,el);
+		}
+		else
+			return false;
 	}
 	
 	/**

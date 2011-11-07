@@ -39,7 +39,6 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
 
     private NestedElementEncoder connectionParameters = new NestedElementEncoder("connectionParameters");
 
-
     public GSPostGISDatastoreEncoder() {
         super("dataStore");
         addType("PostGIS"); // may be overwritten with e.g. "PostGIS (JNDI)"
@@ -61,105 +60,266 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
      * </ul>
      */
     public void defaultInit() {
-        addMinConnections(1);
-        addMaxConnections(10);
-        addFetchSize(1000);
-        addConnectionTimeout(20);
-        addLooseBBox(true);
-        addPreparedStatements(false);
-        addMaxOpenPreparedStatements(50);
+        setMinConnections(1);
+        setMaxConnections(10);
+        setFetchSize(1000);
+        setConnectionTimeout(20);
+        setLooseBBox(true);
+        setPreparedStatements(false);
+        setMaxOpenPreparedStatements(50);
     }
 
-    public void addName(String name) {
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addName(String name) {
         add("name", name);
     }
+    
+    public void setName(String name) {
+        set("name", name);
+    }
 
-    public void addDescription(String description) {
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addDescription(String description) {
         add("description", description);
     }
-
-    public void addType(String type) {
-        add("type", type);
+    
+    public void setDescription(String description) {
+        set("description", description);
     }
 
-    public void addEnabled(boolean enabled) {
+    /**
+     * @deprecated will be set to protected in the next release
+     */
+	public void addType(String type) {
+        add("type", type);
+    }
+    
+    public void setType(String type) {
+        set("type", type);
+    }
+
+    /**
+		* @deprecated will be set to protected in the next release
+		*/
+	public void addEnabled(boolean enabled) {
         add("enabled", Boolean.toString(enabled));
     }
     
-    public void addNamespace(String namespace) {
+    public void setEnabled(boolean enabled) {
+        set("enabled", Boolean.toString(enabled));
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addNamespace(String namespace) {
         connectionParameters.add("namespace", namespace);
     }
     
-    public void addHost(String host) {
+    public void setNamespace(String namespace) {
+        connectionParameters.set("namespace", namespace);
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addHost(String host) {
         connectionParameters.add("host", host);
     }
+    
+    public void setHost(String host) {
+        connectionParameters.set("host", host);
+    }
 
-    public void addPort(int port) {
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addPort(int port) {
         connectionParameters.add("port", Integer.toString(port));
     }
+    
+    public void setPort(int port) {
+        connectionParameters.set("port", Integer.toString(port));
+    }
 
-    public void addDatabase(String database) {
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addDatabase(String database) {
         connectionParameters.add("database", database);
     }
+    
+    public void setDatabase(String database) {
+        connectionParameters.set("database", database);
+    }
 
-    public void addSchema(String schema) {
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addSchema(String schema) {
         connectionParameters.add("schema", schema);
     }
+    
+    public void setSchema(String schema) {
+        connectionParameters.set("schema", schema);
+    }
 
-    public void addUser(String user) {
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addUser(String user) {
         connectionParameters.add("user", user);
     }
-
-    public void addPassword(String password) {
-        connectionParameters.add("passwd", password);
+    
+    public void setUser(String user) {
+        connectionParameters.set("user", user);
     }
 
-    public void addDatabaseType(String dbtype) {
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addPassword(String password) {
+        connectionParameters.add("passwd", password);
+    }
+    
+    public void setPassword(String password) {
+        connectionParameters.set("passwd", password);
+    }
+
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addDatabaseType(String dbtype) {
         connectionParameters.add("dbtype", dbtype);
     }
 
-    public void addJndiReferenceName(String jndiReferenceName) {
-        connectionParameters.add("jndiReferenceName", jndiReferenceName);
+    public void setDatabaseType(String dbtype) {
+        connectionParameters.set("dbtype", dbtype);
     }
 
-    public void addExposePrimaryKeys(boolean exposePrimaryKeys) {
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addJndiReferenceName(String jndiReferenceName) {
+        connectionParameters.add("jndiReferenceName", jndiReferenceName);
+    }
+    
+    public void setJndiReferenceName(String jndiReferenceName) {
+        connectionParameters.set("jndiReferenceName", jndiReferenceName);
+    }
+
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addExposePrimaryKeys(boolean exposePrimaryKeys) {
     	connectionParameters.add("Expose primary keys", Boolean.toString(exposePrimaryKeys));
     }
     
-    public void addMaxConnections(int maxConnections) {
+    public void setExposePrimaryKeys(boolean exposePrimaryKeys) {
+    	connectionParameters.set("Expose primary keys", Boolean.toString(exposePrimaryKeys));
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addMaxConnections(int maxConnections) {
     	connectionParameters.add("max connections", Integer.toString(maxConnections));
     }
     
-    public void addMinConnections(int minConnections) {
+    public void setMaxConnections(int maxConnections) {
+    	connectionParameters.set("max connections", Integer.toString(maxConnections));
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addMinConnections(int minConnections) {
     	connectionParameters.add("min connections", Integer.toString(minConnections));
     }
     
-    public void addFetchSize(int fetchSize) {
+    public void setMinConnections(int minConnections) {
+    	connectionParameters.set("min connections", Integer.toString(minConnections));
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addFetchSize(int fetchSize) {
     	connectionParameters.add("fetch size", Integer.toString(fetchSize));
     }
     
-    public void addConnectionTimeout(int seconds) {
+    public void setFetchSize(int fetchSize) {
+    	connectionParameters.set("fetch size", Integer.toString(fetchSize));
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addConnectionTimeout(int seconds) {
     	connectionParameters.add("Connection timeout", Integer.toString(seconds));
     }
     
-    public void addValidateConnections(boolean validateConnections) {
+    public void setConnectionTimeout(int seconds) {
+    	connectionParameters.set("Connection timeout", Integer.toString(seconds));
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addValidateConnections(boolean validateConnections) {
     	connectionParameters.add("validate connections", Boolean.toString(validateConnections));
     }
     
-    public void addPrimaryKeyMetadataTable(String primaryKeyMetadataTable) {
+    public void setValidateConnections(boolean validateConnections) {
+    	connectionParameters.set("validate connections", Boolean.toString(validateConnections));
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addPrimaryKeyMetadataTable(String primaryKeyMetadataTable) {
     	connectionParameters.add("Primary key metadata table", primaryKeyMetadataTable);
     }
     
-    public void addLooseBBox(boolean looseBBox) {
+    public void setPrimaryKeyMetadataTable(String primaryKeyMetadataTable) {
+    	connectionParameters.set("Primary key metadata table", primaryKeyMetadataTable);
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addLooseBBox(boolean looseBBox) {
     	connectionParameters.add("Loose bbox", Boolean.toString(looseBBox));
     }
     
-    public void addPreparedStatements(boolean preparedStatements) {
+    public void setLooseBBox(boolean looseBBox) {
+    	connectionParameters.set("Loose bbox", Boolean.toString(looseBBox));
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addPreparedStatements(boolean preparedStatements) {
     	connectionParameters.add("preparedStatements", Boolean.toString(preparedStatements));
     }
     
-    public void addMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
+    public void setPreparedStatements(boolean preparedStatements) {
+    	connectionParameters.set("preparedStatements", Boolean.toString(preparedStatements));
+    }
+    
+    /**
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
     	connectionParameters.add("Max open prepared statements", Integer.toString(maxOpenPreparedStatements));
+    }
+    
+    public void setMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
+    	connectionParameters.set("Max open prepared statements", Integer.toString(maxOpenPreparedStatements));
     }
 
 }

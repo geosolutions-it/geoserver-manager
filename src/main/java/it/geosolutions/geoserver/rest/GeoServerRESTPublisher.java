@@ -271,6 +271,7 @@ public class GeoServerRESTPublisher {
             GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
             fte.addName(layername);
             fte.addSRS(srs);
+            fte.addProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
 
             String configuredResult = HTTPUtils.putXml(postUrl.toString(), fte.toString(), this.gsuser, this.gspass);
             boolean shpConfigured = configuredResult != null;
@@ -393,7 +394,7 @@ public class GeoServerRESTPublisher {
                 GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
                 coverageEncoder.addName(FilenameUtils.getBaseName(geotiff.getName()));
                 coverageEncoder.addSRS(srs);
-                coverageEncoder.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
+                coverageEncoder.addProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
                 configureCoverage(coverageEncoder, workspace, storeName, coverageName);
 
                 // config layer props (style, ...)

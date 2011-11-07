@@ -95,18 +95,18 @@ public class GeoserverRESTPostgisDatastoreTest extends GeoserverRESTTest {
 
         GSPostGISDatastoreEncoder datastoreEncoder = new GSPostGISDatastoreEncoder();
         datastoreEncoder.defaultInit();
-        datastoreEncoder.addName(datastoreName);
-        datastoreEncoder.addDescription(description);
-        datastoreEncoder.addNamespace(dsNamespace);
-        datastoreEncoder.addHost(pgHost);
-        datastoreEncoder.addPort(pgPort);
-        datastoreEncoder.addDatabase(pgDatabase);
-        datastoreEncoder.addSchema(pgSchema);
-        datastoreEncoder.addUser(pgUser);
-        datastoreEncoder.addPassword(pgPassword);
-        datastoreEncoder.addExposePrimaryKeys(exposePrimaryKeys);
-        datastoreEncoder.addValidateConnections(validateConnections);
-        datastoreEncoder.addPrimaryKeyMetadataTable(primaryKeyMetadataTable);
+        datastoreEncoder.setName(datastoreName);
+        datastoreEncoder.setDescription(description);
+        datastoreEncoder.setNamespace(dsNamespace);
+        datastoreEncoder.setHost(pgHost);
+        datastoreEncoder.setPort(pgPort);
+        datastoreEncoder.setDatabase(pgDatabase);
+        datastoreEncoder.setSchema(pgSchema);
+        datastoreEncoder.setUser(pgUser);
+        datastoreEncoder.setPassword(pgPassword);
+        datastoreEncoder.setExposePrimaryKeys(exposePrimaryKeys);
+        datastoreEncoder.setValidateConnections(validateConnections);
+        datastoreEncoder.setPrimaryKeyMetadataTable(primaryKeyMetadataTable);
         
         assertTrue(publisher.createWorkspace(wsName));
         

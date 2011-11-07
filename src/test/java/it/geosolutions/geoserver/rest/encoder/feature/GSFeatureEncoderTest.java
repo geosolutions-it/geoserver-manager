@@ -19,14 +19,21 @@
  */
 package it.geosolutions.geoserver.rest.encoder.feature;
 
-import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureDimensionInfoEncoder;
-import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSMetadataEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.filter.Filter;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -35,24 +42,103 @@ import org.junit.Test;
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GSFeatureEncoderTest extends TestCase {
-
+	protected final static Logger LOGGER = Logger.getLogger(GSFeatureEncoderTest.class);
+	
 	public GSFeatureEncoderTest() {
 	}
 
 	@Test
 	public void testAll() {
-		GSFeatureTypeEncoder feature = new GSFeatureTypeEncoder();
-		feature.addKeyword("KEYWORD_1");
-		feature.addKeyword("KEYWORD_2");
-		feature.addKeyword("...");
-		feature.addKeyword("KEYWORD_N");
-		GSFeatureDimensionInfoEncoder dim2 = new GSFeatureDimensionInfoEncoder(
-				"ELE");
+		
+		GSFeatureTypeEncoder encoder = new GSFeatureTypeEncoder();
+		encoder.addKeyword("KEYWORD_1");
+		encoder.addKeyword("KEYWORD_2");
+		encoder.addKeyword("...");
+		encoder.addKeyword("KEYWORD_N");
+		
+		GSFeatureDimensionInfoEncoder dim2 = new GSFeatureDimensionInfoEncoder("ELE");
+
+    	if (LOGGER.isInfoEnabled())
+    		LOGGER.info(encoder.toString());
+
+		encoder.addMetadata("elevation", dim2);
+    	
 		dim2.addPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
 				BigDecimal.valueOf(10));
-		feature.addMetadata("elevation", dim2);
+		
+		Element el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.PRESENTATION);
+    	Assert.assertNotNull(el);
+    	
+    	
+    	LOGGER.info("contains_key:"+el.toString());
+    	
+		dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
+				BigDecimal.valueOf(12));
+		
+		el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.RESOLUTION);
+    	Assert.assertNotNull(el);
+    	Assert.assertEquals("12", el.getText());
+    	
+		dim2.setPresentation(Presentation.CONTINUOUS_INTERVAL);
+		
+		
+		
+		encoder.setMetadata("time", new GSFeatureDimensionInfoEncoder("time"));
+		
+		el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.PRESENTATION);
+    	Assert.assertNotNull(el);
+    	el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.RESOLUTION);
+    	Assert.assertNull(el);
 
-		// TODO TESTS
+    	el=ElementUtils.contains(encoder.getRoot(),GSMetadataEncoder.METADATA);
+    	Assert.assertNotNull(el);
+    	LOGGER.info("contains_key:"+el.toString());
+    	
+    	final boolean removed=ElementUtils.remove(encoder.getRoot(),el);
+    	LOGGER.info("remove:"+removed);
+    	Assert.assertTrue(removed);
+    	
+    	el=ElementUtils.contains(encoder.getRoot(),"metadata");
+    	Assert.assertNull(el);
+    	if (el==null)
+    		LOGGER.info("REMOVED");
+
+	}
+	
+	@Test
+	public void testModifyFeature() {
+		GSFeatureTypeEncoder encoder = new GSFeatureTypeEncoder();
+		encoder.addKeyword("KEYWORD_1");
+		encoder.addKeyword("KEYWORD_2");
+		encoder.addKeyword("...");
+		encoder.addKeyword("KEYWORD_N");
+		
+		Assert.assertTrue(encoder.delKeyword("KEYWORD_2"));
+		Assert.assertFalse(encoder.delKeyword("KEYWORD_M"));
+		
+		final GSFeatureDimensionInfoEncoder elevationDimension = new GSFeatureDimensionInfoEncoder("elevation_field");
+
+//    	if (LOGGER.isInfoEnabled())
+//    		LOGGER.info(encoder.toString());
+
+		final String metadata="elevation";
+		encoder.setMetadata(metadata, elevationDimension);
+    	
+		elevationDimension.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
+				BigDecimal.valueOf(10));
+		
+		if (LOGGER.isInfoEnabled())
+    		LOGGER.info(encoder.toString());
+		
+		Assert.assertTrue(encoder.delMetadata(metadata));
+		
+		if (LOGGER.isInfoEnabled())
+    		LOGGER.info(encoder.toString());
+		
+    	final Element el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.DIMENSIONINFO);
+    	Assert.assertNull(el);
+    	if (el==null)
+    		LOGGER.info("REMOVED");
 
 	}
 }

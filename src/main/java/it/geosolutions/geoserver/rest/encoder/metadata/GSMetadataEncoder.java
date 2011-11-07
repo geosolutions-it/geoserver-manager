@@ -29,12 +29,14 @@ import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 
 public class GSMetadataEncoder <T extends GSDimensionInfoEncoder> extends NestedElementEncoder{
 
+	public final static String METADATA="metadata";
+	
 	public GSMetadataEncoder() {
-		super("metadata");
+		super(METADATA);
 	}
 	 
-	public void addMetadata(final String key, final T value) {
-		this.add(key, value.getRoot());
-	}
+//	public void addMetadata(final String key, final T value) {
+//		this.add(key, value.getRoot());
+//	}
 
 }

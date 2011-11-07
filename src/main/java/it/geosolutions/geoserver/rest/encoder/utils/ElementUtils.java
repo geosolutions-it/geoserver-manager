@@ -25,72 +25,148 @@
 
 package it.geosolutions.geoserver.rest.encoder.utils;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.jdom.filter.Filter;
 
 /**
  * 
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
- *
+ * 
  */
 public abstract class ElementUtils {
+	/**
+	 * Default logger
+	 */
+	private final static Logger LOGGER = Logger.getLogger(ElementUtils.class);
 
 	/**
 	 * 
-	 * @param root
-	 * @param el
-	 * @return true if the FIRST element EQUALS to the 'el' starting from root
-	 *         is found AND can be deleted. If it is the root true is returned
-	 *         and all of its child are removed.
+	 * @param root the root where to start searching to element to remove
+	 * @param el the element to remove (will be set to null since this node is unusable after removal)
+	 * @return true if the element EQUALS to the 'el' starting from root
+	 *         (including) is found, false if object 'el' is not found
 	 * 
 	 */
-	public static boolean remove(Element root, final Element el) {
+	public static boolean remove(final Element root, Element el) throws IllegalArgumentException {
+		if (root == null || el == null) {
+			throw new IllegalArgumentException("Bad arguments: root=" + root
+					+ " element=" + el);
+		}
+		// root is the element to remove
+		// note: equals checks references on Element type
 		if (root.equals(el)) {
-			if (!el.isRootElement()) {
-				root = el.getParentElement();
-				// removing all child
-				el.removeContent();
-				root.removeContent(el);
-			} else {
-				// log warn this is root!
-				// removing all child
-				el.removeContent();
-			}
-		} else if ((root = ElementUtils.contains(root, el)) != null) {
-			return remove(root, el);
-		} else {
-			return false;
+			// detach
+			el.detach();
+			// removing all child
+			el.removeContent();			
+			
+			el=null;
+
+			return true;
 		}
 
-		return true;
+		// search for the element to remove
+		final Element search = ElementUtils.contains(root, el);
+		if (search != null) {
+			return remove(search, el);
+		}
+		return false;
 	}
 
 	/**
+	 * 
 	 * @param root
-	 * @param el
-	 * @return the FIRST element EQUALS to the 'el' starting from root or null
+	 * @param filter
+	 * @param depth
+	 *            the max depth to search. Use {@link contains(final Element
+	 *            root, final Filter filter)} for an infinite depth search
+	 * @return
+	 * @throws IllegalArgumentException
 	 */
-	public static Element contains(final Element root, final Element el) {
+	public static List<Element> search(final Element root,
+			final Filter filter, final int depth)
+			throws IllegalArgumentException {
 
-		if (root != null && el != null) {
-			if (root.equals(el))
-				return root;
-
-			final List<Element> childrenList = root.getChildren();
-			if (childrenList.size() > 0) {
-				Iterator<Element> it = childrenList.iterator();
-				while (it.hasNext()) {
-					final Element ret;
-					if ((ret = contains(it.next(), el)) != null)
-						return ret;
+		if (root == null || filter == null || depth < 0) {
+			throw new IllegalArgumentException("Bad arguments: root=" + root
+					+ " filter=" + filter + " depth=" + depth);
+		}
+		final List<Element> ret = new ArrayList<Element>();
+		// if match add myself
+		if (filter.matches(root)) {
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("LOCATED-> name:" + root.getName() + " text:"
+						+ root.getText());
+			ret.add(root);
+		}
+		// check my children
+		if (depth > 1) {
+			final List<?> childrenList = root.getContent();
+			final Iterator<?> it = childrenList.iterator();
+			while (it.hasNext()) {
+				final Object obj = it.next();
+				if (obj instanceof Element) {
+					final Element childEl = (Element) obj;
+					ret.addAll(search(childEl, filter, depth - 1));
 				}
 			}
 		}
-		return null;
+		return ret;
 	}
 
+	public static List<Element> search(final Element root, final Filter filter) {
+		if (root == null || filter == null) {
+			throw new IllegalArgumentException("Bad arguments: root=" + root
+					+ " filter=" + filter);
+		}
+		final List<Element> ret = new ArrayList<Element>();
+		// if match add myself
+		if (filter.matches(root)) {
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("LOCATED-> name:" + root.getName() + " text:"
+						+ root.getText());
+			ret.add(root);
+		}
+		// navigate through children
+		final Iterator<?> it = root.getDescendants(filter);
+		while (it.hasNext()) {
+			Object obj = it.next();
+			if (obj instanceof Element) {
+				Element el = (Element) obj;
+
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("LOCATED-> name:" + el.getName() + " text:"
+							+ el.getText());
+
+				ret.add(el);
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * @param root
+	 * @param name
+	 * @param val
+	 * @return the FIRST element matching the passed filter or null
+	 */
+	public static Element contains(final Element root, final Filter filter) throws IllegalArgumentException {
+		if (root == null || filter == null ) {
+			throw new IllegalArgumentException("Bad arguments: root=" + root
+					+ " name=" + filter);
+		}
+		final Iterator<Element> it = search(root, filter).iterator();
+		if (it.hasNext())
+			return it.next();
+		else
+			return null;
+	}
+	
 	/**
 	 * @param root
 	 * @param name
@@ -99,22 +175,29 @@ public abstract class ElementUtils {
 	 *         starting from root or null
 	 */
 	public static Element contains(final Element root, final String name,
-			final String val) {
-		if (root != null && name != null && val != null) {
-			if (root.getName().equals(name) && root.getText().equals(val))
-				return root;
-
-			final List<Element> childrenList = root.getChildren();
-			if (childrenList.size() > 0) {
-				Iterator<Element> it = childrenList.iterator();
-				while (it.hasNext()) {
-					final Element ret;
-					if ((ret = contains(it.next(), name, val)) != null)
-						return ret;
-				}
-			}
+			final String val) throws IllegalArgumentException {
+		if (root == null || name == null || val == null) {
+			throw new IllegalArgumentException("Bad arguments: root=" + root
+					+ " name=" + name + " val=" + val);
 		}
-		return null;
+		final Filter filter = new Filter() {
+			private static final long serialVersionUID = 1L;
+
+			public boolean matches(Object obj) {
+				if (obj instanceof Element) {
+					final Element el = ((Element) obj);
+					if (el.getName().equals(name) && el.getText().equals(val)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		};
+		final Iterator<Element> it = search(root, filter).iterator();
+		if (it.hasNext())
+			return it.next();
+		else
+			return null;
 	}
 
 	/**
@@ -124,22 +207,67 @@ public abstract class ElementUtils {
 	 * @param name
 	 * @return
 	 */
-	public static Element contains(final Element root, final String name) {
-		if (root != null && name != null) {
-			if (root.getName().equals(name))
-				return root;
-
-			final List<Element> childrenList = root.getChildren();
-			if (childrenList.size() > 0) {
-				Iterator<Element> it = childrenList.iterator();
-				while (it.hasNext()) {
-					final Element ret;
-					if ((ret = contains(it.next(), name)) != null)
-						return ret;
-				}
-			}
+	public static Element contains(final Element root, final String name)
+			throws IllegalArgumentException {
+		if (root == null || name == null) {
+			throw new IllegalArgumentException("Bad arguments: root=" + root
+					+ " name=" + name);
 		}
-		return null;
+
+		final Filter filter = new Filter() {
+			private static final long serialVersionUID = 1L;
+
+			public boolean matches(Object obj) {
+				if (obj instanceof Element) {
+					final Element el = ((Element) obj);
+					if (el.getName().equals(name)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		};
+		final Iterator<Element> it = search(root, filter).iterator();
+		if (it.hasNext())
+			return it.next();
+		else
+			return null;
 	}
 
+	/**
+	 * @param root
+	 * @param el
+	 * @return the FIRST element EQUALS to the 'el' starting from root or null
+	 *         This tests for equality of this Content object to the supplied
+	 *         object. Content items are considered equal only if they are
+	 *         referentially equal (i.e. the same object).
+	 */
+	public static Element contains(final Element root, final Element el)
+			throws IllegalArgumentException {
+		if (root == null || el == null) {
+			throw new IllegalArgumentException("Bad arguments: root=" + root
+					+ " element=" + el);
+		}
+		final Filter filter = new Filter() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public boolean matches(Object obj) {
+				if (obj instanceof Element) {
+					final Element element = ((Element) obj);
+					if (element.equals(el)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		};
+		final Iterator<Element> it = search(root, filter).iterator();
+		if (it.hasNext())
+			return it.next();
+		else
+			return null;
+	}
 }
