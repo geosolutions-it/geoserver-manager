@@ -27,6 +27,8 @@ package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,6 +36,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.Namespace;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -46,7 +50,6 @@ import org.springframework.core.io.ClassPathResource;
 public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = Logger.getLogger(GeoserverRESTPublisherTest.class);
-    private static final String DEFAULT_WS = "it.geosolutions";
 
     public GeoserverRESTPublisherTest(String testName) {
         super(testName);
@@ -84,7 +87,21 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
 
         String sld = reader.getSLD(styleName);
         assertNotNull(sld);
-        assertEquals(1475, sld.length());
+
+        Element styleEl = JDOMBuilder.buildElement(sld);
+        assertNotNull(styleEl);
+
+        Namespace SLDNS = Namespace.getNamespace("sld", "http://www.opengis.net/sld");
+
+        try{
+
+            assertEquals(styleName, styleEl.getChild("NamedLayer", SLDNS).getChild("Name",SLDNS).getText());
+            assertEquals("STYLE FOR TESTING PURPOSES", styleEl.getChild("NamedLayer", SLDNS).getChild("UserStyle", SLDNS).getChild("Title", SLDNS).getText());
+        } catch(NullPointerException npe) {
+            fail("Error in SLD");
+        }
+
+//        assertEquals(1475, sld.length());
 
         assertEquals(1, reader.getStyles().size());
     }
@@ -134,6 +151,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         if (publisher.removeDatastore(ns, storeName)) {
             LOGGER.info("Cleared stale datastore " + storeName);
         }
+
         assertFalse("Cleanup failed", existsLayer(layerName));
     }
 
@@ -154,18 +172,20 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
             return;
         }
 //        Assume.assumeTrue(enabled);
+        deleteAllWorkspaces();
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
-        String ns = "it.geosolutions";
+//        String ns = "it.geosolutions";
         String storeName = "resttestshp";
         String layerName = "cities";
 
         File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
 
         // known state?
-        cleanupTestFT(layerName, ns, storeName);
+        cleanupTestFT(layerName, DEFAULT_WS, storeName);
 
         // test insert
-        boolean published = publisher.publishShp(ns, storeName, layerName, zipFile);
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
         assertTrue("publish() failed", published);
         assertTrue(existsLayer(layerName));
 
@@ -174,12 +194,12 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         LOGGER.info("Layer style is " + layer.getDefaultStyle());
 
         //test delete
-        boolean ok = publisher.unpublishFeatureType(ns, storeName, layerName);
+        boolean ok = publisher.unpublishFeatureType(DEFAULT_WS, storeName, layerName);
         assertTrue("Unpublish() failed", ok);
         assertFalse(existsLayer(layerName));
 
         // remove also datastore
-        boolean dsRemoved = publisher.removeDatastore(ns, storeName);
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName);
         assertTrue("removeDatastore() failed", dsRemoved);
 
     }
@@ -190,7 +210,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         }
 //        Assume.assumeTrue(enabled);
 
-        String ns = "it.geosolutions";
+        String ns = "geosolutions";
         String storeName = "resttestshp";
         String layerName = "cities";
 
@@ -318,6 +338,68 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
 
         boolean ok = publisher.removeDatastore(wsName, storeName);
         assertFalse("removed not existing datastore", ok);
+    }
+
+
+    public void testUpdateDefaultStyle() throws FileNotFoundException, IOException {
+        if (!enabled()) {
+            return;
+        }
+
+        String storeName = "resttestshp";
+        String layerName = "cities";
+
+        final String styleName = "restteststyle";
+        {
+            File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
+            cleanupTestStyle(styleName);
+            boolean sldpublished = publisher.publishStyle(sldFile); // Will take the name from sld contents
+            assertTrue("style publish() failed", sldpublished);
+            assertTrue(reader.existsStyle(styleName));
+        }
+
+        final String styleName2 = "restteststyle2";
+        {
+            File sldFile = new ClassPathResource("testdata/restteststyle2.sld").getFile();
+            cleanupTestStyle(styleName2);
+            boolean sldpublished = publisher.publishStyle(sldFile); // Will take the name from sld contents
+            assertTrue("style publish() failed", sldpublished);
+            assertTrue(reader.existsStyle(styleName2));
+        }
+
+
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+
+        // known state?
+        cleanupTestFT(layerName, DEFAULT_WS, storeName);
+
+        // test insert
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile, "EPSG:4326", styleName);
+        assertTrue("publish() failed", published);
+        assertTrue(existsLayer(layerName));
+
+        {
+            RESTLayer layer = reader.getLayer(layerName);
+            LOGGER.info("Layer style is " + layer.getDefaultStyle());
+            assertEquals(styleName, layer.getDefaultStyle());
+        }
+
+        GSLayerEncoder le = new GSLayerEncoder();
+        le.addDefaultStyle(styleName2);
+        publisher.configureLayer(DEFAULT_WS, layerName, le);
+
+        {
+            RESTLayer layer = reader.getLayer(layerName);
+            LOGGER.info("Layer style is " + layer.getDefaultStyle());
+            assertEquals(styleName2, layer.getDefaultStyle());
+        }
+
+
+        // remove layer and datastore
+        boolean ok = publisher.unpublishFeatureType(DEFAULT_WS, storeName, layerName);
+        assertFalse(existsLayer(layerName));
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName);
+        assertTrue("removeDatastore() failed", dsRemoved);
     }
 
 //	public void testDeleteUnexistingFT() throws FileNotFoundException, IOException {

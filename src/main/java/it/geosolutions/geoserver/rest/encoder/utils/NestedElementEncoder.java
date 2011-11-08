@@ -25,7 +25,9 @@
 
 package it.geosolutions.geoserver.rest.encoder.utils;
 
+import org.jdom.Content;
 import org.jdom.Element;
+import org.jdom.filter.Filter;
 
 /**
  * Encodes lists of entries with key attribute. <br/>
@@ -68,63 +70,102 @@ import org.jdom.Element;
  * 
  */
 public class NestedElementEncoder extends XmlElement {
+	public final static String ENTRY = "entry";
+	public final static String KEY = "key";
+	
+	static class NestedElementFilter implements Filter {
+		private static final long serialVersionUID = 1L;
+		private final String key;
+		private final Element root;
+		public NestedElementFilter(Element root, String key) {
+			this.key=key;
+			this.root=root;
+		}
+
+		public boolean matches(Object obj) {
+			if (obj instanceof Element) {
+				final Element el = ((Element) obj);
+				if (root.isAncestor(el)){
+					if (el.getName().equals(ENTRY)/* && el.getText().equals(value) */) {
+						if (key != null) {
+							if (el.getAttribute(KEY).getValue().equals(key))
+								return true;
+							else
+								return false;
+						}
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	};
 
 	public NestedElementEncoder(String listName) {
 		super(listName);
 	}
 
-	public void set(final String key, final String value) {
-		final Element entryElem = new Element("entry");
+//	public void set(final String key, final String value) {
+//				// if some previous similar object is found
+//		final Element search;
+//		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(getRoot(), key))) != null) {
+//			// remove it
+//			ElementUtils.remove(getRoot(), search);
+//		}
+//		// add the new entry
+//		add(key,value);
+//	}
 
-		if (key != null) {
-			entryElem.setAttribute("key", key);
-		}
-		entryElem.setText(value);
-		
-		final Element el = contains(entryElem);
-		if (el != null) {
-			addContent(entryElem);
-		}
+//	public void add(final String key, final Element value) {
+//		final Element entryElem = new Element(ENTRY);
+//		if (key != null)
+//			entryElem.setAttribute(KEY, key);
+//
+//		entryElem.addContent(value);
+//
+//		this.addContent(entryElem);
+//	}
+	
+//	public void add(final String key, final String value) {
+//		final Element entryElem = new Element(ENTRY);
+//
+//		if (key != null)
+//			entryElem.setAttribute(KEY, key);
+//
+//		entryElem.setText(value);
+//
+//		this.addContent(entryElem);
+//	}
 
+	public void add(final String key, final Content value) {
+		final Element entryElem = new Element(ENTRY);
+		if (key != null)
+			entryElem.setAttribute(KEY, key);
+
+		entryElem.setContent(value);
+
+		this.addContent(entryElem);
 	}
 	
-	public void set(final String key, final Element value) {
-		final Element entryElem = new Element("entry");
-
-		if (key != null) {
-			entryElem.setAttribute("key", key);
+	public void set(final String key, final Content value) {		
+		// if some previous similar object is found
+		final Element search;
+		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(getRoot(), key))) != null) {
+			// remove it
+			ElementUtils.remove(search, search);
 		}
-		entryElem.addContent(value);
-		
-		final Element el = contains(entryElem);
-		
-		if (el != null) {
-			addContent(entryElem);
-		} else {
-			if (remove(el))
-				addContent(entryElem);
+		// add the new entry
+		add(key,value);
+	}
+	
+	public boolean remove(final String key){
+		// if some previous similar object is found
+		final Element search;
+		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(getRoot(), key))) != null) {
+			return ElementUtils.remove(search,search);
 		}
-
-	}
-
-	public void add(final String key, final String value) {
-		final Element entryElem = new Element("entry");
-
-		if (key != null)
-			entryElem.setAttribute("key", key);
-
-		entryElem.setText(value);
-
-		this.addContent(entryElem);
-	}
-
-	public void add(final String key, final Element value) {
-		final Element entryElem = new Element("entry");
-		if (key != null)
-			entryElem.setAttribute("key", key);
-
-		entryElem.addContent(value);
-
-		this.addContent(entryElem);
+		else
+			return false;
 	}
 }
+

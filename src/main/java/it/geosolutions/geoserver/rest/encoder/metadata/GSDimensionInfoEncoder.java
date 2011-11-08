@@ -29,15 +29,18 @@ import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 import java.math.BigDecimal;
 
-import org.jdom.Element;
-
 /**
  * 
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  *
  */
 public class GSDimensionInfoEncoder extends XmlElement{
-	final boolean enabled;
+	public final static String DIMENSIONINFO="dimensionInfo";
+	
+	public final static String RESOLUTION="resolution";
+	public final static String PRESENTATION="presentation";
+	
+	private boolean enabled;
 	
 	/**
 	 * Enum for presentation mode
@@ -59,7 +62,7 @@ public class GSDimensionInfoEncoder extends XmlElement{
 	 * @note a enabled dimension also need a presentation mode set.
 	 */
 	public GSDimensionInfoEncoder(final boolean enabled) {
-		super("dimensionInfo");
+		super(DIMENSIONINFO);
 		add("enabled", (enabled)?"true":"false");
 		this.enabled=enabled;
 	}
@@ -68,30 +71,51 @@ public class GSDimensionInfoEncoder extends XmlElement{
 	 * build an not enabled dimension
 	 */
 	public GSDimensionInfoEncoder() {
-		super("dimensionInfo");
+		super(DIMENSIONINFO);
 		add("enabled", "false");
 		this.enabled=Boolean.FALSE;
 	}
 	
+	public void setEnabled(final boolean enabled){
+		set("enabled", "true");
+		this.enabled=Boolean.TRUE;
+	}
+	
+	/**
+	 * @deprecated will be set to protected in the next release {@link setPresentation(final Presentation pres)}
+	 * @param pres
+	 */
 	public void addPresentation(final Presentation pres){
 		if (enabled){
-			add("presentation",pres.toString());
+			add(PRESENTATION,pres.toString());
 		}
 	}
 	
+	public void setPresentation(final Presentation pres){
+		if (enabled){
+			set(PRESENTATION,pres.toString());
+			remove(RESOLUTION);
+		}
+	}
+	
+	/**
+	 * @param pres
+	 * @param interval
+	 * @deprecated will be set to protected in the next release {@link setPresentation(final PresentationDiscrete pres, final BigDecimal interval)}
+	 */
 	public void addPresentation(final PresentationDiscrete pres, final BigDecimal interval){
 		if (enabled){
-			add("presentation",pres.toString());
-			add("resolution",String.valueOf(interval));	
+			add(PRESENTATION,pres.toString());
+			add(RESOLUTION,String.valueOf(interval));	
 		}
 	}
 	
-    
-    public void add(String nodename, String nodetext) {
-    	final Element el=new Element(nodename);
-    	el.setText(nodetext);
-    	this.addContent(el);
-    }
+	public void setPresentation(final PresentationDiscrete pres, final BigDecimal interval){
+		if (enabled){
+			set(PRESENTATION,pres.toString());
+			set(RESOLUTION,String.valueOf(interval));	
+		}
+	}
 	
 	
 }

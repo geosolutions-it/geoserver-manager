@@ -57,6 +57,7 @@ public class PropertyXMLEncoder extends XmlElement {
 		super(rootName);
 	}
 	
+	
 	public void set(final String key, final String value) {
 		if (key != null && value != null) {
 			set(getRoot(), key, value);
@@ -64,15 +65,7 @@ public class PropertyXMLEncoder extends XmlElement {
 	}
 	
 	private void set(final Element e, final String key, final String value){
-		if (!key.contains("/")) {
-				Element pp = null;
-				if ((pp = contains(key)) == null)
-					add(e,key, value);
-				else {
-					remove(pp);
-					add(e,key, value);
-				}
-		} else {
+		if (key.contains("/")) {
 			final int i = key.indexOf("/");
 			final String childName = key.substring(0, i);
 			final String newkey = key.substring(i + 1);
@@ -83,7 +76,15 @@ public class PropertyXMLEncoder extends XmlElement {
 				e.addContent(child);
 				add(child,newkey,value);
 			}
-			set(child, newkey, value);
+			set(child, newkey, value);	
+		} else {
+			Element pp = null;
+			if ((pp = ElementUtils.contains(e,key)) == null)
+				add(e,key, value);
+			else {
+				ElementUtils.remove(e,pp);
+				add(e,key, value);
+			}
 		}
 	}
 
@@ -94,9 +95,7 @@ public class PropertyXMLEncoder extends XmlElement {
 	}
 
 	private void add(Element e, String key, String value) {
-		if (!key.contains("/")) {
-			e.addContent(new Element(key).setText(value));
-		} else {
+		if (key.contains("/")) {
 			final int i = key.indexOf("/");
 			final String childName = key.substring(0, i);
 			final String newkey = key.substring(i + 1);
@@ -108,8 +107,66 @@ public class PropertyXMLEncoder extends XmlElement {
 			}
 
 			add(child, newkey, value);
+
+		} else {
+			e.addContent(new Element(key).setText(value));
 		}
 
 	}
+	
+//	public void set(final String key, final String value) {
+//		if (key != null && value != null) {
+//			set(getRoot(), key, value);
+//		}
+//	}
+//	
+//	private void set(final Element e, final String key, final String value){
+//		if (!key.contains("/")) {
+//				Element pp = null;
+//				if ((pp = contains(key)) == null)
+//					add(e,key, value);
+//				else {
+//					remove(pp);
+//					add(e,key, value);
+//				}
+//		} else {
+//			final int i = key.indexOf("/");
+//			final String childName = key.substring(0, i);
+//			final String newkey = key.substring(i + 1);
+//
+//			Element child = e.getChild(childName);
+//			if (child == null) {
+//				child = new Element(childName);
+//				e.addContent(child);
+//				add(child,newkey,value);
+//			}
+//			set(child, newkey, value);
+//		}
+//	}
+//
+//	public void add(final String key, final String value) {
+//		if (key != null && value != null) {
+//			add(this.getRoot(), key, value);
+//		}
+//	}
+//
+//	private void add(Element e, String key, String value) {
+//		if (!key.contains("/")) {
+//			e.addContent(new Element(key).setText(value));
+//		} else {
+//			final int i = key.indexOf("/");
+//			final String childName = key.substring(0, i);
+//			final String newkey = key.substring(i + 1);
+//
+//			Element child = e.getChild(childName);
+//			if (child == null) {
+//				child = new Element(childName);
+//				e.addContent(child);
+//			}
+//
+//			add(child, newkey, value);
+//		}
+//
+//	}
 
 }

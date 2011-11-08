@@ -32,17 +32,41 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  * 
+ * The layer encoder is enabled by default
+ * 
  */
 public class GSLayerEncoder extends PropertyXMLEncoder {
 
     public GSLayerEncoder() {
         super("layer");
-        // enable layer
+        addEnabled();
+    }
+    
+    protected void addEnabled(){
         add("enabled","true");
     }
+    
+    /**
+     * @param enable true if layer should be set to enabled 
+     */
+    public void setEnabled(boolean enable){
+    	if (enable)
+    		set("enabled","true");
+    	else
+    		set("enabled","false");
+    }
 
+    /**
+     * 
+     * @param defaultStyle
+     * @deprecated will be set to protected in the next release, please use setDefaultStyle
+     * 
+     */
     public void addDefaultStyle(String defaultStyle) {
         add("defaultStyle", defaultStyle);
     }
-
+    
+    public void setDefaultStyle(String defaultStyle) {
+        set("defaultStyle", defaultStyle);
+    }
 }

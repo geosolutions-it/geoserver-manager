@@ -33,6 +33,7 @@ import it.geosolutions.geoserver.rest.encoder.metadata.GSMetadataEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
 import org.jdom.Element;
+import org.jdom.filter.Filter;
 
 /**
  * 
@@ -47,6 +48,7 @@ import org.jdom.Element;
  */
 public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		extends PropertyXMLEncoder {
+	private final static String NAME="name";
 
 	final private GSMetadataEncoder<T> metadata = new GSMetadataEncoder<T>();
 	final private Element keywordsListEncoder = new Element("keywords");
@@ -64,10 +66,30 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		addContent(metadata.getRoot());
 		addContent(keywordsListEncoder);
 	}
+	
+	public void setEnabled(boolean enabled){
+		set("enabled",(enabled)?"true":"false");
+	}
 
-
+	/**
+	 * @param key
+	 * @param dimensionInfo
+	 * @deprecated will be set to protected in the next release
+	 */
 	public void addMetadata(String key, T dimensionInfo) {
 		metadata.add(key, dimensionInfo.getRoot());
+	}
+	
+	/**
+	 * @param key the name of the metadata to add (f.e.: elevation, time)
+	 * @return true if something is removed, false otherwise
+	 */
+	public boolean delMetadata(String key) {
+		return metadata.remove(key);
+	}
+	
+	public void setMetadata(String key, T dimensionInfo) {
+		metadata.set(key, dimensionInfo.getRoot());
 	}
 
 
@@ -75,6 +97,25 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		final Element el = new Element("string");
 		el.setText(keyword);
 		keywordsListEncoder.addContent(el);
+	}
+	
+	/**
+	 * delete a keyword from the list
+	 * @param keyword
+	 * @return true if something is removed, false otherwise
+	 */
+	public boolean delKeyword(final String keyword) {
+		final Element el = new Element("string");
+		el.setText(keyword);
+		return (keywordsListEncoder.removeContent(new Filter() {
+			private static final long serialVersionUID = 1L;
+			public boolean matches(Object obj) {
+				if (((Element)obj).getText().equals(keyword)){
+					return true;
+				}
+				return false;
+			}
+		})).size()==0?false:true;
 	}
 
 	/**
@@ -89,7 +130,7 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	 * NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED
 	 * 
 	 * @deprecated use the setProjectionPolicy. <br>
-	 *             This method will be set as private in the next release
+	 *             This method will be set as protected in the next release
 	 */
 	public void addProjectionPolicy(ProjectionPolicy policy) {
 		add(PROJECTIONPOLICY, policy.toString());
@@ -102,13 +143,12 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		set(PROJECTIONPOLICY, policy.toString());
 	}
 
-	private final static String NAME="name";
 	/**
 	 * Add the 'name' node with a text value from 'name'
 	 * 
 	 * @note REQUIRED to configure a resource
 	 * @deprecated use the setName. <br>
-	 *             This method will be set as private in the next release
+	 *             This method will be set as protected in the next release
 	 */
 	public void addName(final String name) {
 		add(NAME, name);
@@ -127,7 +167,7 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	 * Add the 'title' node with a text value from 'title'
 	 * 
 	 * @deprecated use the setTitle. <br>
-	 *             This method will be set as private in the next release
+	 *             This method will be set as protected in the next release
 	 */
 	public void addTitle(final String title) {
 		add(TITLE, title);
@@ -145,7 +185,7 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	 * Add the 'SRS' node with a text value from 'srs'
 	 * 
 	 * @deprecated use the setSRS. <br>
-	 *             This method will be set as private in the next release
+	 *             This method will be set as protected in the next release
 	 */
 	public void addSRS(final String srs) {
 		add(SRS, srs);
@@ -166,7 +206,7 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	
 	/**
 	 * @deprecated use the setSRS. <br>
-	 *             This method will be set as private in the next release
+	 *             This method will be set as protected in the next release
 	 *             
 	 * @param minx
 	 * @param maxy
@@ -200,7 +240,7 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	
 	/**
 	 * @deprecated use the setSRS. <br>
-	 *             This method will be set as private in the next release
+	 *             This method will be set as protected in the next release
 	 *             
 	 * @param minx
 	 * @param maxy

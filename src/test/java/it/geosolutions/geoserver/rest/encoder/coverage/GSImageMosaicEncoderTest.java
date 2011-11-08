@@ -19,13 +19,9 @@
  */
 package it.geosolutions.geoserver.rest.encoder.coverage;
 
-import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -45,41 +41,20 @@ public class GSImageMosaicEncoderTest extends TestCase {
     @Test
     public void testAll() {
     	final GSImageMosaicEncoder encoder=new GSImageMosaicEncoder();
-    	encoder.addKeyword("KEYWORD_1");
-    	encoder.addKeyword("KEYWORD_2");
-    	encoder.addKeyword("...");
-    	encoder.addKeyword("KEYWORD_N");
-    	final GSDimensionInfoEncoder dim=new GSDimensionInfoEncoder(true);
-    	dim.addPresentation(Presentation.CONTINUOUS_INTERVAL);
-    	encoder.addMetadata("time", dim);
-    	final GSDimensionInfoEncoder dim2=new GSDimensionInfoEncoder(true);
-    	dim2.addPresentation(Presentation.LIST);
-    	encoder.addMetadata("elev", dim2);
+    
     	encoder.addAllowMultithreading(true);
-    	encoder.addSUGGESTED_TILE_SIZE("512,512");
-
+    	LOGGER.info(encoder.toString());
+    	encoder.setAllowMultithreading(false);
     	LOGGER.info(encoder.toString());
     	
-    	final Element el=encoder.contains("metadata");
-    	Assert.assertNotNull(el);
-    	LOGGER.info("contains_key:"+el.toString());
     	
-    	final Element el2=encoder.contains("presentation");
-    	Assert.assertNotNull(el2);
-    	LOGGER.info("contains_key:"+el2.toString());
+    	encoder.addSUGGESTED_TILE_SIZE("512,512");
+
     	
-    	final Element el3=encoder.contains(encoder.contains("metadata"));
-    	Assert.assertNotNull(el3);
-    	LOGGER.info("contains_by_node:"+el3.toString());
     	
-    	final boolean removed=encoder.remove(el3);
-    	LOGGER.info("remove:"+removed);
-    	Assert.assertTrue(removed);
     	
-    	final Element el4=encoder.contains("metadata");
-    	Assert.assertNull(el4);
-    	if (el4==null)
-    		LOGGER.info("REMOVED");
+    	
+    	
     	
     	
     }
