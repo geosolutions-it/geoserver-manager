@@ -40,7 +40,9 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
 
 /**
  * Connect to a GeoServer instance to publish or modify data.
@@ -509,12 +511,14 @@ public class GeoServerRESTPublisher {
                     return null;
                 }
                 String coverageName = covList.get(0).getName();
-
-                configureCoverage(coverageEncoder, store.getWorkspaceName(), storeName, coverageName);
+coverageEncoder.setName(FilenameUtils.getBaseName(mosaicDir.getName()));
+                configureCoverage(coverageEncoder, workspace, storeName, coverageName);
+                	
                 configureLayer(workspace, storeName, layerEncoder);
 
             } catch (Exception e) {
-                LOGGER.warn("Could not configure external mosaic:" + storeName, e);
+            	if (LOGGER.isEnabledFor(Level.WARN))
+            		LOGGER.warn("Could not configure external mosaic:" + storeName, e);
                 store = null; // TODO: should we remove the configured store?
             }
         }
@@ -735,6 +739,43 @@ public class GeoServerRESTPublisher {
         return configureLayer(null, layerName, layer);
     }
 
+    public boolean removeLayer(final String workspace, final String layerName) {
+
+        final String fqLayerName;
+
+        // this null check is here only for backward compatibility. workspace shall be mandatory.
+        if(workspace == null) {
+
+            fqLayerName = layerName;
+            
+        	if (LOGGER.isEnabledFor(Level.WARN)){
+        		LOGGER.warn("Null workspace while removing layer : " + layerName + " -- This behavior is deprecated.");
+        	}
+        } else {
+        	fqLayerName = workspace + ":" + layerName;
+        }
+        if (layerName==null) {
+        	if (LOGGER.isEnabledFor(Level.ERROR)){
+        		LOGGER.error("Null layerName : " + layerName);
+        	}
+        	return false;
+        }
+
+        final String url = restURL + "/rest/layers/" + fqLayerName;
+
+        boolean result=HTTPUtils.delete(url, gsuser, gspass);
+        if (result) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Layer successfully removed: " + fqLayerName);
+            }
+        } else {
+        	if (LOGGER.isEnabledFor(Level.WARN))
+        		LOGGER.warn("Error removing layer " + fqLayerName);
+        }
+
+        return result;
+    }
+    
     /**
      * Allows to configure some layer attributes such as WmsPath and DefaultStyle
      *
@@ -743,16 +784,23 @@ public class GeoServerRESTPublisher {
 
         // TODO: check this usecase, layer should always be defined
         if (layer.isEmpty()) {
-            LOGGER.warn("Null layer name while configuring layer -- This behavior is suspicious.");
+        	if (LOGGER.isEnabledFor(Level.WARN))
+        		LOGGER.warn("Null layer name while configuring layer -- This behavior is suspicious.");
             return true;
         }
 
-        String fqLayerName = workspace + ":" + layerName;
+        final String fqLayerName;
 
         // this null check is here only for backward compatibility. workspace shall be mandatory.
         if(workspace == null) {
-            LOGGER.warn("Null workspace while configuring layer : " + layerName + " -- This behavior is deprecated.");
+
             fqLayerName = layerName;
+            
+        	if (LOGGER.isEnabledFor(Level.WARN)){
+        		LOGGER.warn("Null workspace while configuring layer : " + layerName + " -- This behavior is deprecated.");
+        	}
+        } else {
+        	fqLayerName = workspace + ":" + layerName;
         }
 
         final String url = restURL + "/rest/layers/" + fqLayerName;
@@ -764,7 +812,8 @@ public class GeoServerRESTPublisher {
                 LOGGER.info("Layer successfully configured: " + fqLayerName);
             }
         } else {
-            LOGGER.warn("Error configuring layer " + fqLayerName + " (" + sendResult + ")");
+        	if (LOGGER.isEnabledFor(Level.WARN))
+        		LOGGER.warn("Error configuring layer " + fqLayerName + " (" + sendResult + ")");
         }
 
         return sendResult != null;
@@ -785,7 +834,8 @@ public class GeoServerRESTPublisher {
                 LOGGER.debug("Coverage successfully configured " + wsname + ":" + csname + ":" + cname);
             }
         } else {
-            LOGGER.warn("Error configuring coverage " + wsname + ":" + csname + ":" + cname + " (" + sendResult + ")");
+        	if (LOGGER.isEnabledFor(Level.WARN))
+        		LOGGER.warn("Error configuring coverage " + wsname + ":" + csname + ":" + cname + " (" + sendResult + ")");
         }
 
         return sendResult != null;

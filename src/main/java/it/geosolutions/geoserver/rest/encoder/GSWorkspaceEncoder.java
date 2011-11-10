@@ -43,6 +43,9 @@ public class GSWorkspaceEncoder extends PropertyXMLEncoder {
         super(WORKSPACE);
     }
 
+    /**
+     * @param name the workspace name
+     */
     public GSWorkspaceEncoder(String name) {
     	super(WORKSPACE);
         addName(name);
@@ -54,7 +57,7 @@ public class GSWorkspaceEncoder extends PropertyXMLEncoder {
      * @throws IllegalStateException if name is already set
      * @deprecated will be set to protected in the next release
      */
-    public void addName(String name) {
+    public void addName(final String name) {
     	final Element el=ElementUtils.contains(getRoot(),NAME);
     	if (el==null)
     		add(NAME, name);
@@ -66,7 +69,7 @@ public class GSWorkspaceEncoder extends PropertyXMLEncoder {
      * add or change (if already set) the workspace name
      * @param name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
     	final Element el=ElementUtils.contains(getRoot(),NAME);
     	if (el==null)
     		add(NAME, name);

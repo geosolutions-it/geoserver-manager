@@ -25,6 +25,9 @@
 
 package it.geosolutions.geoserver.rest.encoder.utils;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.jdom.Content;
 import org.jdom.Element;
 import org.jdom.filter.Filter;
@@ -63,6 +66,22 @@ import org.jdom.filter.Filter;
  * 	</entry>
  * </listName>}
  * 
+ * This can be also add list of compounded Elements <br/>
+ * 
+ * <listName>
+ *  <entry>
+ *   	<String>AllowMultithreading</String>
+ * 		<enabled>false</enabled>
+ * 	</entry>
+ * 	<entry>
+ * 		
+ * 			<enabled>true</enabled>
+ * 			<attribute>ele</attribute>
+ * 			<presentation>LIST</presentation>
+ * 		</dimensionInfo>
+ * 	</entry>
+ * </listName>}
+ * 
  * <PRE>
  * 
  * @author ETj (etj at geo-solutions.it)
@@ -72,29 +91,57 @@ import org.jdom.filter.Filter;
 public class NestedElementEncoder extends XmlElement {
 	public final static String ENTRY = "entry";
 	public final static String KEY = "key";
-	
+
 	static class NestedElementFilter implements Filter {
 		private static final long serialVersionUID = 1L;
 		private final String key;
+		private final String value;
 		private final Element root;
-		public NestedElementFilter(Element root, String key) {
-			this.key=key;
-			this.root=root;
+
+		/**
+		 * if key is null we only check for children name if value is null we
+		 * only check for key attribute
+		 * 
+		 * @param root
+		 * @param key
+		 * @param value
+		 */
+		public NestedElementFilter(Element root, String key, String value) {
+			this.key = key;
+			this.root = root;
+			this.value = value;
 		}
 
 		public boolean matches(Object obj) {
 			if (obj instanceof Element) {
 				final Element el = ((Element) obj);
-				if (root.isAncestor(el)){
+				if (root.isAncestor(el)) {
 					if (el.getName().equals(ENTRY)/* && el.getText().equals(value) */) {
+						boolean keyCheck=true;
 						if (key != null) {
-							if (el.getAttribute(KEY).getValue().equals(key))
-								return true;
-							else
-								return false;
+							if (el.getAttribute(KEY).getValue().equals(key)) {
+								keyCheck=true;
+							} else {
+								keyCheck=false;
+							}
 						}
-						return true;
+						if (value != null)
+							return keyCheck&&checkChilds(el, value);
+						else
+							return keyCheck;
 					}
+				}
+			}
+			return false;
+		}
+
+		private static boolean checkChilds(Element el, String value) {
+			final List<Element> childList = el.getChildren();
+			final Iterator<Element> childIt = childList.iterator();
+			while (childIt.hasNext()) {
+				final Element child = childIt.next();
+				if (child.getName().equals(value)) {
+					return true;
 				}
 			}
 			return false;
@@ -105,67 +152,84 @@ public class NestedElementEncoder extends XmlElement {
 		super(listName);
 	}
 
-//	public void set(final String key, final String value) {
-//				// if some previous similar object is found
-//		final Element search;
-//		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(getRoot(), key))) != null) {
-//			// remove it
-//			ElementUtils.remove(getRoot(), search);
-//		}
-//		// add the new entry
-//		add(key,value);
-//	}
+	public void set(final String key, final String value) {
+		// if some previous similar object is found
+		final Element search;
+		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(
+				getRoot(), key, value))) != null) {
+			// remove it
+			ElementUtils.remove(getRoot(), search);
+		}
+		// add the new entry
+		add(key, value);
+	}
 
-//	public void add(final String key, final Element value) {
-//		final Element entryElem = new Element(ENTRY);
-//		if (key != null)
-//			entryElem.setAttribute(KEY, key);
-//
-//		entryElem.addContent(value);
-//
-//		this.addContent(entryElem);
-//	}
-	
-//	public void add(final String key, final String value) {
-//		final Element entryElem = new Element(ENTRY);
-//
-//		if (key != null)
-//			entryElem.setAttribute(KEY, key);
-//
-//		entryElem.setText(value);
-//
-//		this.addContent(entryElem);
-//	}
+	public void set(final String key, final Element value) {
+		// if some previous similar object is found
+		final Element search;
+		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(
+				getRoot(), key, value.getName()))) != null) {
+			// remove it
+			ElementUtils.remove(getRoot(), search);
+		}
+		// add the new entry
+		add(key, value);
+	}
 
-	public void add(final String key, final Content value) {
+	public void add(final String key, final Element value) {
 		final Element entryElem = new Element(ENTRY);
 		if (key != null)
 			entryElem.setAttribute(KEY, key);
 
-		entryElem.setContent(value);
+		entryElem.addContent(value);
 
 		this.addContent(entryElem);
 	}
-	
-	public void set(final String key, final Content value) {		
+
+	public void add(final String key, final String value) {
+		final Element entryElem = new Element(ENTRY);
+
+		if (key != null)
+			entryElem.setAttribute(KEY, key);
+
+		entryElem.setText(value);
+
+		this.addContent(entryElem);
+	}
+
+	public void add(final String key, final List<Element> list) {
+		final Element entryElem = new Element(ENTRY);
+		if (key != null)
+			entryElem.setAttribute(KEY, key);
+
+		// final Iterator<Element> it=list.iterator();
+		// while (it.hasNext()){
+		// final Element child=it.next();
+		entryElem.addContent(list);
+		// }
+
+		this.addContent(entryElem);
+	}
+
+	public void set(final String key, final List<Element> value) {
 		// if some previous similar object is found
 		final Element search;
-		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(getRoot(), key))) != null) {
+		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(
+				getRoot(), key, value.get(0).getValue()))) != null) {
 			// remove it
 			ElementUtils.remove(search, search);
 		}
 		// add the new entry
-		add(key,value);
+		add(key, value);
 	}
-	
-	public boolean remove(final String key){
+
+	public boolean remove(final String key) {
 		// if some previous similar object is found
 		final Element search;
-		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(getRoot(), key))) != null) {
-			return ElementUtils.remove(search,search);
-		}
-		else
+		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(
+				getRoot(), key, null))) != null) {
+			return ElementUtils.remove(search, search);
+		} else
 			return false;
 	}
 }
-

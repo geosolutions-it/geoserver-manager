@@ -41,9 +41,10 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
 
     public GSPostGISDatastoreEncoder() {
         super("dataStore");
+        addContent(connectionParameters.getRoot());
+        
         addType("PostGIS"); // may be overwritten with e.g. "PostGIS (JNDI)"
         addDatabaseType("postgis");
-        addContent(connectionParameters.getRoot());
     }
     
     /**
