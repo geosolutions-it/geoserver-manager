@@ -27,7 +27,9 @@ package it.geosolutions.geoserver.rest.encoder.coverage;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.jdom.Element;
 import org.jdom.filter.Filter;
@@ -60,6 +62,8 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 			if (obj instanceof Element) {
 				if (((Element)obj).getName().equals(ENTRY)){
 					final Element el=((Element)obj).getChild(STRING);
+					if (el==null)
+						return false;
 					if (el.getText().equals(this.name)){
 						return true;
 					}
@@ -87,10 +91,11 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	 * @param val
 	 */
 	public void addAllowMultithreading(final boolean val){
-		final Element param=new Element(ENTRY);
-		param.addContent(new Element(STRING).setText(allowMultithreading));
-		param.addContent(new Element(STRING).setText((val)?"true":"false"));
-		parameters.addContent(param);
+		final List<Element> list=new ArrayList<Element>(2);
+		list.add(new Element(STRING).setText(allowMultithreading));
+		list.add(new Element(STRING).setText((val)?"true":"false"));
+		
+		parameters.add(null,list);
 	}
 	
 	private final static Filter allowMultithreadingFilter=new parametersFilter(allowMultithreading);
@@ -108,7 +113,7 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 		final Element param=new Element(ENTRY);
 		param.addContent(new Element(STRING).setText(filter));
 		param.addContent(new Element(STRING).setText(val));
-		parameters.addContent(param);
+		parameters.add(null,param);
 	}
 	
 	private final static Filter filterFilter=new parametersFilter(filter);
@@ -123,10 +128,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	 * @param val
 	 */
 	public void addMaxAllowedTiles(final int val){
-		final Element param=new Element(ENTRY);
-		param.addContent(new Element(STRING).setText(maxAllowedTiles));
-		param.addContent(new Element(STRING).setText(String.valueOf(val)));
-		parameters.addContent(param);
+		final List<Element> list=new ArrayList<Element>(2);
+		list.add(new Element(STRING).setText(maxAllowedTiles));
+		list.add(new Element(STRING).setText(String.valueOf(val)));
+		parameters.add(null,list);
 	}
 	
 	private final static Filter maxAllowedTilesFilter=new parametersFilter(maxAllowedTiles);
@@ -141,10 +146,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	 * @param val
 	 */
 	public void addInputTransparentColor(final String val){
-		final Element param=new Element(ENTRY);
-		param.addContent(new Element(STRING).setText(inputTransparentColor));
-		param.addContent(new Element(STRING).setText(val));
-		parameters.addContent(param);
+		final List<Element> list=new ArrayList<Element>(2);
+		list.add(new Element(STRING).setText(inputTransparentColor));
+		list.add(new Element(STRING).setText(val));
+		parameters.add(null,list);
 	}
 	
 	private final static Filter inputTransparentColorFilter=new parametersFilter(inputTransparentColor);
@@ -159,10 +164,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	 * @param val
 	 */
 	public void addOutputTransparentColor(final String val){
-		final Element param=new Element(ENTRY);
-		param.addContent(new Element(STRING).setText(outputTransparentColor));
-		param.addContent(new Element(STRING).setText(val));
-		parameters.addContent(param);
+		final List<Element> list=new ArrayList<Element>(2);
+		list.add(new Element(STRING).setText(outputTransparentColor));
+		list.add(new Element(STRING).setText(val));
+		parameters.add(null,list);
 	}
 	
 	private final static Filter outputTransparentColorFilter=new parametersFilter(outputTransparentColor);
@@ -178,10 +183,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	 * @deprecated will be set to protected in the next release
 	 */
 	public void addSUGGESTED_TILE_SIZE(final String val){
-		final Element param=new Element(ENTRY);
-		param.addContent(new Element(STRING).setText(SUGGESTED_TILE_SIZE));
-		param.addContent(new Element(STRING).setText(val));
-		parameters.addContent(param);
+		final List<Element> list=new ArrayList<Element>(2);
+		list.add(new Element(STRING).setText(SUGGESTED_TILE_SIZE));
+		list.add(new Element(STRING).setText(val));
+		parameters.add(null,list);
 	}
 	
 	private final static Filter SUGGESTED_TILE_SIZEFilter=new parametersFilter(SUGGESTED_TILE_SIZE);
@@ -196,10 +201,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	 * @param val
 	 */
 	public void addUSE_JAI_IMAGEREAD(final boolean val){
-		final Element param=new Element(ENTRY);
-		param.addContent(new Element(STRING).setText(USE_JAI_IMAGEREAD));
-		param.addContent(new Element(STRING).setText((val)?"true":"false"));
-		parameters.addContent(param);
+		final List<Element> list=new ArrayList<Element>(2);
+		list.add(new Element(STRING).setText(USE_JAI_IMAGEREAD));
+		list.add(new Element(STRING).setText((val)?"true":"false"));
+		parameters.add(null,list);
 	}
 	
 	private final static Filter USE_JAI_IMAGEREADFilter=new parametersFilter(USE_JAI_IMAGEREAD);
@@ -214,10 +219,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	 * @param val
 	 */
 	public void addBackgroundValues(final String val){
-		final Element param=new Element(ENTRY);
-		param.addContent(new Element(STRING).setText(backgroundValues));
-		param.addContent(new Element(STRING).setText(val));
-		parameters.addContent(param);
+		final List<Element> list=new ArrayList<Element>(2);
+		list.add(new Element(STRING).setText(backgroundValues));
+		list.add(new Element(STRING).setText(val));
+		parameters.add(null,list);
 	}
 	
 	private final static Filter backgroundValuesFilter=new parametersFilter(backgroundValues);

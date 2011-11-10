@@ -44,13 +44,8 @@ public class GSWorkspaceEncoderTest extends TestCase {
     	final GSWorkspaceEncoder wsenc = new GSWorkspaceEncoder("WS1");
     	LOGGER.info(wsenc.toString());
     	
-    	try{
-    		wsenc.addName("test_name");
-    		// NEVER HERE
-    		Assert.assertTrue(false);
-    	}catch (IllegalStateException e){
-    		Assert.assertTrue(true);
-    	}
+    	wsenc.setName("test_name");
+    	LOGGER.info(wsenc.toString());
     	wsenc.setName("new_name");
     	LOGGER.info(wsenc.toString());
     	

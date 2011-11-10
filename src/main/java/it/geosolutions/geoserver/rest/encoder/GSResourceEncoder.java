@@ -161,6 +161,14 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	public void setName(final String name) {
 		set(NAME, name);
 	}
+	
+	public String getName(){
+		final Element nameNode=get(NAME);
+		if (nameNode!=null)
+			return nameNode.getText();
+		else
+			return null;
+	}
 
 	private final static String TITLE="title";
 	/**

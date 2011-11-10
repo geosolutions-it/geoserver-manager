@@ -56,15 +56,35 @@ public class PropertyXMLEncoder extends XmlElement {
 	public PropertyXMLEncoder(final String rootName) {
 		super(rootName);
 	}
+
+	protected void get(final String key, final String value) {
+
+	}
+
+	protected Element get(final String key) {
+		return get(getRoot(), key);
+	}
 	
-	
-	public void set(final String key, final String value) {
+	private Element get(final Element el, final String key) {
+		if (el==null)
+			return null;
+		if (key.contains("/")) {
+			final int i = key.indexOf("/");
+			final String parentName = key.substring(0, i);
+			final String newkey = key.substring(i + 1);
+			return get(ElementUtils.contains(el, parentName),newkey);
+		} else {
+			return ElementUtils.contains(el, key);
+		}
+	}
+
+	protected void set(final String key, final String value) {
 		if (key != null && value != null) {
 			set(getRoot(), key, value);
 		}
 	}
-	
-	private void set(final Element e, final String key, final String value){
+
+	private void set(final Element e, final String key, final String value) {
 		if (key.contains("/")) {
 			final int i = key.indexOf("/");
 			final String childName = key.substring(0, i);
@@ -74,21 +94,21 @@ public class PropertyXMLEncoder extends XmlElement {
 			if (child == null) {
 				child = new Element(childName);
 				e.addContent(child);
-				add(child,newkey,value);
+				add(child, newkey, value);
 			}
-			set(child, newkey, value);	
+			set(child, newkey, value);
 		} else {
 			Element pp = null;
-			if ((pp = ElementUtils.contains(e,key)) == null)
-				add(e,key, value);
+			if ((pp = ElementUtils.contains(e, key)) == null)
+				add(e, key, value);
 			else {
-				ElementUtils.remove(e,pp);
-				add(e,key, value);
+				ElementUtils.remove(e, pp);
+				add(e, key, value);
 			}
 		}
 	}
 
-	public void add(final String key, final String value) {
+	protected void add(final String key, final String value) {
 		if (key != null && value != null) {
 			add(this.getRoot(), key, value);
 		}
@@ -113,60 +133,60 @@ public class PropertyXMLEncoder extends XmlElement {
 		}
 
 	}
-	
-//	public void set(final String key, final String value) {
-//		if (key != null && value != null) {
-//			set(getRoot(), key, value);
-//		}
-//	}
-//	
-//	private void set(final Element e, final String key, final String value){
-//		if (!key.contains("/")) {
-//				Element pp = null;
-//				if ((pp = contains(key)) == null)
-//					add(e,key, value);
-//				else {
-//					remove(pp);
-//					add(e,key, value);
-//				}
-//		} else {
-//			final int i = key.indexOf("/");
-//			final String childName = key.substring(0, i);
-//			final String newkey = key.substring(i + 1);
-//
-//			Element child = e.getChild(childName);
-//			if (child == null) {
-//				child = new Element(childName);
-//				e.addContent(child);
-//				add(child,newkey,value);
-//			}
-//			set(child, newkey, value);
-//		}
-//	}
-//
-//	public void add(final String key, final String value) {
-//		if (key != null && value != null) {
-//			add(this.getRoot(), key, value);
-//		}
-//	}
-//
-//	private void add(Element e, String key, String value) {
-//		if (!key.contains("/")) {
-//			e.addContent(new Element(key).setText(value));
-//		} else {
-//			final int i = key.indexOf("/");
-//			final String childName = key.substring(0, i);
-//			final String newkey = key.substring(i + 1);
-//
-//			Element child = e.getChild(childName);
-//			if (child == null) {
-//				child = new Element(childName);
-//				e.addContent(child);
-//			}
-//
-//			add(child, newkey, value);
-//		}
-//
-//	}
+
+	// public void set(final String key, final String value) {
+	// if (key != null && value != null) {
+	// set(getRoot(), key, value);
+	// }
+	// }
+	//
+	// private void set(final Element e, final String key, final String value){
+	// if (!key.contains("/")) {
+	// Element pp = null;
+	// if ((pp = contains(key)) == null)
+	// add(e,key, value);
+	// else {
+	// remove(pp);
+	// add(e,key, value);
+	// }
+	// } else {
+	// final int i = key.indexOf("/");
+	// final String childName = key.substring(0, i);
+	// final String newkey = key.substring(i + 1);
+	//
+	// Element child = e.getChild(childName);
+	// if (child == null) {
+	// child = new Element(childName);
+	// e.addContent(child);
+	// add(child,newkey,value);
+	// }
+	// set(child, newkey, value);
+	// }
+	// }
+	//
+	// public void add(final String key, final String value) {
+	// if (key != null && value != null) {
+	// add(this.getRoot(), key, value);
+	// }
+	// }
+	//
+	// private void add(Element e, String key, String value) {
+	// if (!key.contains("/")) {
+	// e.addContent(new Element(key).setText(value));
+	// } else {
+	// final int i = key.indexOf("/");
+	// final String childName = key.substring(0, i);
+	// final String newkey = key.substring(i + 1);
+	//
+	// Element child = e.getChild(childName);
+	// if (child == null) {
+	// child = new Element(childName);
+	// e.addContent(child);
+	// }
+	//
+	// add(child, newkey, value);
+	// }
+	//
+	// }
 
 }

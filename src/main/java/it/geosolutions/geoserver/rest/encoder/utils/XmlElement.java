@@ -56,21 +56,21 @@ public class XmlElement{
 	@SuppressWarnings("unused")
 	private XmlElement(){root=null;};
 	
-	public void add(final String nodename, final String nodetext) {
+	protected void add(final String nodename, final String nodetext) {
     	add(nodename,new Text(nodetext));
     }
 	
-	public void add(final String nodename, final Content nodetext) {
+	protected void add(final String nodename, final Content nodetext) {
     	final Element el=new Element(nodename);
     	el.setContent(nodetext);
     	this.addContent(el);
     }
     
-	public void set(final String nodename, final String nodetext) {
+	protected void set(final String nodename, final String nodetext) {
     	set(nodename,new Text(nodetext));
     }
 	
-    public void set(final String nodename, final Content nodeContent) {
+	protected void set(final String nodename, final Content nodeContent) {
     	final Element el=ElementUtils.contains(getRoot(),nodename);
     	if (el==null){
     		add(nodename,nodeContent);
@@ -80,7 +80,7 @@ public class XmlElement{
     	}
     }
     
-	public Element addContent(Content child){
+	protected Element addContent(Content child){
 		return root.addContent(child);
 	}
 	
