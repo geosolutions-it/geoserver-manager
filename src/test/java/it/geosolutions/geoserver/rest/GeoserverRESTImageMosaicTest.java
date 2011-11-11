@@ -95,9 +95,9 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
         coverageEncoder.setBackgroundValues("");
         coverageEncoder.setFilter("");
         coverageEncoder.setInputTransparentColor("");
-        coverageEncoder.setLatLonBoundingBox(-180, -90, 180, -90, "EPSG:4326");
+        coverageEncoder.setLatLonBoundingBox(-180, -90, 180, 90, "EPSG:4326");
         coverageEncoder.setMaxAllowedTiles(6000);
-        coverageEncoder.setNativeBoundingBox(-180, -90, 180, -90, "EPSG:4326");
+        coverageEncoder.setNativeBoundingBox(-180, -90, 180, 90, "EPSG:4326");
         coverageEncoder.setOutputTransparentColor("");
         coverageEncoder.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
         coverageEncoder.setSRS("EPSG:4326");
@@ -134,7 +134,9 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
         // creation test
         RESTCoverageStore coverageStore =null;
         try {
-        	if (!publisher.createExternalMosaic(wsName,coverageStoreName,new File("/home/carlo/work/data/arw_3km_Wind_20110929T120000000Z/"),coverageEncoder,layerEncoder)){
+        	final File mosaicFile = new ClassPathResource("testdata/time_geotiff/").getFile();
+        	
+        	if (!publisher.createExternalMosaic(wsName,coverageStoreName,mosaicFile,coverageEncoder,layerEncoder)){
         		fail();
         	}
     		coverageStore = reader.getCoverageStore(wsName,coverageStoreName);
@@ -144,9 +146,10 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
                 fail("*** coveragestore " + coverageStoreName + " has not been created.");
     		}
 
-		
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+			fail(e.getLocalizedMessage());
+		} catch (IOException e) {
 			e.printStackTrace();
 			fail(e.getLocalizedMessage());
 		}
