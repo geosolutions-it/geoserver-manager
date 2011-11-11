@@ -175,7 +175,6 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         deleteAllWorkspaces();
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
-//        String ns = "it.geosolutions";
         String storeName = "resttestshp";
         String layerName = "cities";
 

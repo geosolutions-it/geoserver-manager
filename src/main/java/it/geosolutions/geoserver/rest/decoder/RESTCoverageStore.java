@@ -68,7 +68,9 @@ public class RESTCoverageStore {
     public static RESTCoverageStore build(String response) {
         if(response == null)
             return null;
-
+        if(response.isEmpty())
+        	return new RESTCoverageStore(new Element("coverageStore")); // TODO check how to response
+        
         Element pb = JDOMBuilder.buildElement(response);
         if(pb != null)
             return new RESTCoverageStore(pb);
