@@ -110,10 +110,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	 * @param val
 	 */
 	public void addFilter(final String val){
-		final Element param=new Element(ENTRY);
-		param.addContent(new Element(STRING).setText(filter));
-		param.addContent(new Element(STRING).setText(val));
-		parameters.add(null,param);
+		final List<Element> list=new ArrayList<Element>(2);
+		list.add(new Element(STRING).setText(filter));
+		list.add(new Element(STRING).setText(val));
+		parameters.add(null,list);
 	}
 	
 	private final static Filter filterFilter=new parametersFilter(filter);

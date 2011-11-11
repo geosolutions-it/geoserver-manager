@@ -48,10 +48,11 @@ import org.jdom.filter.Filter;
  */
 public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		extends PropertyXMLEncoder {
-	private final static String NAME="name";
+	private final static String NAME = "name";
 
 	final private GSMetadataEncoder<T> metadata = new GSMetadataEncoder<T>();
 	final private Element keywordsListEncoder = new Element("keywords");
+
 	/**
 	 * @param rootName
 	 *            Actually 'feature' or 'coverage'
@@ -66,9 +67,9 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		addContent(metadata.getRoot());
 		addContent(keywordsListEncoder);
 	}
-	
-	public void setEnabled(boolean enabled){
-		set("enabled",(enabled)?"true":"false");
+
+	public void setEnabled(boolean enabled) {
+		set("enabled", (enabled) ? "true" : "false");
 	}
 
 	/**
@@ -79,28 +80,29 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	public void addMetadata(String key, T dimensionInfo) {
 		metadata.add(key, dimensionInfo.getRoot());
 	}
-	
+
 	/**
-	 * @param key the name of the metadata to add (f.e.: elevation, time)
+	 * @param key
+	 *            the name of the metadata to add (f.e.: elevation, time)
 	 * @return true if something is removed, false otherwise
 	 */
 	public boolean delMetadata(String key) {
 		return metadata.remove(key);
 	}
-	
+
 	public void setMetadata(String key, T dimensionInfo) {
 		metadata.set(key, dimensionInfo.getRoot());
 	}
-
 
 	public void addKeyword(String keyword) {
 		final Element el = new Element("string");
 		el.setText(keyword);
 		keywordsListEncoder.addContent(el);
 	}
-	
+
 	/**
 	 * delete a keyword from the list
+	 * 
 	 * @param keyword
 	 * @return true if something is removed, false otherwise
 	 */
@@ -109,13 +111,14 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		el.setText(keyword);
 		return (keywordsListEncoder.removeContent(new Filter() {
 			private static final long serialVersionUID = 1L;
+
 			public boolean matches(Object obj) {
-				if (((Element)obj).getText().equals(keyword)){
+				if (((Element) obj).getText().equals(keyword)) {
 					return true;
 				}
 				return false;
 			}
-		})).size()==0?false:true;
+		})).size() == 0 ? false : true;
 	}
 
 	/**
@@ -125,7 +128,8 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		REPROJECT_TO_DECLARED, FORCE_DECLARED, NONE
 	}
 
-	private final static String PROJECTIONPOLICY="projectionPolicy";
+	private final static String PROJECTIONPOLICY = "projectionPolicy";
+
 	/**
 	 * NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED
 	 * 
@@ -153,6 +157,7 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	public void addName(final String name) {
 		add(NAME, name);
 	}
+
 	/**
 	 * Set or modify the 'name' node with a text value from 'name'
 	 * 
@@ -161,16 +166,17 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	public void setName(final String name) {
 		set(NAME, name);
 	}
-	
-	public String getName(){
-		final Element nameNode=get(NAME);
-		if (nameNode!=null)
+
+	public String getName() {
+		final Element nameNode = get(NAME);
+		if (nameNode != null)
 			return nameNode.getText();
 		else
 			return null;
 	}
 
-	private final static String TITLE="title";
+	private final static String TITLE = "title";
+
 	/**
 	 * Add the 'title' node with a text value from 'title'
 	 * 
@@ -180,7 +186,7 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	public void addTitle(final String title) {
 		add(TITLE, title);
 	}
-	
+
 	/**
 	 * Set or modify the 'title' node with a text value from 'title'
 	 */
@@ -188,7 +194,8 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		set(TITLE, title);
 	}
 
-	private final static String SRS="srs";
+	private final static String SRS = "srs";
+
 	/**
 	 * Add the 'SRS' node with a text value from 'srs'
 	 * 
@@ -198,7 +205,7 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 	public void addSRS(final String srs) {
 		add(SRS, srs);
 	}
-	
+
 	/**
 	 * Set or modify the 'SRS' node with a text value from 'srs'
 	 */
@@ -206,67 +213,67 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		set(SRS, srs);
 	}
 
-	private final static String LATLONBBMINX="latLonBoundingBox/minx";
-	private final static String LATLONBBMAXX="latLonBoundingBox/maxx";
-	private final static String LATLONBBMINY="latLonBoundingBox/miny";
-	private final static String LATLONBBMAXY="latLonBoundingBox/maxy";
-	private final static String LATLONBBCRS="latLonBoundingBox/crs";
-	
+	private final static String LATLONBBMINX = "latLonBoundingBox/minx";
+	private final static String LATLONBBMAXX = "latLonBoundingBox/maxx";
+	private final static String LATLONBBMINY = "latLonBoundingBox/miny";
+	private final static String LATLONBBMAXY = "latLonBoundingBox/maxy";
+	private final static String LATLONBBCRS = "latLonBoundingBox/crs";
+
 	/**
 	 * @deprecated use the setSRS. <br>
 	 *             This method will be set as protected in the next release
-	 *             
+	 * 
 	 * @param minx
 	 * @param maxy
 	 * @param maxx
 	 * @param miny
 	 * @param crs
 	 */
-	public void addLatLonBoundingBox(double minx, double maxy, double maxx,
-			double miny, final String crs) {
+	public void addLatLonBoundingBox(double minx, double miny, double maxx,
+			double maxy, final String crs) {
 		add(LATLONBBMINX, String.valueOf(minx));
+		add(LATLONBBMINY, String.valueOf(miny));
 		add(LATLONBBMAXY, String.valueOf(maxy));
 		add(LATLONBBMAXX, String.valueOf(maxx));
-		add(LATLONBBMINY, String.valueOf(miny));
 		add(LATLONBBCRS, crs);
 	}
 
-	public void setLatLonBoundingBox(double minx, double maxy, double maxx,
-			double miny, final String crs) {
+	public void setLatLonBoundingBox(double minx, double miny, double maxx,
+			double maxy, final String crs) {
 		set(LATLONBBMINX, String.valueOf(minx));
 		set(LATLONBBMAXY, String.valueOf(maxy));
 		set(LATLONBBMAXX, String.valueOf(maxx));
 		set(LATLONBBMINY, String.valueOf(miny));
 		set(LATLONBBCRS, crs);
 	}
-	
-	private final static String NATIVEBBMINX="nativeBoundingBox/minx";
-	private final static String NATIVEBBMAXX="nativeBoundingBox/maxx";
-	private final static String NATIVEBBMINY="nativeBoundingBox/miny";
-	private final static String NATIVEBBMAXY="nativeBoundingBox/maxy";
-	private final static String NATIVEBBCRS="nativeBoundingBox/crs";
-	
+
+	private final static String NATIVEBBMINX = "nativeBoundingBox/minx";
+	private final static String NATIVEBBMAXX = "nativeBoundingBox/maxx";
+	private final static String NATIVEBBMINY = "nativeBoundingBox/miny";
+	private final static String NATIVEBBMAXY = "nativeBoundingBox/maxy";
+	private final static String NATIVEBBCRS = "nativeBoundingBox/crs";
+
 	/**
 	 * @deprecated use the setSRS. <br>
 	 *             This method will be set as protected in the next release
-	 *             
+	 * 
 	 * @param minx
 	 * @param maxy
 	 * @param maxx
 	 * @param miny
 	 * @param crs
 	 */
-	public void addNativeBoundingBox(double minx, double maxy, double maxx,
-			double miny, final String crs) {
+	public void addNativeBoundingBox(double minx, double miny, double maxx,
+			double maxy, final String crs) {
 		add(NATIVEBBMINX, String.valueOf(minx));
 		add(NATIVEBBMAXY, String.valueOf(maxy));
 		add(NATIVEBBMAXX, String.valueOf(maxx));
 		add(NATIVEBBMINY, String.valueOf(miny));
 		add(NATIVEBBCRS, crs);
 	}
-	
-	public void setNativeBoundingBox(double minx, double maxy, double maxx,
-			double miny, final String crs) {
+
+	public void setNativeBoundingBox(double minx, double miny, double maxx,
+			double maxy, final String crs) {
 		set(NATIVEBBMINX, String.valueOf(minx));
 		set(NATIVEBBMAXY, String.valueOf(maxy));
 		set(NATIVEBBMAXX, String.valueOf(maxx));

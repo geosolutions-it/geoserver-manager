@@ -50,7 +50,7 @@ import org.springframework.core.io.ClassPathResource;
 public class ConfigTest extends GeoserverRESTTest {
     private final static Logger LOGGER = Logger.getLogger(ConfigTest.class);
 
-    private static final String DEFAULT_WS = "it.geosolutions";
+    private static final String DEFAULT_WS = "geosolutions";
 
 
     public ConfigTest(String testName) {
