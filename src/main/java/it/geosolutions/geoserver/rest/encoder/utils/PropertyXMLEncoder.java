@@ -102,7 +102,7 @@ public class PropertyXMLEncoder extends XmlElement {
 			if ((pp = ElementUtils.contains(e, key)) == null)
 				add(e, key, value);
 			else {
-				ElementUtils.remove(e, pp);
+				ElementUtils.remove(pp, pp);
 				add(e, key, value);
 			}
 		}
