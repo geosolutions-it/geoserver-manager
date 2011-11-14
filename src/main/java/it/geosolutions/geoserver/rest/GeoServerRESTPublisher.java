@@ -340,6 +340,30 @@ public class GeoServerRESTPublisher {
 	}
 
 	/**
+	 * @deprecated use {@link publishDBLayer(final String workspace, final
+	 *             String storename, final GSFeatureTypeEncoder fte, final
+	 *             GSLayerEncoder layerEncoder)}
+	 * @param workspace
+	 * @param storename
+	 * @param layername
+	 * @param srs
+	 * @param defaultStyle
+	 * @return
+	 */
+	public boolean publishDBLayer(String workspace, String storename,
+			String layername, String srs, String defaultStyle) {
+
+		final GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+		fte.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
+		fte.addName(layername);
+		fte.addSRS(srs); // srs=null?"EPSG:4326":srs);
+		final GSLayerEncoder layerEncoder = new GSLayerEncoder();
+		layerEncoder.addDefaultStyle(defaultStyle);
+		return publishDBLayer(workspace, storename, fte, layerEncoder);
+	}
+
+	/**
+	 * 
 	 * Publish a table in a PostGis store as a new layer.
 	 * 
 	 * <P>
@@ -353,20 +377,31 @@ public class GeoServerRESTPublisher {
 	 * </PRE>
 	 * 
 	 * and a PUT to <BR>
-	 * restURL + "/rest/layers/" + layerName
+	 * restURL + "/rest/layers/" workspace + : + layerName
+	 * 
+	 * @param workspace
+	 * @param storename
+	 * @param fte
+	 *            GSFeatureTypeEncoder encoding creating FeatureType
+	 * @return true if layer is successfully created
+	 * 
 	 * 
 	 */
-	public boolean publishDBLayer(String workspace, String storename,
-			String layername, String srs, String defaultStyle) {
+	public boolean publishDBLayer(final String workspace,
+			final String storename, final GSFeatureTypeEncoder fte,
+			final GSLayerEncoder layerEncoder) {
+		String ftypeXml = fte.toString();
 		StringBuilder postUrl = new StringBuilder(restURL)
 				.append("/rest/workspaces/").append(workspace)
 				.append("/datastores/").append(storename)
 				.append("/featuretypes");
 
-		GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
-		fte.addName(layername);
-		fte.addSRS(srs); // srs=null?"EPSG:4326":srs);
-		String ftypeXml = fte.toString();
+		final String layername = fte.getName();
+		if (layername == null || layername.isEmpty()) {
+			if (LOGGER.isEnabledFor(Level.ERROR))
+				LOGGER.error("GSFeatureTypeEncoder has no valid name associated, try using GSFeatureTypeEncoder.setName(String)");
+			return false;
+		}
 
 		String configuredResult = HTTPUtils.postXml(postUrl.toString(),
 				ftypeXml, this.gsuser, this.gspass);
@@ -379,8 +414,12 @@ public class GeoServerRESTPublisher {
 		} else {
 			LOGGER.info("DB layer successfully added (layer:" + layername + ")");
 
-			GSLayerEncoder layerEncoder = new GSLayerEncoder();
-			layerEncoder.addDefaultStyle(defaultStyle);
+			if (layerEncoder == null) {
+				if (LOGGER.isEnabledFor(Level.ERROR))
+					LOGGER.error("GSLayerEncoder is null: Unable to find the defauldStyle for this layer");
+				return false;
+			}
+
 			configured = configureLayer(workspace, layername, layerEncoder);
 
 			if (!configured) {
@@ -407,6 +446,10 @@ public class GeoServerRESTPublisher {
 	public static enum ParameterConfigure {
 		FIRST, NONE, ALL;
 
+		/**
+		 * Overrides the default toString method printing a toLowerCase
+		 * representation of this Parameter which is suitable to build parameter in the rest URL
+		 */
 		@Override
 		public String toString() {
 			return this.name().toLowerCase();
@@ -612,10 +655,10 @@ public class GeoServerRESTPublisher {
 	public RESTCoverageStore publishExternalMosaic(String workspace,
 			String storeName, File mosaicDir, String srs, String defaultStyle)
 			throws FileNotFoundException {
-		GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
+		final GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
 		coverageEncoder.addSRS(srs);
 		coverageEncoder.addName(FilenameUtils.getBaseName(mosaicDir.getName()));
-		GSLayerEncoder layerEncoder = new GSLayerEncoder();
+		final GSLayerEncoder layerEncoder = new GSLayerEncoder();
 		layerEncoder.addDefaultStyle(defaultStyle);
 
 		return publishExternalMosaic(workspace, storeName, mosaicDir,
@@ -1271,7 +1314,6 @@ public class GeoServerRESTPublisher {
 	/**
 	 * Create a new coverage in a given workspace and coverage store
 	 * 
-	 * @deprecated to be tested
 	 * @param ce
 	 *            contains the coverage name to create and the configuration to
 	 *            apply
@@ -1325,7 +1367,8 @@ public class GeoServerRESTPublisher {
 	 *            coverage name (if != null will override the CoverageEncoder
 	 *            name)
 	 * @return true if success
-	 * @deprecated
+	 * @deprecated use {@link configureCoverage(final GSCoverageEncoder ce,
+			final String wsname, final String csname)}
 	 */
 	protected boolean configureCoverage(final GSCoverageEncoder ce,
 			final String wsname, final String csname, String cname) {
