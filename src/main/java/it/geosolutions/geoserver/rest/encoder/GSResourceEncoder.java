@@ -26,11 +26,12 @@
 package it.geosolutions.geoserver.rest.encoder;
 
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
-import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSMetadataEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 import org.jdom.Element;
 import org.jdom.filter.Filter;
@@ -46,12 +47,20 @@ import org.jdom.filter.Filter;
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
-public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
+public abstract class GSResourceEncoder
 		extends PropertyXMLEncoder {
-	private final static String NAME = "name";
+	public final static String NAME = "name";
+	public final static String METADATA="metadata";
+	public final static String KEYWORDS="keywords";
 
-	final private GSMetadataEncoder<T> metadata = new GSMetadataEncoder<T>();
-	final private Element keywordsListEncoder = new Element("keywords");
+	final private GSMetadataEncoder metadata = new GSMetadataEncoder();
+	final private Element keywordsListEncoder = new Element(KEYWORDS);
+	
+	private class GSMetadataEncoder extends NestedElementEncoder{
+		public GSMetadataEncoder() {
+			super(METADATA);
+		}
+	}
 
 	/**
 	 * @param rootName
@@ -72,14 +81,24 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		set("enabled", (enabled) ? "true" : "false");
 	}
 
+	// TODO MetadataLink
+//	public void setMetadata(String key, String url){
+//		metadata.set(key, url);
+//	}
+	
 	/**
 	 * @param key
 	 * @param dimensionInfo
 	 * @deprecated will be set to protected in the next release
 	 */
-	public void addMetadata(String key, T dimensionInfo) {
+	protected void addMetadata(String key, XmlElement dimensionInfo) {
 		metadata.add(key, dimensionInfo.getRoot());
 	}
+
+	protected void setMetadata(String key, XmlElement dimensionInfo) {
+		metadata.set(key, dimensionInfo.getRoot());
+	}
+	
 
 	/**
 	 * @param key
@@ -90,9 +109,6 @@ public abstract class GSResourceEncoder<T extends GSDimensionInfoEncoder>
 		return metadata.remove(key);
 	}
 
-	public void setMetadata(String key, T dimensionInfo) {
-		metadata.set(key, dimensionInfo.getRoot());
-	}
 
 	public void addKeyword(String keyword) {
 		final Element el = new Element("string");

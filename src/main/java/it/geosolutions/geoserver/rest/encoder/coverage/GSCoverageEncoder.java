@@ -27,6 +27,7 @@ package it.geosolutions.geoserver.rest.encoder.coverage;
 
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
 
 
 /**
@@ -36,10 +37,22 @@ import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  * 
  */
-public class GSCoverageEncoder extends GSResourceEncoder<GSDimensionInfoEncoder> {
+public class GSCoverageEncoder extends GSResourceEncoder/*<GSDimensionInfoEncoder>*/ {
     
 	public GSCoverageEncoder() {
         super("coverage");
 	}
 	
+    /**
+	 * @param key
+	 * @param dimensionInfo
+	 * @deprecated will be set to protected in the next release
+	 */
+	public void addMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
+		super.addMetadata(key, dimensionInfo);
+	}
+
+	public void setMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
+		super.setMetadata(key, dimensionInfo);
+	}
 }

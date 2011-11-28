@@ -21,9 +21,7 @@ package it.geosolutions.geoserver.rest.encoder.coverage;
 
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
-import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSMetadataEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import junit.framework.TestCase;
@@ -52,7 +50,7 @@ public class GSCoverageEncoderTest extends TestCase {
 	 */
 	@Test
 	public void testReprojection(){
-		GSResourceEncoder<GSDimensionInfoEncoder> re=new GSCoverageEncoder();
+		GSResourceEncoder/*<GSDimensionInfoEncoder>*/ re=new GSCoverageEncoder();
 		
 		re.setProjectionPolicy(ProjectionPolicy.FORCE_DECLARED);
 		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"projectionPolicy",ProjectionPolicy.FORCE_DECLARED.toString()));
@@ -67,7 +65,7 @@ public class GSCoverageEncoderTest extends TestCase {
 	 */
 	@Test
 	public void testBB(){
-		GSResourceEncoder<GSDimensionInfoEncoder> re=new GSCoverageEncoder();
+		GSResourceEncoder/*<GSDimensionInfoEncoder>*/ re=new GSCoverageEncoder();
 		
 		re.setLatLonBoundingBox(-180d, 90d, 180d, -90d, null);
 		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"minx","-180.0"));
@@ -93,7 +91,7 @@ public class GSCoverageEncoderTest extends TestCase {
     	if (LOGGER.isInfoEnabled())
     		LOGGER.info(encoder.toString());
     	
-    	final Element el=ElementUtils.contains(encoder.getRoot(),GSMetadataEncoder.METADATA);
+    	final Element el=ElementUtils.contains(encoder.getRoot(),GSResourceEncoder.METADATA);
     	Assert.assertNotNull(el);
     	LOGGER.info("contains_key:"+el.toString());
     	
@@ -112,7 +110,7 @@ public class GSCoverageEncoderTest extends TestCase {
     	if (LOGGER.isInfoEnabled())
     		LOGGER.info(encoder.toString());
     	
-    	final Element el3=ElementUtils.contains(encoder.getRoot(),GSMetadataEncoder.METADATA);
+    	final Element el3=ElementUtils.contains(encoder.getRoot(),GSResourceEncoder.METADATA);
     	Assert.assertNotNull(el3);
     	LOGGER.info("contains_by_node:"+el3.toString());
     	
@@ -120,7 +118,7 @@ public class GSCoverageEncoderTest extends TestCase {
     	LOGGER.info("remove:"+removed);
     	Assert.assertTrue(removed);
     	
-    	final Element el4=ElementUtils.contains(encoder.getRoot(),GSMetadataEncoder.METADATA);
+    	final Element el4=ElementUtils.contains(encoder.getRoot(),GSResourceEncoder.METADATA);
     	Assert.assertNull(el4);
     	if (el4==null)
     		LOGGER.info("REMOVED");

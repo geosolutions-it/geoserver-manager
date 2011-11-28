@@ -1,6 +1,7 @@
 package it.geosolutions.geoserver.rest.encoder.feature;
 
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;

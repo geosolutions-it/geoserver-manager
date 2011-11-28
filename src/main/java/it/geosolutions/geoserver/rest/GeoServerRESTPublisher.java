@@ -602,6 +602,7 @@ public class GeoServerRESTPublisher {
 	public RESTCoverageStore createExternaMosaicDatastore(String workspace,
 			String storeName, File mosaicDir, ParameterConfigure configure,
 			ParameterUpdate update) throws FileNotFoundException {
+		
 		/*
 		 * Carlo (23 Nov 2011):
 		 *  commented out since this directory should be readable by targhet GeoServer

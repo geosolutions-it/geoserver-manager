@@ -28,7 +28,6 @@ package it.geosolutions.geoserver.rest.encoder.utils;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jdom.Content;
 import org.jdom.Element;
 import org.jdom.filter.Filter;
 

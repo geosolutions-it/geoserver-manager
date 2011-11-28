@@ -22,7 +22,6 @@ package it.geosolutions.geoserver.rest.encoder;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**

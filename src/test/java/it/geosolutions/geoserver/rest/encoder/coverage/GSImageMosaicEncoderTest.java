@@ -38,6 +38,9 @@ public class GSImageMosaicEncoderTest extends TestCase {
      */
     protected final static Logger LOGGER = Logger.getLogger(GSImageMosaicEncoderTest.class);
     
+    /**
+     * TODO implement this test
+     */
     @Test
     public void testAll() {
     	final GSImageMosaicEncoder encoder=new GSImageMosaicEncoder();
@@ -50,12 +53,6 @@ public class GSImageMosaicEncoderTest extends TestCase {
     	
     	encoder.addSUGGESTED_TILE_SIZE("512,512");
 
-    	
-    	
-    	
-    	
-    	
-    	
     	
     }
 }

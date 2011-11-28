@@ -19,20 +19,19 @@
  */
 package it.geosolutions.geoserver.rest.encoder.feature;
 
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSMetadataEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-import org.jdom.filter.Filter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -90,7 +89,7 @@ public class GSFeatureEncoderTest extends TestCase {
     	el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.RESOLUTION);
     	Assert.assertNull(el);
 
-    	el=ElementUtils.contains(encoder.getRoot(),GSMetadataEncoder.METADATA);
+    	el=ElementUtils.contains(encoder.getRoot(),GSResourceEncoder.METADATA);
     	Assert.assertNotNull(el);
     	LOGGER.info("contains_key:"+el.toString());
     	
