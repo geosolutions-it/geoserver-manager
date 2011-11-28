@@ -354,7 +354,9 @@ public class GeoServerRESTPublisher {
 			String layername, String srs, String defaultStyle) {
 
 		final GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+		
 		fte.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
+		fte.addKeyword("KEYWORD");
 		fte.addName(layername);
 		fte.addSRS(srs); // srs=null?"EPSG:4326":srs);
 		final GSLayerEncoder layerEncoder = new GSLayerEncoder();
@@ -600,10 +602,16 @@ public class GeoServerRESTPublisher {
 	public RESTCoverageStore createExternaMosaicDatastore(String workspace,
 			String storeName, File mosaicDir, ParameterConfigure configure,
 			ParameterUpdate update) throws FileNotFoundException {
+		/*
+		 * Carlo (23 Nov 2011):
+		 *  commented out since this directory should be readable by targhet GeoServer
+		 *  not the calling client!
+		 */
 		if (!mosaicDir.isDirectory()) {
-			throw new IllegalArgumentException("Not a directory '" + mosaicDir
-					+ "'");
+			if (LOGGER.isEnabledFor(Level.WARN))
+				LOGGER.warn("Directory '" + mosaicDir+ "' not exists locally. Continue: please check existance on the remote server.");
 		}
+		
 		String sUrl = restURL + "/rest/workspaces/" + workspace
 				+ "/coveragestores/" + storeName
 				+ "/external.imagemosaic?configure=" + configure.toString()
