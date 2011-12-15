@@ -293,7 +293,7 @@ public class GeoServerRESTPublisher {
 	public boolean publishShp(String workspace, String storename,
 			String layername, File zipFile, String srs)
 			throws FileNotFoundException {
-		publishShp(workspace, storename, layername, zipFile, srs, null);
+		return publishShp(workspace, storename, layername, zipFile, srs, new NameValuePair[0]);
 	}
 
 	/**
