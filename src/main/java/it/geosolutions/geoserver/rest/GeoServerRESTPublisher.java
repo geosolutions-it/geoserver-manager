@@ -40,7 +40,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
+import java.util.List;
 
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -284,15 +286,64 @@ public class GeoServerRESTPublisher {
 	 *  }
 	 * </PRE>
 	 * 
+	 * {@link #publishShp(String, String, String, File, String, NameValuePair...)}
+	 * 
 	 * @return true if the operation completed successfully.
 	 */
 	public boolean publishShp(String workspace, String storename,
 			String layername, File zipFile, String srs)
 			throws FileNotFoundException {
+		publishShp(workspace, storename, layername, zipFile, srs, null);
+	}
+
+	/**
+	 * 
+	 * Publish a zipped shapefile.<br>
+	 * 
+	 * http://docs.geoserver.org/stable/en/user
+	 * /restconfig/rest-config-examples/rest-
+	 * config-examples-curl.html#uploading-a-shapefile
+	 * 
+	 * @param workspace
+	 *            the name of the workspace to use
+	 * @param storename
+	 *            the name of the store to create
+	 * @param layername
+	 *            the name of the layer to configure
+	 * @param zipFile
+	 *            the zip file containing the shapefile
+	 * @param srs
+	 *            the native CRS
+	 * @param params
+	 *            parameters to append to the url (can be null).<br>
+	 *            Accepted parameters are:<br>
+	 *            <ul>
+	 *            <li><b>charset</b> used to set the charset</li>
+	 *            </ul>
+	 * @return true if success false otherwise
+	 * @throws FileNotFoundException
+	 */
+	public boolean publishShp(String workspace, String storename,
+			String layername, File zipFile, String srs, NameValuePair... params)
+			throws FileNotFoundException {
 		// build full URL
 		StringBuilder sbUrl = new StringBuilder(restURL)
 				.append("/rest/workspaces/").append(workspace)
 				.append("/datastores/").append(storename).append("/file.shp?");
+
+		// append parameters
+		if (params != null) {
+			final int paramsSize = params.length;
+			if (paramsSize > 0) {
+				sbUrl.append(params[0].getName()).append("=")
+						.append(params[0].getValue());
+				for (int i = 1; i < paramsSize; i++) {
+					sbUrl.append("&").append(params[i].getName()).append("=")
+							.append(params[i].getValue());
+				}
+			}
+		}
+
 		// if (workspace != null) {
 		// sbUrl.append("namespace=").append(workspace);
 		// }
@@ -354,7 +405,7 @@ public class GeoServerRESTPublisher {
 			String layername, String srs, String defaultStyle) {
 
 		final GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
-		
+
 		fte.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
 		fte.addKeyword("KEYWORD");
 		fte.addName(layername);
@@ -450,7 +501,8 @@ public class GeoServerRESTPublisher {
 
 		/**
 		 * Overrides the default toString method printing a toLowerCase
-		 * representation of this Parameter which is suitable to build parameter in the rest URL
+		 * representation of this Parameter which is suitable to build parameter
+		 * in the rest URL
 		 */
 		@Override
 		public String toString() {
@@ -602,17 +654,18 @@ public class GeoServerRESTPublisher {
 	public RESTCoverageStore createExternaMosaicDatastore(String workspace,
 			String storeName, File mosaicDir, ParameterConfigure configure,
 			ParameterUpdate update) throws FileNotFoundException {
-		
+
 		/*
-		 * Carlo (23 Nov 2011):
-		 *  commented out since this directory should be readable by targhet GeoServer
-		 *  not the calling client!
+		 * Carlo (23 Nov 2011): commented out since this directory should be
+		 * readable by targhet GeoServer not the calling client!
 		 */
 		if (!mosaicDir.isDirectory()) {
 			if (LOGGER.isEnabledFor(Level.WARN))
-				LOGGER.warn("Directory '" + mosaicDir+ "' not exists locally. Continue: please check existance on the remote server.");
+				LOGGER.warn("Directory '"
+						+ mosaicDir
+						+ "' not exists locally. Continue: please check existance on the remote server.");
 		}
-		
+
 		String sUrl = restURL + "/rest/workspaces/" + workspace
 				+ "/coveragestores/" + storeName
 				+ "/external.imagemosaic?configure=" + configure.toString()
@@ -1377,7 +1430,7 @@ public class GeoServerRESTPublisher {
 	 *            name)
 	 * @return true if success
 	 * @deprecated use {@link configureCoverage(final GSCoverageEncoder ce,
-			final String wsname, final String csname)}
+	 *             final String wsname, final String csname)}
 	 */
 	protected boolean configureCoverage(final GSCoverageEncoder ce,
 			final String wsname, final String csname, String cname) {

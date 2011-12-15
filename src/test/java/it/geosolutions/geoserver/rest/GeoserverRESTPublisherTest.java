@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -250,6 +251,46 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         assertFalse(reader.existsStyle(styleName));
     }
 
+    public void testPublishDeleteShapeZipWithParams() throws FileNotFoundException, IOException {
+        if (!enabled()) {
+            return;
+        }
+//        Assume.assumeTrue(enabled);
+        deleteAllWorkspaces();
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+        String storeName = "resttestshp";
+        String layerName = "cities";
+
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+
+        // known state?
+        cleanupTestFT(layerName, DEFAULT_WS, storeName);
+
+        // test insert
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile,"EPSG:4326",new NameValuePair("charset","UTF-8"));
+        assertTrue("publish() failed", published);
+        assertTrue(existsLayer(layerName));
+
+        RESTLayer layer = reader.getLayer(layerName);
+
+        LOGGER.info("Layer style is " + layer.getDefaultStyle());
+
+        //test delete
+        boolean ok = publisher.unpublishFeatureType(DEFAULT_WS, storeName, layerName);
+        assertTrue("Unpublish() failed", ok);
+        assertFalse(existsLayer(layerName));
+
+        // remove also datastore
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName);
+        assertTrue("removeDatastore() failed", dsRemoved);
+
+    }
+
+    
+    
+    
+    
     public void testPublishDeleteStyleFile() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;
