@@ -69,6 +69,7 @@
           <organization>GeoSolutions</organization>
           <organizationUrl>http://www.geo-solutions.it</organizationUrl>
           <roles>
+            <role>architect</role>
             <role>developer</role>
           </roles>
           <timezone>+1</timezone>
@@ -99,9 +100,9 @@
     </mailingLists>
 
     <scm>
-        <connection>scm:git:https://github.com/geosolutions-it/geoserver-manager.git</connection>
+        <connection>scm:git:[fetch=]https://github.com/geosolutions-it/geoserver-manager.git[push=]git@github.com:geosolutions-it/geoserver-manager.git</connection>
         <!--developerConnection>scm:git</developerConnection-->
-        <tag>master</tag>
+        <!--tag>master</tag-->
         <url>https://github.com/geosolutions-it/geoserver-manager</url>
     </scm>
 
@@ -169,7 +170,15 @@
                         </execution>
                     </executions>
                 </plugin>
-
+		<!-- versioning -->
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-release-plugin</artifactId>
+			<version>2.2.2</version>
+			<configuration>
+			<tagNameFormat>v@{project.version}</tagNameFormat>
+			</configuration>
+		</plugin>
         </plugins>
 
         <!-- ======================================================== -->
@@ -188,19 +197,18 @@
     </build>
 
     <reporting>
-		<plugins>
-
+	<plugins>
             <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<links>
-						<link>http://commons.apache.org/lang/api</link>
-						<link>http://java.sun.com/j2se/1.5.0/docs/api</link>
-						<link>http://www.jdom.org/docs/apidocs</link>
-					</links>
-				</configuration>
-			</plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-javadoc-plugin</artifactId>
+		<configuration>
+		<links>
+			<link>http://commons.apache.org/lang/api</link>
+			<link>http://java.sun.com/j2se/1.5.0/docs/api</link>
+			<link>http://www.jdom.org/docs/apidocs</link>
+		</links>
+		</configuration>
+		</plugin>
             
 <!--            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
