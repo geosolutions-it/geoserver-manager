@@ -190,7 +190,7 @@ public abstract class GeoserverRESTTest extends TestCase {
 //                RESTCoverageStore store = reader.getCoverageStore(workspace, storename);
 
                 LOGGER.warn("Deleting CoverageStore " + workspace + " : " + storename);
-                boolean removed = publisher.removeCoverageStore(workspace, storename);
+                boolean removed = publisher.removeCoverageStore(workspace, storename, false);
                 assertTrue("CoverageStore not removed " + workspace + " : " + storename, removed);
             }
         }
@@ -210,9 +210,19 @@ public abstract class GeoserverRESTTest extends TestCase {
 //                }
 
                 LOGGER.warn("Deleting DataStore " + workspace + " : " + storename);
-                boolean removed = publisher.removeDatastore(workspace, storename);
+                boolean removed = publisher.removeDatastore(workspace, storename, false);
                 assertTrue("DataStore not removed " + workspace + " : " + storename, removed);
             }
+        }
+    }
+    
+    protected void deleteAllWorkspacesRecursively() {
+        List<String> workspaces = reader.getWorkspaceNames();
+        for (String workspace : workspaces) {
+                LOGGER.warn("Deleting Workspace " + workspace );
+                boolean removed = publisher.removeWorkspace(workspace,true);
+                assertTrue("Workspace not removed " + workspace, removed );
+
         }
     }
 
@@ -220,7 +230,7 @@ public abstract class GeoserverRESTTest extends TestCase {
         List<String> workspaces = reader.getWorkspaceNames();
         for (String workspace : workspaces) {
                 LOGGER.warn("Deleting Workspace " + workspace );
-                boolean removed = publisher.removeWorkspace(workspace);
+                boolean removed = publisher.removeWorkspace(workspace,false);
                 assertTrue("Workspace not removed " + workspace, removed );
 
         }

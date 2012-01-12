@@ -69,6 +69,32 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         assertFalse(publisher.createWorkspace("WS2"));
         assertEquals(2, reader.getWorkspaces().size());
     }
+    
+    /**
+     * remove workspace and all of its contents
+     * @throws IOException
+     */
+    public void testWorkspaceRemoval() throws IOException {
+        if (!enabled()) return;
+        	deleteAll();
+
+        String storeName = "testRESTStoreGeotiff";
+        String layerName = "resttestdem";
+
+        assertTrue(reader.getWorkspaces().isEmpty());
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
+
+        // known state?
+        assertFalse("Cleanup failed", existsLayer(layerName));
+
+        // test insert
+        RESTCoverageStore pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, null, null);
+        
+        // remove workspace and all of its contents
+        assertTrue(publisher.removeWorkspace(DEFAULT_WS,true));
+    }
 
     public void testStyles() throws IOException {
         if (!enabled()) return;
@@ -199,7 +225,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         assertFalse(existsLayer(layerName));
 
         // remove also datastore
-        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName);
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName,false);
         assertTrue("removeDatastore() failed", dsRemoved);
 
     }
@@ -286,10 +312,6 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         assertTrue("removeDatastore() failed", dsRemoved);
 
     }
-
-    
-    
-    
     
     public void testPublishDeleteStyleFile() throws FileNotFoundException, IOException {
         if (!enabled()) {

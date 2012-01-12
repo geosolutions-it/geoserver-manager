@@ -46,6 +46,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
 
 /**
  * Connect to a GeoServer instance to publish or modify data.
@@ -293,7 +294,8 @@ public class GeoServerRESTPublisher {
 	public boolean publishShp(String workspace, String storename,
 			String layername, File zipFile, String srs)
 			throws FileNotFoundException {
-		return publishShp(workspace, storename, layername, zipFile, srs, new NameValuePair[0]);
+		return publishShp(workspace, storename, layername, zipFile, srs,
+				new NameValuePair[0]);
 	}
 
 	/**
@@ -1019,9 +1021,18 @@ public class GeoServerRESTPublisher {
 	 * @param storename
 	 *            The name of the Datastore to remove.
 	 * @return <TT>true</TT> if the datastore was successfully removed.
+	 * 
+	 * @deprecated will be removed in next release use
+	 *             {@link GeoServerRESTPublisher#removeDatastore(String, String, boolean)}
 	 */
 	public boolean removeDatastore(String workspace, String storename) {
-		return removeDatastore(workspace, storename, true);
+		try {
+			return removeDatastore(workspace, storename, true);
+		} catch (IllegalArgumentException e) {
+			if (LOGGER.isEnabledFor(Level.ERROR))
+				LOGGER.error("Arguments may not be null or empty!", e);
+		}
+		return false;
 	}
 
 	/**
@@ -1033,14 +1044,19 @@ public class GeoServerRESTPublisher {
 	 *            The name of the Datastore to remove.
 	 * @param recurse
 	 *            if remove should be performed recursively
+	 * @throws IllegalArgumentException
+	 *             if workspace or storename are null or empty
 	 * @return <TT>true</TT> if the datastore was successfully removed.
 	 */
 	public boolean removeDatastore(String workspace, String storename,
-			final boolean recurse) {
+			final boolean recurse) throws IllegalArgumentException {
 		try {
+			if (workspace==null || storename==null)
+				throw new IllegalArgumentException("Arguments may not be null!");
+			if (workspace.isEmpty() || storename.isEmpty())
+				throw new IllegalArgumentException("Arguments may not be empty!");
+			
 			final StringBuilder url = new StringBuilder(restURL);
-			// restURL + "/rest/workspaces/" + workspace + "/datastores/" +
-			// storename
 			url.append("/rest/workspaces/").append(workspace)
 					.append("/datastores/").append(storename);
 			if (recurse)
@@ -1073,9 +1089,16 @@ public class GeoServerRESTPublisher {
 	 * @param storename
 	 *            The name of the CoverageStore to remove.
 	 * @return <TT>true</TT> if the CoverageStore was successfully removed.
+	 * @deprecated use {@link #removeCoverageStore(String, String, boolean)}
 	 */
 	public boolean removeCoverageStore(String workspace, String storename) {
-		return removeCoverageStore(workspace, storename, true);
+		try {
+			return removeCoverageStore(workspace, storename, true);
+		} catch (IllegalArgumentException e) {
+			if (LOGGER.isEnabledFor(Level.ERROR))
+				LOGGER.error("Arguments may not be null or empty!", e);
+		}
+		return false;
 	}
 
 	/**
@@ -1090,11 +1113,14 @@ public class GeoServerRESTPublisher {
 	 * @return <TT>true</TT> if the CoverageStore was successfully removed.
 	 */
 	public boolean removeCoverageStore(final String workspace,
-			final String storename, final boolean recurse) {
+			final String storename, final boolean recurse) throws IllegalArgumentException {
 		try {
+			if (workspace==null || storename==null)
+				throw new IllegalArgumentException("Arguments may not be null!");
+			if (workspace.isEmpty() || storename.isEmpty())
+				throw new IllegalArgumentException("Arguments may not be empty!");
+			
 			final StringBuilder url = new StringBuilder(restURL);
-			// restURL + "/rest/workspaces/" + workspace + "/datastores/" +
-			// storename
 			url.append("/rest/workspaces/").append(workspace)
 					.append("/coveragestores/").append(storename);
 			if (recurse)
@@ -1120,16 +1146,50 @@ public class GeoServerRESTPublisher {
 	}
 
 	/**
+	 * Remove the workspace given Workspace using default parameters
+	 * 
+	 * @see {@link GeoServerRESTPublisher#removeWorkspace(String, boolean)}
+	 * @param workspace
+	 *            the workspace to remove
+	 * @return true if success, false otherwise
+	 * @deprecated {@link #removeWorkspace(String, boolean)}
+	 */
+	public boolean removeWorkspace(String workspace) {
+		try {
+			return removeWorkspace(workspace, false);
+		} catch (IllegalArgumentException e) {
+			if (LOGGER.isEnabledFor(Level.ERROR))
+				LOGGER.error("Arguments may not be null or empty!", e);
+		}
+		return false;
+	}
+
+	/**
 	 * Remove a given Workspace.
 	 * 
 	 * @param workspace
 	 *            The name of the workspace
+	 * @param recurse
+	 *            The recurse parameter is used to recursively delete all
+	 *            resources contained by the specified workspace. This includes
+	 *            data stores, coverage stores, feature types, etc... Allowable
+	 *            values for this parameter are “true” or “false”. The default
+	 *            value is “false”.
 	 * @return <TT>true</TT> if the WorkSpace was successfully removed.
 	 */
-	public boolean removeWorkspace(String workspace) {
+	public boolean removeWorkspace(String workspace, boolean recurse) throws IllegalArgumentException {
 		workspace = sanitize(workspace);
 		try {
-			URL deleteUrl = new URL(restURL + "/rest/workspaces/" + workspace);
+			if (workspace==null)
+				throw new IllegalArgumentException("Arguments may not be null!");
+			if (workspace.isEmpty())
+				throw new IllegalArgumentException("Arguments may not be empty!");
+			
+			StringBuffer url = new StringBuffer(restURL).append(
+					"/rest/workspaces/").append(workspace);
+			if (recurse)
+				url.append("?recurse=true");
+			final URL deleteUrl = new URL(url.toString());
 			boolean deleted = HTTPUtils.delete(deleteUrl.toExternalForm(),
 					gsuser, gspass);
 			if (!deleted) {
@@ -1140,7 +1200,8 @@ public class GeoServerRESTPublisher {
 
 			return deleted;
 		} catch (MalformedURLException ex) {
-			LOGGER.error(ex);
+			if (LOGGER.isEnabledFor(Level.ERROR))
+				LOGGER.error(ex);
 			return false;
 		}
 	}
@@ -1179,7 +1240,8 @@ public class GeoServerRESTPublisher {
 			boolean deleted = HTTPUtils.delete(deleteUrl.toExternalForm(),
 					gsuser, gspass);
 			if (!deleted) {
-				LOGGER.warn("Could not delete layergroup " + name);
+				if (LOGGER.isEnabledFor(Level.WARN))
+					LOGGER.warn("Could not delete layergroup " + name);
 			} else {
 				if (LOGGER.isInfoEnabled())
 					LOGGER.info("Layergroup successfully deleted: " + name);
@@ -1187,7 +1249,8 @@ public class GeoServerRESTPublisher {
 
 			return deleted;
 		} catch (MalformedURLException ex) {
-			LOGGER.error(ex);
+			if (LOGGER.isEnabledFor(Level.ERROR))
+				LOGGER.error(ex);
 			return false;
 		}
 	}
@@ -1308,7 +1371,7 @@ public class GeoServerRESTPublisher {
 	 *            the workspace to search for existent coverage
 	 * @param csname
 	 *            the coverage store to search for existent coverage
-	 * @return
+	 * @return true if success
 	 */
 	public boolean configureCoverage(final GSCoverageEncoder ce,
 			final String wsname, final String csname) {
@@ -1429,8 +1492,7 @@ public class GeoServerRESTPublisher {
 	 *            coverage name (if != null will override the CoverageEncoder
 	 *            name)
 	 * @return true if success
-	 * @deprecated use {@link configureCoverage(final GSCoverageEncoder ce,
-	 *             final String wsname, final String csname)}
+	 * @deprecated use {@link GeoServerRESTPublisher#configureCoverage(GSCoverageEncoder, String, String)}
 	 */
 	protected boolean configureCoverage(final GSCoverageEncoder ce,
 			final String wsname, final String csname, String cname) {
