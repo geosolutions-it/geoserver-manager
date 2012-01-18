@@ -463,6 +463,25 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName);
         assertTrue("removeDatastore() failed", dsRemoved);
     }
+    
+    public void testPublishWorldImage() throws IOException {
+    	if (!enabled()) {
+            return;
+        }
+    	deleteAll();
+    	
+    	String storeName = "testWorldimage";
+
+        assertTrue(reader.getWorkspaces().isEmpty());
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+        
+        File worldImageFile = new ClassPathResource("testdata/worldimagetest.zip").getFile();
+        
+        // test publish
+        boolean wp = publisher.publishWorldimage(DEFAULT_WS, storeName, worldImageFile, null, null);
+        assertTrue("Publish worldfile failed.",wp);
+    	
+    }
 
 //	public void testDeleteUnexistingFT() throws FileNotFoundException, IOException {
 //		String wsName = "this_ws_does_not_exist";
@@ -470,7 +489,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
 //		String layerName = "this_layer_does_not_exist";
 //
 //		boolean ok = publisher.unpublishFT(wsName, storeName, layerName);
-//		assertFalse("unpublished not existing layer", ok);
+//		assertFalse("unpublished not existing layer", ok); 
 //	}
     private boolean existsLayer(String layername) {
         return reader.getLayer(layername) != null;
