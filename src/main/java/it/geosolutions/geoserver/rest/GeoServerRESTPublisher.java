@@ -491,8 +491,8 @@ public class GeoServerRESTPublisher {
 
 	/**
 	 * The configure parameter is used to control how the data store is
-	 * configured upon file upload. It can take one of the three values “first”,
-	 * “none”, or “all”. <br>
+	 * configured upon file upload. It can take one of the three values <i>first</i>,
+	 * <i>none</i>, or <i>all</i>. <br>
 	 * first - Only setup the first feature type available in the data store.
 	 * This is the default. <br>
 	 * none - Do not configure any feature types.<br>
@@ -516,7 +516,7 @@ public class GeoServerRESTPublisher {
 	 * The update parameter is used to control how existing data is handled when
 	 * the file is PUT into a datastore that (a) already exists and (b) already
 	 * contains a schema that matches the content of the file. It can take one
-	 * of the two values “append”, or “overwrite”.<br>
+	 * of the two values <i>append</i>, or <i>overwrite</i>.<br>
 	 * append - Data being uploaded is appended to the existing data. This is
 	 * the default.<br>
 	 * overwrite - Data being uploaded replaces any existing data.<br>
@@ -1173,8 +1173,8 @@ public class GeoServerRESTPublisher {
 	 *            The recurse parameter is used to recursively delete all
 	 *            resources contained by the specified workspace. This includes
 	 *            data stores, coverage stores, feature types, etc... Allowable
-	 *            values for this parameter are “true” or “false”. The default
-	 *            value is “false”.
+	 *            values for this parameter are â€œtrueâ€� or â€œfalseâ€�. The default
+	 *            value is â€œfalseâ€�.
 	 * @return <TT>true</TT> if the WorkSpace was successfully removed.
 	 */
 	public boolean removeWorkspace(String workspace, boolean recurse) throws IllegalArgumentException {
@@ -1503,7 +1503,43 @@ public class GeoServerRESTPublisher {
 			cname = ce.getName();
 		return configureCoverage(ce, wsname, csname);
 	}
+	
+	// ==========================================================================
+	// === WORLDIMAGE
+	// ==========================================================================
+	/**
+     * Publish a zipped worldimage file.
+     *
+     * It is assumed that the the zip-file contain the *.prj to set the srs.
+     *
+     * <P>This is equivalent call with cUrl:
+     * <PRE>{@code
+     *curl -u admin:geoserver -XPUT -H 'Content-type: application/zip' \
+     *      --data-binary @$ZIPFILE \
+     *      http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$COVERAGESTORE/file.worldimage
+     * </PRE>
+     *
+     * @param workspace Workspace to use 
+     * @param coveragestore Name of the coveragestore
+     * @param zipFile zip file to upload
+     * @return true if the operation completed successfully.
+     */
+	public boolean publishWorldimage(String workspace, String coveragestore, File zipFile) throws FileNotFoundException {
+		// build full URL
+		StringBuilder sbUrl = new StringBuilder(restURL).append("/rest/workspaces/").append(workspace).append("/coveragestores/").append(coveragestore)
+				.append("/file.worldimage");
 
+		String sentResult = HTTPUtils.put(sbUrl.toString(), zipFile, "application/zip", gsuser, gspass);
+		boolean fileSent = sentResult != null;
+
+		if (fileSent) {
+			LOGGER.info("Zipfile successfully uploaded ( zip:" + zipFile + ")");
+		} else {
+			LOGGER.warn("Error in sending zipfile " + zipFile);
+		}
+		return fileSent;
+	}
+	
 	/**
      *
      */
