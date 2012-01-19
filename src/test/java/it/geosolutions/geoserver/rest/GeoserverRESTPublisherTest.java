@@ -478,7 +478,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         File worldImageFile = new ClassPathResource("testdata/worldimagetest.zip").getFile();
         
         // test publish
-        boolean wp = publisher.publishWorldimage(DEFAULT_WS, storeName, worldImageFile, null, null);
+        boolean wp = publisher.publishWorldimage(DEFAULT_WS, storeName, worldImageFile);
         assertTrue("Publish worldfile failed.",wp);
     	
     }

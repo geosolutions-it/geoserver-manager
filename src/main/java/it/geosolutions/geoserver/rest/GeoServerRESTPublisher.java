@@ -1522,21 +1522,12 @@ public class GeoServerRESTPublisher {
      * @param workspace Workspace to use 
      * @param coveragestore Name of the coveragestore
      * @param zipFile zip file to upload
-     * @param configure Configure parameter. It may be null.
-     * @param coverageName coverageName parameter to append. Only works if configure is set. It may be null. 
      * @return true if the operation completed successfully.
      */
-	public boolean publishWorldimage(String workspace, String coveragestore, File zipFile, String configure, String coverageName) throws FileNotFoundException {
+	public boolean publishWorldimage(String workspace, String coveragestore, File zipFile) throws FileNotFoundException {
 		// build full URL
 		StringBuilder sbUrl = new StringBuilder(restURL).append("/rest/workspaces/").append(workspace).append("/coveragestores/").append(coveragestore)
 				.append("/file.worldimage");
-		
-		if ( configure != null && coverageName != null) {
-			sbUrl.append("?configure").append(configure);
-			if ( coverageName != null) {
-				sbUrl.append("&coverageName=").append(coverageName);
-			}
-		}
 
 		String sentResult = HTTPUtils.put(sbUrl.toString(), zipFile, "application/zip", gsuser, gspass);
 		boolean fileSent = sentResult != null;
