@@ -40,13 +40,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 
 /**
  * Connect to a GeoServer instance to publish or modify data.
@@ -257,7 +255,7 @@ public class GeoServerRESTPublisher {
 
 			try {
 				GSLayerEncoder layerEncoder = new GSLayerEncoder();
-				layerEncoder.addDefaultStyle(defaultStyle);
+				layerEncoder.setDefaultStyle(defaultStyle);
 				configureLayer(workspace, layerName, layerEncoder);
 			} catch (Exception e) {
 				LOGGER.warn("Error in publishing shapefile " + e.getMessage(),
@@ -334,17 +332,7 @@ public class GeoServerRESTPublisher {
 				.append("/datastores/").append(storename).append("/file.shp?");
 
 		// append parameters
-		if (params != null) {
-			final int paramsSize = params.length;
-			if (paramsSize > 0) {
-				sbUrl.append(params[0].getName()).append("=")
-						.append(params[0].getValue());
-				for (int i = 1; i < paramsSize; i++) {
-					sbUrl.append("&").append(params[i].getName()).append("=")
-							.append(params[i].getValue());
-				}
-			}
-		}
+		sbUrl.append(appendParameters(params));
 
 		// if (workspace != null) {
 		// sbUrl.append("namespace=").append(workspace);
@@ -492,7 +480,7 @@ public class GeoServerRESTPublisher {
 	/**
 	 * The configure parameter is used to control how the data store is
 	 * configured upon file upload. It can take one of the three values “first”,
-	 * “none”, or “all”. <br>
+	 * <i>none</i>, or <i>all</i>. <br>
 	 * first - Only setup the first feature type available in the data store.
 	 * This is the default. <br>
 	 * none - Do not configure any feature types.<br>
@@ -516,7 +504,7 @@ public class GeoServerRESTPublisher {
 	 * The update parameter is used to control how existing data is handled when
 	 * the file is PUT into a datastore that (a) already exists and (b) already
 	 * contains a schema that matches the content of the file. It can take one
-	 * of the two values “append”, or “overwrite”.<br>
+	 * of the two values <i>append</i>, or <i>overwrite</i>.<br>
 	 * append - Data being uploaded is appended to the existing data. This is
 	 * the default.<br>
 	 * overwrite - Data being uploaded replaces any existing data.<br>
@@ -537,6 +525,75 @@ public class GeoServerRESTPublisher {
 	// === COVERAGES
 	// ==========================================================================
 
+	/**
+	 * 
+	 * Publish a zipped worldimage file. It is assumed that the the zip-file
+	 * contain the *.prj to set the srs.
+	 * <P>
+	 * This is equivalent call with cUrl:
+	 * 
+	 * <PRE>
+	 * {@code
+	 * curl -u admin:geoserver -XPUT -H 'Content-type: application/zip' \
+	 * 
+	 *       --data-binary @$ZIPFILE \
+	 * 
+	 *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$COVERAGESTORE/file.worldimage
+	 * </PRE>
+	 * 
+	 * @param workspace
+	 *            Workspace to use
+	 * @param coveragestore
+	 *            Name of the coveragestore
+	 * @param file
+	 *            zip file to upload
+	 * @param configure
+	 *            Configure parameter. It may be null.
+	 * @param params
+	 *            parameters to append to the url (can be null).<br>
+	 *            Accepted parameters are:
+	 *            <ul>
+	 *            <li>
+	 *            <b>coverageName=name</b> coverageName parameter to append. Only
+	 *            works if configure is not set to ParameterConfigure.NONE.
+	 *            </li>
+	 *            </ul>
+	 * @see #{@link ParameterConfigure}
+	 * @return true if the operation completed successfully.
+	 */
+	private boolean publishCoverage(String workspace, String coveragestore, String format, String mimeType,
+			File file, ParameterConfigure configure, NameValuePair... params)
+			throws FileNotFoundException {
+		// build full URL
+		StringBuilder sbUrl = new StringBuilder(restURL)
+				.append("/rest/workspaces/").append(workspace)
+				.append("/coveragestores/").append(coveragestore)
+				.append("/file.").append(format);
+
+		if (configure != null) {
+			sbUrl.append("?configure=").append(configure);
+			if (params!= null && !configure.equals(ParameterConfigure.NONE)){
+				final String paramString=appendParameters(params);
+				if (!paramString.isEmpty()){
+					sbUrl.append("&").append(paramString);
+				}
+			}
+		}
+		String sentResult = HTTPUtils.put(sbUrl.toString(), file,
+				mimeType, gsuser, gspass);
+		boolean fileSent = sentResult != null;
+
+		if (fileSent) {
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("File successfully uploaded ( " + file
+						+ ")");
+		} else {
+			if (LOGGER.isEnabledFor(Level.WARN))
+				LOGGER.warn("Error in sending file " + file);
+		}
+		return fileSent;
+	}
+	
 	// ==========================================================================
 	// === GEOTIFF
 	// ==========================================================================
@@ -555,16 +612,10 @@ public class GeoServerRESTPublisher {
 	 * </PRE>
 	 * 
 	 * @return true if the operation completed successfully.
-	 * @deprecated UNTESTED
 	 */
 	public boolean publishGeoTIFF(String workspace, String storeName,
 			File geotiff) throws FileNotFoundException {
-		String sUrl = restURL + "/rest/workspaces/" + workspace
-				+ "/coveragestores/" + storeName + "/geotiff";
-		String sendResult = HTTPUtils
-				.put(sUrl, geotiff, "text", gsuser, gspass); // CHECKME: text?!?
-		boolean sent = sendResult != null;
-		return sent;
+		return publishCoverage(workspace, storeName, "geotiff", "image/geotiff", geotiff, ParameterConfigure.FIRST, (NameValuePair[])null);
 	}
 
 	/**
@@ -630,8 +681,83 @@ public class GeoServerRESTPublisher {
 	}
 
 	// ==========================================================================
+	// === WORLDIMAGE
+	// ==========================================================================
+
+	/**
+	 * {@link #publishWorldImage(String, String, File, ParameterConfigure, NameValuePair...)}
+	 */
+	public boolean publishWorldImage(String workspace, String coveragestore, File zipFile)
+			throws FileNotFoundException {
+		return publishWorldImage(workspace, coveragestore, zipFile, ParameterConfigure.FIRST,(NameValuePair)null);
+	}
+	
+	/**
+	 * 
+	 * Publish a zipped worldimage file. It is assumed that the the zip-file
+	 * contain the *.prj to set the srs.
+	 * <P>
+	 * This is equivalent call with cUrl:
+	 * 
+	 * <PRE>
+	 * {@code
+	 * curl -u admin:geoserver -XPUT -H 'Content-type: application/zip' \
+	 * 
+	 *       --data-binary @$ZIPFILE \
+	 * 
+	 *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$COVERAGESTORE/file.worldimage
+	 * </PRE>
+	 * 
+	 * @param workspace
+	 *            Workspace to use
+	 * @param coveragestore
+	 *            Name of the coveragestore
+	 * @param zipFile
+	 *            zip file to upload
+	 * @param configure
+	 *            Configure parameter. It may be null.
+	 * @param params
+	 *            parameters to append to the url (can be null).<br>
+	 *            Accepted parameters are:
+	 *            <ul>
+	 *            <li>
+	 *            <b>coverageName=name</b> coverageName parameter to append. Only
+	 *            works if configure is not set to ParameterConfigure.NONE.
+	 *            </li>
+	 *            </ul>
+	 * @see #{@link ParameterConfigure}
+	 * @return true if the operation completed successfully.
+	 */
+	public boolean publishWorldImage(String workspace, String coveragestore,
+			File zipFile, ParameterConfigure configure, NameValuePair... params)
+			throws FileNotFoundException {
+		return publishCoverage(workspace, coveragestore, "worldimage", "application/zip", zipFile, configure, params);
+	}
+	
+
+	// ==========================================================================
 	// === MOSAIC
 	// ==========================================================================
+	
+	/**
+	 * Publish imagemosaic as zip file
+	 * 
+	 * @see {@link #publishWorldImage(String, String, File)}
+	 */
+	public boolean publishImageMosaic(String workspace, String storeName,
+			File zipFile) throws FileNotFoundException {
+		return publishCoverage(workspace, storeName, "imagemosaic", "application/zip", zipFile, ParameterConfigure.FIRST, (NameValuePair[])null);
+	}
+	
+	/**
+	 * Publish imagemosaic as zip file
+	 * 
+	 * @see {@link #publishWorldImage(String, String, File, ParameterConfigure, NameValuePair...)}
+	 */
+	public boolean publishImageMosaic(String workspace, String storeName,
+			File zipFile, ParameterConfigure configure, NameValuePair... params) throws FileNotFoundException {
+		return publishCoverage(workspace, storeName, "imagemosaic", "application/zip", zipFile, configure, params);
+	}
 
 	/**
 	 * Publish a Mosaic from a filesystem currently readable by GeoServer.
@@ -659,7 +785,7 @@ public class GeoServerRESTPublisher {
 
 		/*
 		 * Carlo (23 Nov 2011): commented out since this directory should be
-		 * readable by targhet GeoServer not the calling client!
+		 * readable by target GeoServer not the calling client!
 		 */
 		if (!mosaicDir.isDirectory()) {
 			if (LOGGER.isEnabledFor(Level.WARN))
@@ -779,7 +905,7 @@ public class GeoServerRESTPublisher {
 
 		if (store == null) {
 			LOGGER.warn("Unable to get the store" + workspace + ":" + storeName
-					+ " from the targhet geoserver.");
+					+ " from the target geoserver.");
 			return null;
 		}
 
@@ -1051,11 +1177,12 @@ public class GeoServerRESTPublisher {
 	public boolean removeDatastore(String workspace, String storename,
 			final boolean recurse) throws IllegalArgumentException {
 		try {
-			if (workspace==null || storename==null)
+			if (workspace == null || storename == null)
 				throw new IllegalArgumentException("Arguments may not be null!");
 			if (workspace.isEmpty() || storename.isEmpty())
-				throw new IllegalArgumentException("Arguments may not be empty!");
-			
+				throw new IllegalArgumentException(
+						"Arguments may not be empty!");
+
 			final StringBuilder url = new StringBuilder(restURL);
 			url.append("/rest/workspaces/").append(workspace)
 					.append("/datastores/").append(storename);
@@ -1113,13 +1240,15 @@ public class GeoServerRESTPublisher {
 	 * @return <TT>true</TT> if the CoverageStore was successfully removed.
 	 */
 	public boolean removeCoverageStore(final String workspace,
-			final String storename, final boolean recurse) throws IllegalArgumentException {
+			final String storename, final boolean recurse)
+			throws IllegalArgumentException {
 		try {
-			if (workspace==null || storename==null)
+			if (workspace == null || storename == null)
 				throw new IllegalArgumentException("Arguments may not be null!");
 			if (workspace.isEmpty() || storename.isEmpty())
-				throw new IllegalArgumentException("Arguments may not be empty!");
-			
+				throw new IllegalArgumentException(
+						"Arguments may not be empty!");
+
 			final StringBuilder url = new StringBuilder(restURL);
 			url.append("/rest/workspaces/").append(workspace)
 					.append("/coveragestores/").append(storename);
@@ -1173,18 +1302,20 @@ public class GeoServerRESTPublisher {
 	 *            The recurse parameter is used to recursively delete all
 	 *            resources contained by the specified workspace. This includes
 	 *            data stores, coverage stores, feature types, etc... Allowable
-	 *            values for this parameter are “true” or “false”. The default
-	 *            value is “false”.
+	 *            values for this parameter are <i>true</i> or <i>false</i>. The
+	 *            default value is <i>false</i>.
 	 * @return <TT>true</TT> if the WorkSpace was successfully removed.
 	 */
-	public boolean removeWorkspace(String workspace, boolean recurse) throws IllegalArgumentException {
+	public boolean removeWorkspace(String workspace, boolean recurse)
+			throws IllegalArgumentException {
 		workspace = sanitize(workspace);
 		try {
-			if (workspace==null)
+			if (workspace == null)
 				throw new IllegalArgumentException("Arguments may not be null!");
 			if (workspace.isEmpty())
-				throw new IllegalArgumentException("Arguments may not be empty!");
-			
+				throw new IllegalArgumentException(
+						"Arguments may not be empty!");
+
 			StringBuffer url = new StringBuffer(restURL).append(
 					"/rest/workspaces/").append(workspace);
 			if (recurse)
@@ -1315,8 +1446,8 @@ public class GeoServerRESTPublisher {
 	}
 
 	/**
-	 * Allows to configure some layer attributes such and DefaultStyle TODO
-	 * WmsPath
+	 * Allows to configure some layer attributes such and DefaultStyle
+	 * @TODO WmsPath
 	 */
 	public boolean configureLayer(final String workspace,
 			final String layerName, final GSLayerEncoder layer) {
@@ -1492,7 +1623,8 @@ public class GeoServerRESTPublisher {
 	 *            coverage name (if != null will override the CoverageEncoder
 	 *            name)
 	 * @return true if success
-	 * @deprecated use {@link GeoServerRESTPublisher#configureCoverage(GSCoverageEncoder, String, String)}
+	 * @deprecated use
+	 *             {@link GeoServerRESTPublisher#configureCoverage(GSCoverageEncoder, String, String)}
 	 */
 	protected boolean configureCoverage(final GSCoverageEncoder ce,
 			final String wsname, final String csname, String cname) {
@@ -1512,6 +1644,34 @@ public class GeoServerRESTPublisher {
 			return s + ".DUMMY";
 		}
 		return s;
+	}
+
+	/**
+	 * Append params generating a string in the form: <br>
+	 * <p>
+	 * NAME_0=VALUE_0&NAME_1=VALUE_1&....&NAME_n-1=VALUE_n-1
+	 * </p>
+	 * </br>
+	 * 
+	 * @param params
+	 *            an array of NameValuePair
+	 * @return the parameter string or empty an string
+	 */
+	private String appendParameters(NameValuePair... params) {
+		StringBuilder sbUrl = new StringBuilder();
+		// append parameters
+		if (params != null) {
+			final int paramsSize = params.length;
+			if (paramsSize > 0) {
+				sbUrl.append(params[0].getName()).append("=")
+						.append(params[0].getValue());
+				for (int i = 1; i < paramsSize; i++) {
+					sbUrl.append("&").append(params[i].getName()).append("=")
+							.append(params[i].getValue());
+				}
+			}
+		}
+		return sbUrl.toString();
 	}
 
 	protected String encode(String s) {

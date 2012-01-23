@@ -23,9 +23,10 @@
  * THE SOFTWARE.
  */
 
-package it.geosolutions.geoserver.rest;
+package it.geosolutions.geoserver.rest.publisher;
 
 
+import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import org.apache.log4j.Logger;

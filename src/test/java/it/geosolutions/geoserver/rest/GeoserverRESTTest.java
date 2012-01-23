@@ -283,5 +283,9 @@ public abstract class GeoserverRESTTest extends TestCase {
                 + coverage.getName(),
                 removed);
     }
+    
+    protected boolean existsLayer(String layername) {
+        return reader.getLayer(layername) != null;
+    }
 
 }
