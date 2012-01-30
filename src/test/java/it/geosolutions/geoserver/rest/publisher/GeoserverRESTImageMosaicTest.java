@@ -27,6 +27,7 @@ package it.geosolutions.geoserver.rest.publisher;
 
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.ParameterConfigure;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
@@ -38,6 +39,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 
@@ -166,5 +168,55 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
         assertTrue(publisher.removeStyle(styleName));
         assertTrue(publisher.removeWorkspace(wsName));
     }
+
+	public void testPublishImageMosaic() throws IOException {
+
+		if (!enabled()) {
+			return;
+		}
+		deleteAll();
+
+		String storeName = "testImageMosaic";
+
+		assertTrue(reader.getWorkspaces().isEmpty());
+
+		assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+		File imageMosaicFile = new ClassPathResource(
+				"testdata/mosaic_geotiff.zip").getFile();
+
+		// test publish
+		boolean wp = publisher.publishImageMosaic(DEFAULT_WS, storeName,
+				imageMosaicFile, ParameterConfigure.NONE, (NameValuePair) null);
+
+		assertTrue("Publish imagemosaic with no layer configured, failed.", wp);
+
+		assertTrue("Unpublish() failed",
+				publisher.removeCoverageStore(DEFAULT_WS, storeName, true));
+
+		// create default style
+		File sldFile = new ClassPathResource("testdata/restteststyle.sld")
+				.getFile();
+		assertTrue(publisher.publishStyle(sldFile, "raster"));
+
+		wp = publisher.publishImageMosaic(DEFAULT_WS, storeName, imageMosaicFile,
+				ParameterConfigure.FIRST, new NameValuePair("coverageName",
+						"imageMosaic_test"));
+
+		assertTrue("Publish imagemosaic configuring layer name, failed.", wp);
+
+		assertTrue("Unpublish() failed",
+				publisher.removeCoverageStore(DEFAULT_WS, storeName, true));
+
+		wp = publisher.publishImageMosaic(DEFAULT_WS, storeName,
+				imageMosaicFile, ParameterConfigure.ALL, (NameValuePair) null);
+
+		assertTrue(
+				"Publish imagemosaic configuring all available layers, failed.",
+				wp);
+
+		assertTrue("Unpublish() failed",
+				publisher.removeCoverageStore(DEFAULT_WS, storeName, true));
+	}
 
 }

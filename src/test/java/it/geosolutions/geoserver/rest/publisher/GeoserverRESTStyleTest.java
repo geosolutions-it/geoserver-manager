@@ -134,7 +134,7 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
             return;
         }
 //        Assume.assumeTrue(enabled);
-        final String styleName = "restteststyle";
+        String styleName = "restteststyle";
 
         File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
 
@@ -147,11 +147,21 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
         boolean published = publisher.publishStyle(sldContent);  // Will take the name from sld contents
         assertTrue("publish() failed", published);
         assertTrue(reader.existsStyle(styleName));
-
         //test delete
         boolean ok = publisher.removeStyle(styleName);
         assertTrue("Unpublish() failed", ok);
         assertFalse(reader.existsStyle(styleName));
+        
+        styleName = "restteststyle_with_name";
+        // test insert with name
+        published = publisher.publishStyle(sldContent,styleName);  // Will set the name
+        assertTrue("publish() failed", published);
+        assertTrue(reader.existsStyle(styleName));
+        //test delete
+        ok = publisher.removeStyle(styleName);
+        assertTrue("Unpublish() failed", ok);
+        assertFalse(reader.existsStyle(styleName));
+        
     }
 
     public void testUpdateDefaultStyle() throws FileNotFoundException, IOException {
