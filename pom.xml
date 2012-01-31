@@ -28,7 +28,7 @@
 
     <groupId>it.geosolutions</groupId>
     <artifactId>geoserver-manager</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>1.2.3</version>
 
     <packaging>jar</packaging>
 
