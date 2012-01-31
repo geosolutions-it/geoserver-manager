@@ -208,6 +208,36 @@ public class GeoServerRESTPublisher {
 				"application/vnd.ogc.sld+xml", gsuser, gspass);
 		return result != null;
 	}
+	
+	/**
+	* Replace an existing SLD.
+     	* <P>
+     	* This is the equivalent call with cUrl:
+     	* 
+     	* <PRE>
+     	* {@code curl -u admin:geoserver -XPUT \
+     	*      -H 'Content-type: application/vnd.ogc.sld+xml' \
+     	*      -d @$FULLSLD \
+     	*      http://$GSIP:$GSPORT/$SERVLET/rest/styles/$FULLSLD}
+     	* </PRE>
+     	* 
+     	* @param sldBody, String sldName
+     	*            the SLD document as an XML String.
+     	* 
+     	* @return <TT>true</TT> if the operation completed successfully.
+     	*/
+    	public boolean putStyle(final String sldBody, final String sldName)  throws IllegalArgumentException {
+		if (sldBody == null || sldBody.isEmpty()){
+			throw new IllegalArgumentException("The style body may not be null or empty");
+		} else if (sldName != null && !sldName.isEmpty()){
+			throw new IllegalArgumentException("The style name may not be null or empty");
+		}
+		StringBuilder sUrl = new StringBuilder(restURL);
+		sUrl.append("/rest/styles/").append(sldName);		
+        	final String result = HTTPUtils.put(sUrl.toString(), sldBody,
+        	        "application/vnd.ogc.sld+xml", gsuser, gspass);
+      	 	return result != null;
+    	}
 
 	/**
 	 * Remove a Style.<br>
