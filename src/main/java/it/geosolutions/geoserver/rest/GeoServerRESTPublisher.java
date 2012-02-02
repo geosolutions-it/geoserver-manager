@@ -132,10 +132,10 @@ public class GeoServerRESTPublisher {
 	 */
 	public boolean publishStyle(String sldBody) {
 		try {
-			return publishStyle(sldBody,null);
-		} catch (IllegalArgumentException e){
-			if (LOGGER.isEnabledFor(Level.ERROR)){
-				LOGGER.error(e.getLocalizedMessage(),e);
+			return publishStyle(sldBody, null);
+		} catch (IllegalArgumentException e) {
+			if (LOGGER.isEnabledFor(Level.ERROR)) {
+				LOGGER.error(e.getLocalizedMessage(), e);
 			}
 		}
 		return false;
@@ -162,13 +162,15 @@ public class GeoServerRESTPublisher {
 	 * @throws IllegalArgumentException
 	 *             if the style body is null or empty
 	 */
-	public boolean publishStyle(final String sldBody, final String name) throws IllegalArgumentException {
-		if (sldBody==null || sldBody.isEmpty()){
-			throw new IllegalArgumentException("The style body may not be null or empty");
+	public boolean publishStyle(final String sldBody, final String name)
+			throws IllegalArgumentException {
+		if (sldBody == null || sldBody.isEmpty()) {
+			throw new IllegalArgumentException(
+					"The style body may not be null or empty");
 		}
 		StringBuilder sUrl = new StringBuilder(restURL);
 		sUrl.append("/rest/styles");
-		if (name!=null && !name.isEmpty()){
+		if (name != null && !name.isEmpty()) {
 			sUrl.append("?name=").append(name);
 		}
 		final String result = HTTPUtils.post(sUrl.toString(), sldBody,
@@ -210,6 +212,81 @@ public class GeoServerRESTPublisher {
 	}
 
 	/**
+	 * Update SLD called as 'name'.
+	 * <P>
+	 * This is the equivalent call with cUrl:
+	 * 
+	 * <PRE>
+	 * {@code curl -u admin:geoserver -XPUT \
+	 *      -H 'Content-type: application/vnd.ogc.sld+xml' \
+	 *      -d @$FULLSLD \
+	 *      http://$GSIP:$GSPORT/$SERVLET/rest/styles/$NAME}
+	 * </PRE>
+	 * 
+	 * @param sldBody
+	 *            the SLD document as an XML String.
+	 * @param name
+	 *            the Style name to modify.
+	 * 
+	 * @return <TT>true</TT> if the operation completed successfully.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if the style body or name are null or empty
+	 * 
+	 */
+	public boolean updateStyle(final String sldBody, final String name)
+			throws IllegalArgumentException {
+		if (sldBody == null || sldBody.isEmpty()) {
+			throw new IllegalArgumentException(
+					"The style body may not be null or empty");
+		} else if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException(
+					"The style name may not be null or empty");
+		}
+
+		final StringBuilder sUrl = new StringBuilder(restURL);
+		sUrl.append("/rest/styles/").append(encode(name));
+
+		final String result = HTTPUtils.put(sUrl.toString(), sldBody,
+				"application/vnd.ogc.sld+xml", gsuser, gspass);
+		return result != null;
+	}
+
+	/**
+	 * Update an SLD called 'name'.
+	 * 
+	 * @param sldFile
+	 *            the File containing the SLD document.
+	 * @param name
+	 *            the Style name.
+	 * 
+	 * @return <TT>true</TT> if the operation completed successfully.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if the sldFile file or name are null or name is empty
+	 *             
+	 */
+	public boolean updateStyle(final File sldFile, final String name)
+			throws IllegalArgumentException {
+
+		if (sldFile == null) {
+			throw new IllegalArgumentException(
+					"Unable to updateStyle using a null parameter file");
+		} else if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException(
+					"The style name may not be null or empty");
+		}
+
+		final StringBuilder sUrl = new StringBuilder(restURL);
+		sUrl.append("/rest/styles/").append(encode(name));
+
+		final String result = HTTPUtils.put(sUrl.toString(), sldFile,
+				"application/vnd.ogc.sld+xml", gsuser, gspass);
+		return result != null;
+
+	}
+
+	/**
 	 * Remove a Style.<br>
 	 * 
 	 * The Style will be unpublished and the related SLD file will be removed
@@ -232,7 +309,7 @@ public class GeoServerRESTPublisher {
 
 		final StringBuffer sUrl = new StringBuffer(restURL);
 
-		// check style name 
+		// check style name
 		// TODO may we whant to throw an exception instead of
 		// change style name?
 		styleName = styleName.replaceAll(":", "_");
@@ -259,9 +336,9 @@ public class GeoServerRESTPublisher {
 	public boolean removeStyle(String styleName) {
 		try {
 			return removeStyle(styleName, true);
-		} catch (IllegalArgumentException e){
-			if (LOGGER.isEnabledFor(Level.ERROR)){
-				LOGGER.error(e.getLocalizedMessage(),e);
+		} catch (IllegalArgumentException e) {
+			if (LOGGER.isEnabledFor(Level.ERROR)) {
+				LOGGER.error(e.getLocalizedMessage(), e);
 			}
 		}
 		return false;
@@ -466,7 +543,7 @@ public class GeoServerRESTPublisher {
 	 * @param layername
 	 * @param srs
 	 * @param defaultStyle
-	 * @return 
+	 * @return
 	 */
 	public boolean publishDBLayer(String workspace, String storename,
 			String layername, String srs, String defaultStyle) {
@@ -649,7 +726,8 @@ public class GeoServerRESTPublisher {
 
 		if (configure != null) {
 			sbUrl.append("?configure=").append(configure);
-			if (params != (NameValuePair[])null && !configure.equals(ParameterConfigure.NONE)) {
+			if (params != (NameValuePair[]) null
+					&& !configure.equals(ParameterConfigure.NONE)) {
 				final String paramString = appendParameters(params);
 				if (!paramString.isEmpty()) {
 					sbUrl.append("&").append(paramString);
@@ -1747,35 +1825,35 @@ public class GeoServerRESTPublisher {
 			final int paramsSize = params.length;
 			if (paramsSize > 0) {
 				int i = 0;
-				NameValuePair param=params[i];
-				while (param!=null && i++<paramsSize){
-					final String name=param.getName();
-					final String value=param.getValue();
+				NameValuePair param = params[i];
+				while (param != null && i++ < paramsSize) {
+					final String name = param.getName();
+					final String value = param.getValue();
 					// success
-					if (name!=null && !name.isEmpty() && value!=null && !value.isEmpty()){
-						sbUrl.append(name).append("=")
-								.append(value);
+					if (name != null && !name.isEmpty() && value != null
+							&& !value.isEmpty()) {
+						sbUrl.append(name).append("=").append(value);
 						// end cycle
-						param=null;
+						param = null;
 					} else {
 						// next value
-						param=params[i];
+						param = params[i];
 					}
 				}
 				for (; i < paramsSize; i++) {
-					param=params[i];
-					if (param!=null){
-						final String name=param.getName();
-						final String value=param.getValue();
-						sbUrl.append(name).append("=")
-								.append(value);
-						if (name!=null && !name.isEmpty() && value!=null && !value.isEmpty()){
+					param = params[i];
+					if (param != null) {
+						final String name = param.getName();
+						final String value = param.getValue();
+						sbUrl.append(name).append("=").append(value);
+						if (name != null && !name.isEmpty() && value != null
+								&& !value.isEmpty()) {
 							sbUrl.append("&").append(name).append("=")
-							.append(value);
+									.append(value);
 						}
-						
+
 					}
-					
+
 				}
 			}
 		}

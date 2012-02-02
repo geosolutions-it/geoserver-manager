@@ -42,182 +42,219 @@ import org.jdom.Namespace;
 import org.springframework.core.io.ClassPathResource;
 
 /**
- * Testcase for publishing layers on geoserver.
- * We need a running GeoServer to properly run the tests. 
- * If such geoserver instance cannot be contacted, tests will be skipped.
- *
+ * Testcase for publishing layers on geoserver. We need a running GeoServer to
+ * properly run the tests. If such geoserver instance cannot be contacted, tests
+ * will be skipped.
+ * 
  * @author etj
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 
-    private final static Logger LOGGER = Logger.getLogger(GeoserverRESTStyleTest.class);
+	private final static Logger LOGGER = Logger
+			.getLogger(GeoserverRESTStyleTest.class);
 
-    public GeoserverRESTStyleTest(String testName) {
-        super(testName);
-    }
+	public GeoserverRESTStyleTest(String testName) {
+		super(testName);
+	}
 
-    public void testStyles() throws IOException {
-        if (!enabled()) return;
-        deleteAll();
+	public void testStyles() throws IOException {
+		if (!enabled())
+			return;
+		deleteAll();
 
-        assertEquals(0, reader.getStyles().size());
+		assertEquals(0, reader.getStyles().size());
 
-        final String styleName = "restteststyle";
-        File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
+		final String styleName = "restteststyle";
+		File sldFile = new ClassPathResource("testdata/restteststyle.sld")
+				.getFile();
 
-        // insert style
-        assertTrue(publisher.publishStyle(sldFile));
-        assertTrue(reader.existsStyle(styleName));
+		// insert style
+		assertTrue(publisher.publishStyle(sldFile));
+		assertTrue(reader.existsStyle(styleName));
 
-        assertFalse(publisher.publishStyle(sldFile));
-        assertTrue(reader.existsStyle(styleName));
+		assertFalse(publisher.publishStyle(sldFile));
+		assertTrue(reader.existsStyle(styleName));
 
-        String sld = reader.getSLD(styleName);
-        assertNotNull(sld);
+		String sld = reader.getSLD(styleName);
+		assertNotNull(sld);
 
-        Element styleEl = JDOMBuilder.buildElement(sld);
-        assertNotNull(styleEl);
+		Element styleEl = JDOMBuilder.buildElement(sld);
+		assertNotNull(styleEl);
 
-        Namespace SLDNS = Namespace.getNamespace("sld", "http://www.opengis.net/sld");
+		Namespace SLDNS = Namespace.getNamespace("sld",
+				"http://www.opengis.net/sld");
 
-        try{
+		try {
 
-            assertEquals(styleName, styleEl.getChild("NamedLayer", SLDNS).getChild("Name",SLDNS).getText());
-            assertEquals("STYLE FOR TESTING PURPOSES", styleEl.getChild("NamedLayer", SLDNS).getChild("UserStyle", SLDNS).getChild("Title", SLDNS).getText());
-        } catch(NullPointerException npe) {
-            fail("Error in SLD");
-        }
+			assertEquals(styleName, styleEl.getChild("NamedLayer", SLDNS)
+					.getChild("Name", SLDNS).getText());
+			assertEquals(
+					"STYLE FOR TESTING PURPOSES",
+					styleEl.getChild("NamedLayer", SLDNS)
+							.getChild("UserStyle", SLDNS)
+							.getChild("Title", SLDNS).getText());
+		} catch (NullPointerException npe) {
+			fail("Error in SLD");
+		}
 
-//        assertEquals(1475, sld.length());
+		// assertEquals(1475, sld.length());
 
-        assertEquals(1, reader.getStyles().size());
-    }
+		assertEquals(1, reader.getStyles().size());
+	}
 
-    protected void cleanupTestStyle(final String styleName) {
-        // dry run delete to work in a known state
-        if (reader.existsStyle(styleName)) {
-            LOGGER.info("Clearing stale test style " + styleName);
-            boolean ok = publisher.removeStyle(styleName);
-            if (!ok) {
-                fail("Could not unpublish style " + styleName);
-            }
-        }
-        assertFalse("Cleanup failed", reader.existsStyle(styleName));
-    }
+	protected void cleanupTestStyle(final String styleName) {
+		// dry run delete to work in a known state
+		if (reader.existsStyle(styleName)) {
+			LOGGER.info("Clearing stale test style " + styleName);
+			boolean ok = publisher.removeStyle(styleName);
+			if (!ok) {
+				fail("Could not unpublish style " + styleName);
+			}
+		}
+		assertFalse("Cleanup failed", reader.existsStyle(styleName));
+	}
 
-    public void testPublishDeleteStyleFile() throws FileNotFoundException, IOException {
-        if (!enabled()) {
-            return;
-        }
-//        Assume.assumeTrue(enabled);
-        final String styleName = "restteststyle";
+	public void testPublishDeleteStyleFile() throws FileNotFoundException,
+			IOException {
+		if (!enabled()) {
+			return;
+		}
+		// Assume.assumeTrue(enabled);
+		final String styleName = "restteststyle";
 
-        File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
+		File sldFile = new ClassPathResource("testdata/restteststyle.sld")
+				.getFile();
 
-        // known state?
-        cleanupTestStyle(styleName);
+		// known state?
+		cleanupTestStyle(styleName);
 
-        // test insert
-        boolean published = publisher.publishStyle(sldFile); // Will take the name from sld contents
-        assertTrue("publish() failed", published);
-        assertTrue(reader.existsStyle(styleName));
+		// test insert
+		boolean published = publisher.publishStyle(sldFile); // Will take the
+																// name from sld
+																// contents
+		assertTrue("publish() failed", published);
+		assertTrue(reader.existsStyle(styleName));
 
-        //test delete
-        boolean ok = publisher.removeStyle(styleName);
-        assertTrue("Unpublish() failed", ok);
-        assertFalse(reader.existsStyle(styleName));
-    }
+		sldFile = new ClassPathResource("testdata/restteststyle2.sld").getFile();
+		published = publisher.updateStyle(sldFile, styleName); // update
+		assertTrue("update() failed", published);
 
-    public void testPublishDeleteStyleString() throws FileNotFoundException, IOException {
-        if (!enabled()) {
-            return;
-        }
-//        Assume.assumeTrue(enabled);
-        String styleName = "restteststyle";
+		// test delete
+		boolean ok = publisher.removeStyle(styleName);
+		assertTrue("Unpublish() failed", ok);
+		assertFalse(reader.existsStyle(styleName));
+	}
 
-        File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
+	public void testPublishDeleteStyleString() throws FileNotFoundException,
+			IOException {
+		if (!enabled()) {
+			return;
+		}
+		// Assume.assumeTrue(enabled);
+		String styleName = "restteststyle";
 
-        // known state?
-        cleanupTestStyle(styleName);
+		File sldFile = new ClassPathResource("testdata/restteststyle.sld")
+				.getFile();
 
-        // test insert
-        String sldContent = IOUtils.toString(new FileInputStream(sldFile));
+		// known state?
+		cleanupTestStyle(styleName);
 
-        boolean published = publisher.publishStyle(sldContent);  // Will take the name from sld contents
-        assertTrue("publish() failed", published);
-        assertTrue(reader.existsStyle(styleName));
-        //test delete
-        boolean ok = publisher.removeStyle(styleName);
-        assertTrue("Unpublish() failed", ok);
-        assertFalse(reader.existsStyle(styleName));
-        
-        styleName = "restteststyle_with_name";
-        // test insert with name
-        published = publisher.publishStyle(sldContent,styleName);  // Will set the name
-        assertTrue("publish() failed", published);
-        assertTrue(reader.existsStyle(styleName));
-        //test delete
-        ok = publisher.removeStyle(styleName);
-        assertTrue("Unpublish() failed", ok);
-        assertFalse(reader.existsStyle(styleName));
-        
-    }
+		// test insert
+		String sldContent = IOUtils.toString(new FileInputStream(sldFile));
 
-    public void testUpdateDefaultStyle() throws FileNotFoundException, IOException {
-        if (!enabled()) {
-            return;
-        }
-        deleteAll();
+		boolean published = publisher.publishStyle(sldContent); // Will take the
+																// name from sld
+																// contents
+		assertTrue("publish() failed", published);
+		assertTrue(reader.existsStyle(styleName));
+		// test delete
+		boolean ok = publisher.removeStyle(styleName);
+		assertTrue("Unpublish() failed", ok);
+		assertFalse(reader.existsStyle(styleName));
 
-        String storeName = "resttestshp";
-        String layerName = "cities";
+		styleName = "restteststyle_with_name";
+		// test insert with name
+		published = publisher.publishStyle(sldContent, styleName); // Will set
+																	// the name
+		assertTrue("publish() failed", published);
+		assertTrue(reader.existsStyle(styleName));
+		String newSldContent = sldContent.replace(
+				"<sld:Title>STYLE FOR TESTING PURPOSES</sld:Title>",
+				"<sld:Title>MODIFIED STYLE FOR TESTING</sld:Title>");
+		published = publisher.updateStyle(newSldContent, styleName); // update
+		assertTrue("publish() failed", published);
 
-        final String styleName = "restteststyle";
-        {
-            File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
-            cleanupTestStyle(styleName);
-            boolean sldpublished = publisher.publishStyle(sldFile); // Will take the name from sld contents
-            assertTrue("style publish() failed", sldpublished);
-            assertTrue(reader.existsStyle(styleName));
-        }
+		// test delete
+		ok = publisher.removeStyle(styleName);
+		assertTrue("Unpublish() failed", ok);
+		assertFalse(reader.existsStyle(styleName));
 
-        final String styleName2 = "restteststyle2";
-        {
-            File sldFile = new ClassPathResource("testdata/restteststyle2.sld").getFile();
-            cleanupTestStyle(styleName2);
-            boolean sldpublished = publisher.publishStyle(sldFile,styleName2);
-            assertTrue("style publish() failed", sldpublished);
-            assertTrue(reader.existsStyle(styleName2));
-        }
+	}
 
-        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+	public void testUpdateDefaultStyle() throws FileNotFoundException,
+			IOException {
+		if (!enabled()) {
+			return;
+		}
+		deleteAll();
 
-        assertTrue(publisher.createWorkspace(DEFAULT_WS));
-        
-        // test insert
-        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile, "EPSG:4326", styleName);
-        assertTrue("publish() failed", published);
-        assertTrue(existsLayer(layerName));
+		String storeName = "resttestshp";
+		String layerName = "cities";
 
-        {
-            RESTLayer layer = reader.getLayer(layerName);
-            LOGGER.info("Layer style is " + layer.getDefaultStyle());
-            assertEquals(styleName, layer.getDefaultStyle());
-        }
+		final String styleName = "restteststyle";
+		{
+			File sldFile = new ClassPathResource("testdata/restteststyle.sld")
+					.getFile();
+			cleanupTestStyle(styleName);
+			boolean sldpublished = publisher.publishStyle(sldFile); // Will take
+																	// the name
+																	// from sld
+																	// contents
+			assertTrue("style publish() failed", sldpublished);
+			assertTrue(reader.existsStyle(styleName));
+		}
 
-        GSLayerEncoder le = new GSLayerEncoder();
-        le.setDefaultStyle(styleName2);
-        publisher.configureLayer(DEFAULT_WS, layerName, le);
+		final String styleName2 = "restteststyle2";
+		{
+			File sldFile = new ClassPathResource("testdata/restteststyle2.sld")
+					.getFile();
+			cleanupTestStyle(styleName2);
+			boolean sldpublished = publisher.publishStyle(sldFile, styleName2);
+			assertTrue("style publish() failed", sldpublished);
+			assertTrue(reader.existsStyle(styleName2));
+		}
 
-        {
-            RESTLayer layer = reader.getLayer(layerName);
-            LOGGER.info("Layer style is " + layer.getDefaultStyle());
-            assertEquals(styleName2, layer.getDefaultStyle());
-        }
+		File zipFile = new ClassPathResource("testdata/resttestshp.zip")
+				.getFile();
 
-        // remove layer and datastore
-        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName, true);
-        assertTrue("removeDatastore() failed", dsRemoved);
-    }
+		assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+		// test insert
+		boolean published = publisher.publishShp(DEFAULT_WS, storeName,
+				layerName, zipFile, "EPSG:4326", styleName);
+		assertTrue("publish() failed", published);
+		assertTrue(existsLayer(layerName));
+
+		{
+			RESTLayer layer = reader.getLayer(layerName);
+			LOGGER.info("Layer style is " + layer.getDefaultStyle());
+			assertEquals(styleName, layer.getDefaultStyle());
+		}
+
+		GSLayerEncoder le = new GSLayerEncoder();
+		le.setDefaultStyle(styleName2);
+		publisher.configureLayer(DEFAULT_WS, layerName, le);
+
+		{
+			RESTLayer layer = reader.getLayer(layerName);
+			LOGGER.info("Layer style is " + layer.getDefaultStyle());
+			assertEquals(styleName2, layer.getDefaultStyle());
+		}
+
+		// remove layer and datastore
+		boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName,
+				true);
+		assertTrue("removeDatastore() failed", dsRemoved);
+	}
 }
