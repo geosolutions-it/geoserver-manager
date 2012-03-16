@@ -700,7 +700,7 @@ public class GeoServerRESTPublisher {
 	 * @param coveragestore
 	 *            Name of the coveragestore
 	 * @param file
-	 *            zip file to upload
+	 *            file to upload
 	 * @param configure
 	 *            Configure parameter. It may be null.
 	 * @param params
@@ -753,19 +753,7 @@ public class GeoServerRESTPublisher {
 	// ==========================================================================
 
 	/**
-	 * Publish a GeoTiff.
-	 * 
-	 * <P>
-	 * This is the equivalent call with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code
-	 * curl -u admin:geoserver -XPUT -H 'Content-type: text' -d "file:$FULLPATH" \
-	 *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$STORENAME/external.geotiff
-	 *  }
-	 * </PRE>
-	 * 
-	 * @return true if the operation completed successfully.
+	 * Simple wrapper for {@link #publishGeoTIFF(String, String, String, File)}
 	 */
 	public boolean publishGeoTIFF(String workspace, String storeName,
 			File geotiff) throws FileNotFoundException {
@@ -773,6 +761,37 @@ public class GeoServerRESTPublisher {
 				"image/geotiff", geotiff, ParameterConfigure.FIRST,
 				(NameValuePair[]) null);
 	}
+	
+	/**
+	 * Publish a GeoTiff.
+         * Simple wrapper for {@link #publishCoverage(String, String, String, String, File, ParameterConfigure, NameValuePair...)}
+         * <P>
+         * This is the equivalent call with cUrl:
+         * 
+         * <PRE>
+         * {@code
+         * curl -u admin:geoserver -XPUT -H 'Content-type: text' -d "file:$FULLPATH" \
+         *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$STORENAME/external.geotiff
+         *  }
+         * </PRE>
+         * 
+	 * @param workspace Workspace to use
+	 * @param storeName Name of the coveragestore (if null the file name will be used)
+	 * @param layerName the name of the coverage (if null the file name will be used)
+	 * @param geotiff file to upload
+         * @return true if the operation completed successfully.
+	 * @throws FileNotFoundException if file does not exists
+	 * @throws IllegalArgumentException if workspace or geotiff are null
+	 */
+        public boolean publishGeoTIFF(final String workspace, final String storeName, final String layerName,
+                                      final File geotiff) throws FileNotFoundException, IllegalArgumentException {
+                if (workspace==null || geotiff==null)
+                    throw new IllegalArgumentException("Unable to proceed, some arguments are null");
+                
+                return publishCoverage(workspace, (storeName!=null)?storeName:FilenameUtils.getBaseName(geotiff.getAbsolutePath()), "geotiff",
+                                "image/geotiff", geotiff, ParameterConfigure.FIRST,
+                                (layerName!=null)?new NameValuePair[]{new NameValuePair("coverageName", layerName)}:(NameValuePair[]) null);
+        }
 
 	/**
 	 * Publish a GeoTiff already in a filesystem readable by GeoServer.

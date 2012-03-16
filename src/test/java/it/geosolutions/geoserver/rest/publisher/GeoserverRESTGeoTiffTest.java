@@ -102,6 +102,10 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         
         assertNotNull("publish() failed", pub);
 
+        pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another", "layername", geotiff);
+        
+        assertNotNull("publish() failed", pub);
+
         //delete
         assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName,true));
     }
