@@ -154,7 +154,7 @@ public class RESTLayer {
      * }</CODE>
      */
     public String getResourceUrl() {
-		Element resource = layerElem.getChild("resource");
+	Element resource = layerElem.getChild("resource");
         Element atom = resource.getChild("link", Namespace.getNamespace("atom", "http://www.w3.org/2005/Atom"));
         return atom.getAttributeValue("href");
     }

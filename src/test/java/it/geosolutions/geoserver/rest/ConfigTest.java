@@ -27,6 +27,9 @@ package it.geosolutions.geoserver.rest;
 
 
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
+import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -90,18 +93,17 @@ public class ConfigTest extends GeoserverRESTTest {
         String layerName = "resttestdem";
 
         File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
-        RESTCoverageStore pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, null, null);
+        boolean pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, layerName,"EPSG:4326",ProjectionPolicy.FORCE_DECLARED,"raster");
         
-        assertNotNull(pc);
+        assertTrue(pc);
     }
 
     public void insertExternalShape() throws FileNotFoundException, IOException {
 
         File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
 
-        boolean published = publisher.publishShp(DEFAULT_WS, "anyname", "cities", zipFile, "EPSG:4326", "default_point");
+        boolean published = publisher.publishShp(DEFAULT_WS, "anyname", "cities", zipFile, "EPSG:41001", "default_point");
         assertTrue("publish() failed", published);
-
 
         //test delete
         boolean ok = publisher.unpublishFeatureType(DEFAULT_WS, "anyname", "cities");

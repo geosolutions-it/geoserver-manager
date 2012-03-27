@@ -25,6 +25,8 @@
 
 package it.geosolutions.geoserver.rest.encoder;
 
+import org.jdom.Element;
+
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
 /**
@@ -42,6 +44,9 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
         addEnabled();
     }
     
+    /**
+     * enabled the layer
+     */
     protected void addEnabled(){
         add("enabled","true");
     }
@@ -55,18 +60,72 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
     	else
     		set("enabled","false");
     }
-
+    
+//    /**
+//     * @param name the name of the layer
+//     */
+//    protected void addName(final String name){
+//        add("name",name);
+//    }
+//    
+//    /**
+//     * @return name the name of the layer or null
+//     */
+//    public String getName() {
+//        final Element nameNode = get("name");
+//        if (nameNode != null)
+//                return nameNode.getText();
+//        else
+//                return null;
+//    }
+//    
+//    /**
+//     * @param name the name of the layer
+//     * @throws IllegalArgumentException 
+//     */
+//    public void setName(final String name) throws IllegalArgumentException {
+//        if (name==null || name.isEmpty())
+//            throw new IllegalArgumentException("Unable to set an empty or null parameter"); 
+//        set("name",name);
+//    }
+    
     /**
+     * @see {@link GSLayerEncoder#setWmsPath(String)}
      * 
-     * @param defaultStyle
-     * @deprecated will be set to protected in the next release, please use setDefaultStyle
-     * 
+     * @param path the wms path to set
      */
-    public void addDefaultStyle(String defaultStyle) {
-        add("defaultStyle", defaultStyle);
+    protected void addWmsPath(final String path) {
+        add("path", path);
     }
     
-    public void setDefaultStyle(String defaultStyle) {
+    /**
+     * Default WMS Path The GeoServer WMS path is, by default, /geoserver/wms.
+     * However you can change it to /geoserver/anythingyouwant
+     * 
+     * @param path the wms path to set
+     * @throws IllegalArgumentException if path is null or empty
+     */
+    public void setWmsPath(final String path) throws IllegalArgumentException {
+        if (path==null || path.isEmpty())
+            throw new IllegalArgumentException("Unable to set an empty or null parameter"); 
+        set("path",path);
+    }
+
+    /**
+     * @see {@link GSLayerEncoder#setDefaultStyle(String)}
+     * @param defaultStyle 
+     */
+    protected void addDefaultStyle(String defaultStyle) {
+        add("defaultStyle", defaultStyle);
+    }
+
+    /**
+     * @param defaultStyle The style that will be applied if no style is specified.
+     * @throws IllegalArgumentException if defaultStyle is null or empty
+     */
+    public void setDefaultStyle(final String defaultStyle) throws IllegalArgumentException {
+        if (defaultStyle==null || defaultStyle.isEmpty())
+            throw new IllegalArgumentException("Unable to set an empty or null parameter");
         set("defaultStyle", defaultStyle);
     }
 }

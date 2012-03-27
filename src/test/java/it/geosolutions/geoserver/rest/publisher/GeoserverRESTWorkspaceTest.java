@@ -27,6 +27,9 @@ package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
+import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +87,7 @@ public class GeoserverRESTWorkspaceTest extends GeoserverRESTTest {
         assertFalse("Cleanup failed", existsLayer(layerName));
 
         // test insert
-        RESTCoverageStore pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, null, null);
+        boolean pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, layerName, "EPSG:4326",ProjectionPolicy.REPROJECT_TO_DECLARED,"raster");
         
         // remove workspace and all of its contents
         assertTrue(publisher.removeWorkspace(DEFAULT_WS,true));

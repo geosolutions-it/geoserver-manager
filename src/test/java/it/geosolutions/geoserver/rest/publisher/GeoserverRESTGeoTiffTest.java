@@ -27,6 +27,9 @@ package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
+import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -66,14 +69,14 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         assertFalse("Cleanup failed", existsLayer(layerName));
 
         // test insert
-        RESTCoverageStore pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, null, null);
-        assertNotNull("publish() failed", pc);
+        boolean pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, layerName,"EPSG:4326",ProjectionPolicy.FORCE_DECLARED,"raster");
+        assertTrue("publish() failed", pc);
         assertTrue(existsLayer(layerName));
         LOGGER.info(pc);
         RESTCoverageStore reloadedCS = reader.getCoverageStore(DEFAULT_WS, storeName);
 
-        assertEquals(pc.getName(), reloadedCS.getName());
-        assertEquals(pc.getWorkspaceName(), reloadedCS.getWorkspaceName());
+        assertEquals(storeName, reloadedCS.getName());
+        assertEquals(DEFAULT_WS, reloadedCS.getWorkspaceName());
 
         //test delete
         assertTrue("Unpublish() failed", publisher.unpublishCoverage(DEFAULT_WS, storeName, layerName));

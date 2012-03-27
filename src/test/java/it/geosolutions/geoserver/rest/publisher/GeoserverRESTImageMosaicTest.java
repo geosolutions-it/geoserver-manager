@@ -139,7 +139,7 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
         try {
         	final File mosaicFile = new ClassPathResource("testdata/time_geotiff/").getFile();
         	
-        	if (!publisher.createExternalMosaic(wsName,coverageStoreName,mosaicFile,coverageEncoder,layerEncoder)){
+        	if (!publisher.publishExternalMosaic(wsName,coverageStoreName,mosaicFile,coverageEncoder,layerEncoder)){
         		fail();
         	}
     		coverageStore = reader.getCoverageStore(wsName,coverageStoreName);
