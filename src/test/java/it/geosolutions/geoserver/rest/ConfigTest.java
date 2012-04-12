@@ -26,10 +26,7 @@
 package it.geosolutions.geoserver.rest;
 
 
-import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
-import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
-import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 
 import java.io.File;
 import java.io.FileNotFoundException;

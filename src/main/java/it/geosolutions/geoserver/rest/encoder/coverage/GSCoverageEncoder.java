@@ -37,7 +37,7 @@ import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEnc
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  * 
  */
-public class GSCoverageEncoder extends GSResourceEncoder/*<GSDimensionInfoEncoder>*/ {
+public class GSCoverageEncoder extends GSResourceEncoder {
     
 	public GSCoverageEncoder() {
         super("coverage");
@@ -46,9 +46,8 @@ public class GSCoverageEncoder extends GSResourceEncoder/*<GSDimensionInfoEncode
     /**
 	 * @param key
 	 * @param dimensionInfo
-	 * @deprecated will be set to protected in the next release
 	 */
-	public void addMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
+	protected void addMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
 		super.addMetadata(key, dimensionInfo);
 	}
 

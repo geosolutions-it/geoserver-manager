@@ -107,7 +107,11 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
 
         pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another", "layername", geotiff);
         
-        assertNotNull("publish() failed", pub);
+        assertTrue("publish() failed", pub);
+        
+        pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another_complex", "layername_complex", geotiff, "EPSG:4326", ProjectionPolicy.REPROJECT_TO_DECLARED,"raster");
+        
+        assertTrue("publish() failed", pub);
 
         //delete
         assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName,true));

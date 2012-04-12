@@ -25,11 +25,8 @@
 
 package it.geosolutions.geoserver.rest.encoder.feature;
 
-import java.net.URL;
-
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
-import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 /**
  *
@@ -38,7 +35,7 @@ import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
-public class GSFeatureTypeEncoder extends GSResourceEncoder/*<GSFeatureDimensionInfoEncoder>*/ {
+public class GSFeatureTypeEncoder extends GSResourceEncoder {
 
     public GSFeatureTypeEncoder() {
         super("featureType");
@@ -47,9 +44,8 @@ public class GSFeatureTypeEncoder extends GSResourceEncoder/*<GSFeatureDimension
     /**
 	 * @param key
 	 * @param dimensionInfo
-	 * @deprecated will be set to protected in the next release
 	 */
-	public void addMetadata(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
+	protected void addMetadata(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
 		super.addMetadata(key, dimensionInfo);
 	}
 

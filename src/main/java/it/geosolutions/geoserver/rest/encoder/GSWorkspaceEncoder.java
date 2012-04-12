@@ -55,9 +55,8 @@ public class GSWorkspaceEncoder extends PropertyXMLEncoder {
      * Add the name to this workspace
      * @param name
      * @throws IllegalStateException if name is already set
-     * @deprecated will be set to protected in the next release
      */
-    public void addName(final String name) {
+    protected void addName(final String name) {
     	final Element el=ElementUtils.contains(getRoot(),NAME);
     	if (el==null)
     		add(NAME, name);

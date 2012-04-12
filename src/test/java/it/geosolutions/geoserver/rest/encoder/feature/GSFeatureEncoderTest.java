@@ -62,7 +62,7 @@ public class GSFeatureEncoderTest extends TestCase {
 
 		encoder.addMetadata("elevation", dim2);
     	
-		dim2.addPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
+		dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
 				BigDecimal.valueOf(10));
 		
 		Element el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.PRESENTATION);

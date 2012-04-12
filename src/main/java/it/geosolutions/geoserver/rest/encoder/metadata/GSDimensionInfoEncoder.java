@@ -82,10 +82,9 @@ public class GSDimensionInfoEncoder extends XmlElement{
 	}
 	
 	/**
-	 * @deprecated will be set to protected in the next release {@link setPresentation(final Presentation pres)}
 	 * @param pres
 	 */
-	public void addPresentation(final Presentation pres){
+	protected void addPresentation(final Presentation pres){
 		if (enabled){
 			add(PRESENTATION,pres.toString());
 		}
@@ -101,9 +100,8 @@ public class GSDimensionInfoEncoder extends XmlElement{
 	/**
 	 * @param pres
 	 * @param interval
-	 * @deprecated will be set to protected in the next release {@link setPresentation(final PresentationDiscrete pres, final BigDecimal interval)}
 	 */
-	public void addPresentation(final PresentationDiscrete pres, final BigDecimal interval){
+	protected void addPresentation(final PresentationDiscrete pres, final BigDecimal interval){
 		if (enabled){
 			add(PRESENTATION,pres.toString());
 			add(RESOLUTION,String.valueOf(interval));	

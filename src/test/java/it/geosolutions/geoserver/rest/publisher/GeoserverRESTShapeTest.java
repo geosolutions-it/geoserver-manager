@@ -26,7 +26,9 @@
 package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.UploadMethod;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,6 +53,7 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
     public GeoserverRESTShapeTest(String testName) {
         super(testName);
     }
+    
 
     public void testPublishDeleteShapeZip() throws FileNotFoundException, IOException {
         if (!enabled()) {
@@ -84,6 +87,73 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName,false);
         assertTrue("removeDatastore() failed", dsRemoved);
 
+    }
+
+
+    public void testPublishDeleteExternalComplexShapeZip() throws FileNotFoundException, IOException {
+        if (!enabled()) {
+            return;
+        }
+//        Assume.assumeTrue(enabled);
+        deleteAllWorkspaces();
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+        String storeName = "resttestshp_complex";
+        String datasetName = "cities";
+
+        File zipFile = new ClassPathResource("testdata/shapefile/cities.shp").getFile();
+        
+        // test insert
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, new NameValuePair[]{new NameValuePair("charset", "UTF-8")},datasetName, UploadMethod.external, zipFile.toURI(), "EPSG:4326",ProjectionPolicy.REPROJECT_TO_DECLARED,"polygon");
+        assertTrue("publish() failed", published);
+        assertTrue(existsLayer(datasetName));
+        
+
+        RESTLayer layer = reader.getLayer(datasetName);
+
+        LOGGER.info("Layer style is " + layer.getDefaultStyle());
+
+        //test delete
+        boolean ok = publisher.unpublishFeatureType(DEFAULT_WS, storeName, datasetName);
+        assertTrue("Unpublish() failed", ok);
+        assertFalse(existsLayer(datasetName));
+
+        // remove also datastore
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName,false);
+        assertTrue("removeDatastore() failed", dsRemoved);
+    }
+    
+    public void testPublishDeleteComplexShapeZip() throws FileNotFoundException, IOException {
+        if (!enabled()) {
+            return;
+        }
+//        Assume.assumeTrue(enabled);
+        deleteAllWorkspaces();
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+        String storeName = "resttestshp_complex";
+        String datasetName = "cities";
+
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+        
+        // test insert
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, new NameValuePair[]{new NameValuePair("charset", "UTF-8")},datasetName, UploadMethod.file, zipFile.toURI(), "EPSG:4326",ProjectionPolicy.REPROJECT_TO_DECLARED,"polygon");
+        assertTrue("publish() failed", published);
+        assertTrue(existsLayer(datasetName));
+        
+
+        RESTLayer layer = reader.getLayer(datasetName);
+
+        LOGGER.info("Layer style is " + layer.getDefaultStyle());
+
+        //test delete
+        boolean ok = publisher.unpublishFeatureType(DEFAULT_WS, storeName, datasetName);
+        assertTrue("Unpublish() failed", ok);
+        assertFalse(existsLayer(datasetName));
+
+        // remove also datastore
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName,false);
+        assertTrue("removeDatastore() failed", dsRemoved);
     }
 
     public void testPublishDeleteStyledShapeZip() throws FileNotFoundException, IOException {

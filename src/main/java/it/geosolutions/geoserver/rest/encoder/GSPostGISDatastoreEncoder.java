@@ -70,10 +70,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         setMaxOpenPreparedStatements(50);
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addName(String name) {
+    protected void addName(String name) {
         add("name", name);
     }
     
@@ -81,10 +78,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         set("name", name);
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addDescription(String description) {
+    protected void addDescription(String description) {
         add("description", description);
     }
     
@@ -92,10 +86,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         set("description", description);
     }
 
-    /**
-     * @deprecated will be set to protected in the next release
-     */
-	public void addType(String type) {
+	protected void addType(String type) {
         add("type", type);
     }
     
@@ -103,10 +94,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         set("type", type);
     }
 
-    /**
-		* @deprecated will be set to protected in the next release
-		*/
-	public void addEnabled(boolean enabled) {
+	protected void addEnabled(boolean enabled) {
         add("enabled", Boolean.toString(enabled));
     }
     
@@ -114,10 +102,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         set("enabled", Boolean.toString(enabled));
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addNamespace(String namespace) {
+	protected void addNamespace(String namespace) {
         connectionParameters.add("namespace", namespace);
     }
     
@@ -125,10 +110,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         connectionParameters.set("namespace", namespace);
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addHost(String host) {
+    protected void addHost(String host) {
         connectionParameters.add("host", host);
     }
     
@@ -136,10 +118,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         connectionParameters.set("host", host);
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addPort(int port) {
+    protected void addPort(int port) {
         connectionParameters.add("port", Integer.toString(port));
     }
     
@@ -147,10 +126,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         connectionParameters.set("port", Integer.toString(port));
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addDatabase(String database) {
+    protected void addDatabase(String database) {
         connectionParameters.add("database", database);
     }
     
@@ -158,10 +134,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         connectionParameters.set("database", database);
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addSchema(String schema) {
+    protected void addSchema(String schema) {
         connectionParameters.add("schema", schema);
     }
     
@@ -169,10 +142,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         connectionParameters.set("schema", schema);
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addUser(String user) {
+    protected void addUser(String user) {
         connectionParameters.add("user", user);
     }
     
@@ -180,10 +150,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         connectionParameters.set("user", user);
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addPassword(String password) {
+    protected void addPassword(String password) {
         connectionParameters.add("passwd", password);
     }
     
@@ -191,10 +158,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         connectionParameters.set("passwd", password);
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addDatabaseType(String dbtype) {
+    protected void addDatabaseType(String dbtype) {
         connectionParameters.add("dbtype", dbtype);
     }
 
@@ -202,10 +166,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         connectionParameters.set("dbtype", dbtype);
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addJndiReferenceName(String jndiReferenceName) {
+    protected void addJndiReferenceName(String jndiReferenceName) {
         connectionParameters.add("jndiReferenceName", jndiReferenceName);
     }
     
@@ -213,10 +174,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
         connectionParameters.set("jndiReferenceName", jndiReferenceName);
     }
 
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addExposePrimaryKeys(boolean exposePrimaryKeys) {
+    protected void addExposePrimaryKeys(boolean exposePrimaryKeys) {
     	connectionParameters.add("Expose primary keys", Boolean.toString(exposePrimaryKeys));
     }
     
@@ -224,10 +182,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     	connectionParameters.set("Expose primary keys", Boolean.toString(exposePrimaryKeys));
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addMaxConnections(int maxConnections) {
+    protected void addMaxConnections(int maxConnections) {
     	connectionParameters.add("max connections", Integer.toString(maxConnections));
     }
     
@@ -235,10 +190,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     	connectionParameters.set("max connections", Integer.toString(maxConnections));
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addMinConnections(int minConnections) {
+    protected void addMinConnections(int minConnections) {
     	connectionParameters.add("min connections", Integer.toString(minConnections));
     }
     
@@ -246,10 +198,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     	connectionParameters.set("min connections", Integer.toString(minConnections));
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addFetchSize(int fetchSize) {
+    protected void addFetchSize(int fetchSize) {
     	connectionParameters.add("fetch size", Integer.toString(fetchSize));
     }
     
@@ -257,10 +206,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     	connectionParameters.set("fetch size", Integer.toString(fetchSize));
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addConnectionTimeout(int seconds) {
+    protected void addConnectionTimeout(int seconds) {
     	connectionParameters.add("Connection timeout", Integer.toString(seconds));
     }
     
@@ -268,10 +214,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     	connectionParameters.set("Connection timeout", Integer.toString(seconds));
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addValidateConnections(boolean validateConnections) {
+    protected void addValidateConnections(boolean validateConnections) {
     	connectionParameters.add("validate connections", Boolean.toString(validateConnections));
     }
     
@@ -279,10 +222,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     	connectionParameters.set("validate connections", Boolean.toString(validateConnections));
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addPrimaryKeyMetadataTable(String primaryKeyMetadataTable) {
+    protected void addPrimaryKeyMetadataTable(String primaryKeyMetadataTable) {
     	connectionParameters.add("Primary key metadata table", primaryKeyMetadataTable);
     }
     
@@ -290,10 +230,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     	connectionParameters.set("Primary key metadata table", primaryKeyMetadataTable);
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addLooseBBox(boolean looseBBox) {
+    protected void addLooseBBox(boolean looseBBox) {
     	connectionParameters.add("Loose bbox", Boolean.toString(looseBBox));
     }
     
@@ -301,10 +238,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     	connectionParameters.set("Loose bbox", Boolean.toString(looseBBox));
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addPreparedStatements(boolean preparedStatements) {
+    protected void addPreparedStatements(boolean preparedStatements) {
     	connectionParameters.add("preparedStatements", Boolean.toString(preparedStatements));
     }
     
@@ -312,10 +246,7 @@ public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
     	connectionParameters.set("preparedStatements", Boolean.toString(preparedStatements));
     }
     
-    /**
-	 * @deprecated will be set to protected in the next release
-	 */
-	public void addMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
+    protected void addMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
     	connectionParameters.add("Max open prepared statements", Integer.toString(maxOpenPreparedStatements));
     }
     

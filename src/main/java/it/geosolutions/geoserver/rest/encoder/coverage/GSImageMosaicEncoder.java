@@ -87,10 +87,9 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 
 	private final static String allowMultithreading="AllowMultithreading";
 	/**
-	 * @deprecated will be set to protected in the next release
 	 * @param val
 	 */
-	public void addAllowMultithreading(final boolean val){
+	protected void addAllowMultithreading(final boolean val){
 		final List<Element> list=new ArrayList<Element>(2);
 		list.add(new Element(STRING).setText(allowMultithreading));
 		list.add(new Element(STRING).setText((val)?"true":"false"));
@@ -106,10 +105,9 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	
 	private final static String filter="Filter";
 	/**
-	 * @deprecated will be set to protected in the next release
 	 * @param val
 	 */
-	public void addFilter(final String val){
+	protected void addFilter(final String val){
 		final List<Element> list=new ArrayList<Element>(2);
 		list.add(new Element(STRING).setText(filter));
 		list.add(new Element(STRING).setText(val));
@@ -124,10 +122,9 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 
 	private final static String maxAllowedTiles="MaxAllowedTiles";
 	/**
-	 * @deprecated will be set to protected in the next release
 	 * @param val
 	 */
-	public void addMaxAllowedTiles(final int val){
+	protected void addMaxAllowedTiles(final int val){
 		final List<Element> list=new ArrayList<Element>(2);
 		list.add(new Element(STRING).setText(maxAllowedTiles));
 		list.add(new Element(STRING).setText(String.valueOf(val)));
@@ -142,10 +139,9 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	
 	private final static String inputTransparentColor="InputTransparentColor";
 	/**
-	 * @deprecated will be set to protected in the next release
 	 * @param val
 	 */
-	public void addInputTransparentColor(final String val){
+	protected void addInputTransparentColor(final String val){
 		final List<Element> list=new ArrayList<Element>(2);
 		list.add(new Element(STRING).setText(inputTransparentColor));
 		list.add(new Element(STRING).setText(val));
@@ -160,10 +156,9 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	
 	private final static String outputTransparentColor="OutputTransparentColor";
 	/**
-	 * @deprecated will be set to protected in the next release
 	 * @param val
 	 */
-	public void addOutputTransparentColor(final String val){
+	protected void addOutputTransparentColor(final String val){
 		final List<Element> list=new ArrayList<Element>(2);
 		list.add(new Element(STRING).setText(outputTransparentColor));
 		list.add(new Element(STRING).setText(val));
@@ -178,11 +173,9 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	
 	private final static String SUGGESTED_TILE_SIZE="SUGGESTED_TILE_SIZE";
 	/**
-	 * 
 	 * @param val
-	 * @deprecated will be set to protected in the next release
 	 */
-	public void addSUGGESTED_TILE_SIZE(final String val){
+	protected void addSUGGESTED_TILE_SIZE(final String val){
 		final List<Element> list=new ArrayList<Element>(2);
 		list.add(new Element(STRING).setText(SUGGESTED_TILE_SIZE));
 		list.add(new Element(STRING).setText(val));
@@ -197,10 +190,9 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	
 	private final static String USE_JAI_IMAGEREAD="USE_JAI_IMAGEREAD";
 	/**
-	 * @deprecated will be set to protected in the next release
 	 * @param val
 	 */
-	public void addUSE_JAI_IMAGEREAD(final boolean val){
+	protected void addUSE_JAI_IMAGEREAD(final boolean val){
 		final List<Element> list=new ArrayList<Element>(2);
 		list.add(new Element(STRING).setText(USE_JAI_IMAGEREAD));
 		list.add(new Element(STRING).setText((val)?"true":"false"));
@@ -215,10 +207,9 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 	
 	private final static String backgroundValues="BackgroundValues";
 	/**
-	 * @deprecated will be set to protected in the next release
 	 * @param val
 	 */
-	public void addBackgroundValues(final String val){
+	protected void addBackgroundValues(final String val){
 		final List<Element> list=new ArrayList<Element>(2);
 		list.add(new Element(STRING).setText(backgroundValues));
 		list.add(new Element(STRING).setText(val));

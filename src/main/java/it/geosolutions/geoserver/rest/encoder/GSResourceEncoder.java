@@ -38,8 +38,7 @@ import org.jdom.filter.Filter;
 
 /**
  * 
- * Encode a GeoServer resouce. The <T> type regards the GDSDimensionInfoEncoder
- * metadata Type which has different specialization for Features.
+ * Encode a GeoServer resource.
  * 
  * @see GSDimensionInfoEncoder
  * @see GSFeatureDimensionInfoEncoder
@@ -89,13 +88,12 @@ public abstract class GSResourceEncoder
 	/**
 	 * @param key
 	 * @param dimensionInfo
-	 * @deprecated will be set to protected in the next release
 	 */
 	protected void addMetadata(String key, XmlElement dimensionInfo) {
 		metadata.add(key, dimensionInfo.getRoot());
 	}
 
-	protected void setMetadata(String key, XmlElement dimensionInfo) {
+	public void setMetadata(String key, XmlElement dimensionInfo) {
 		metadata.set(key, dimensionInfo.getRoot());
 	}
 	
@@ -149,10 +147,8 @@ public abstract class GSResourceEncoder
 	/**
 	 * NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED
 	 * 
-	 * @deprecated use the setProjectionPolicy. <br>
-	 *             This method will be set as protected in the next release
 	 */
-	public void addProjectionPolicy(ProjectionPolicy policy) {
+	protected void addProjectionPolicy(ProjectionPolicy policy) {
 		add(PROJECTIONPOLICY, policy.toString());
 	}
 
@@ -167,10 +163,8 @@ public abstract class GSResourceEncoder
 	 * Add the 'name' node with a text value from 'name'
 	 * 
 	 * @note REQUIRED to configure a resource
-	 * @deprecated use the setName. <br>
-	 *             This method will be set as protected in the next release
 	 */
-	public void addName(final String name) {
+	protected void addName(final String name) {
 		add(NAME, name);
 	}
 
@@ -196,10 +190,8 @@ public abstract class GSResourceEncoder
 	/**
 	 * Add the 'title' node with a text value from 'title'
 	 * 
-	 * @deprecated use the setTitle. <br>
-	 *             This method will be set as protected in the next release
 	 */
-	public void addTitle(final String title) {
+	protected void addTitle(final String title) {
 		add(TITLE, title);
 	}
 
@@ -214,11 +206,8 @@ public abstract class GSResourceEncoder
 
 	/**
 	 * Add the 'SRS' node with a text value from 'srs'
-	 * 
-	 * @deprecated use the setSRS. <br>
-	 *             This method will be set as protected in the next release
 	 */
-	public void addSRS(final String srs) {
+	protected void addSRS(final String srs) {
 		add(SRS, srs);
 	}
 
@@ -236,8 +225,6 @@ public abstract class GSResourceEncoder
 	private final static String LATLONBBCRS = "latLonBoundingBox/crs";
 
 	/**
-	 * @deprecated use the setSRS. <br>
-	 *             This method will be set as protected in the next release
 	 * 
 	 * @param minx
 	 * @param maxy
@@ -245,7 +232,7 @@ public abstract class GSResourceEncoder
 	 * @param miny
 	 * @param crs
 	 */
-	public void addLatLonBoundingBox(double minx, double miny, double maxx,
+	protected void addLatLonBoundingBox(double minx, double miny, double maxx,
 			double maxy, final String crs) {
 		add(LATLONBBMINX, String.valueOf(minx));
 		add(LATLONBBMINY, String.valueOf(miny));
@@ -270,16 +257,13 @@ public abstract class GSResourceEncoder
 	private final static String NATIVEBBCRS = "nativeBoundingBox/crs";
 
 	/**
-	 * @deprecated use the setSRS. <br>
-	 *             This method will be set as protected in the next release
-	 * 
 	 * @param minx
 	 * @param maxy
 	 * @param maxx
 	 * @param miny
 	 * @param crs
 	 */
-	public void addNativeBoundingBox(double minx, double miny, double maxx,
+	protected void addNativeBoundingBox(double minx, double miny, double maxx,
 			double maxy, final String crs) {
 		add(NATIVEBBMINX, String.valueOf(minx));
 		add(NATIVEBBMAXY, String.valueOf(maxy));
