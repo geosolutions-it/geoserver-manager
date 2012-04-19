@@ -33,6 +33,7 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -47,13 +48,14 @@ import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Low level HTTP utilities.
  */
 class HTTPUtils {
-    private static final Logger LOGGER = Logger.getLogger(HTTPUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HTTPUtils.class);
 
     /**
      * Performs an HTTP GET on the given URL.

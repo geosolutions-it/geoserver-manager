@@ -25,19 +25,22 @@
 
 package it.geosolutions.geoserver.rest;
 
-import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
+import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Initializes REST params.
@@ -54,7 +57,7 @@ import org.apache.log4j.Logger;
  * @author etj
  */
 public abstract class GeoserverRESTTest extends TestCase {
-    private final static Logger LOGGER = Logger.getLogger(GeoserverRESTTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTTest.class);
 
     protected static final String DEFAULT_WS = "geosolutions";
 

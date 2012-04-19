@@ -26,10 +26,11 @@ import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Pr
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -43,7 +44,7 @@ public class GSCoverageEncoderTest extends TestCase {
     /**
      * Default logger
      */
-    protected final static Logger LOGGER = Logger.getLogger(GSCoverageEncoderTest.class);
+    protected final static Logger LOGGER = LoggerFactory.getLogger(GSCoverageEncoderTest.class);
     
 	/**
 	 * test set or reset of reprojection

@@ -30,10 +30,11 @@ import java.math.BigDecimal;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -41,7 +42,7 @@ import org.junit.Test;
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GSFeatureEncoderTest extends TestCase {
-	protected final static Logger LOGGER = Logger.getLogger(GSFeatureEncoderTest.class);
+	protected final static Logger LOGGER = LoggerFactory.getLogger(GSFeatureEncoderTest.class);
 	
 	public GSFeatureEncoderTest() {
 	}

@@ -29,7 +29,9 @@ package it.geosolutions.geoserver.rest.publisher;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Testcase for creating postgis-based resources on geoserver.
@@ -57,7 +59,7 @@ import org.apache.log4j.Logger;
  */
 public class GeoserverRESTPostgisDatastoreTest extends GeoserverRESTTest {
 
-    private final static Logger LOGGER = Logger.getLogger(GeoserverRESTPostgisDatastoreTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTPostgisDatastoreTest.class);
     private static final String DEFAULT_WS = "it.geosolutions";
 
     private final boolean pgIgnore;

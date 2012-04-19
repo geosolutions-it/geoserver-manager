@@ -36,9 +36,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -51,7 +52,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 
-	private final static Logger LOGGER = Logger
+	private final static Logger LOGGER = LoggerFactory
 			.getLogger(GeoserverRESTStyleTest.class);
 
 	public GeoserverRESTStyleTest(String testName) {
