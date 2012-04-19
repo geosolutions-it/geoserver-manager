@@ -33,7 +33,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -46,7 +47,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class GeoserverRESTShapeTest extends GeoserverRESTTest {
 
-    private final static Logger LOGGER = Logger.getLogger(GeoserverRESTShapeTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTShapeTest.class);
 
     public GeoserverRESTShapeTest(String testName) {
         super(testName);

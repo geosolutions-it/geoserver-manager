@@ -31,7 +31,9 @@ import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Testcase for publishing layers on geoserver.
@@ -43,7 +45,7 @@ import org.apache.log4j.Logger;
  */
 public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
 
-    private final static Logger LOGGER = Logger.getLogger(GeoserverRESTPublisherTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTPublisherTest.class);
 
     public GeoserverRESTPublisherTest(String testName) {
         super(testName);

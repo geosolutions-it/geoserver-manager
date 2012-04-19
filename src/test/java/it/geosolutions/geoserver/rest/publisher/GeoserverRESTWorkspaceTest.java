@@ -26,15 +26,13 @@
 package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
-import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
-import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
-import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -47,7 +45,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class GeoserverRESTWorkspaceTest extends GeoserverRESTTest {
 
-    private final static Logger LOGGER = Logger.getLogger(GeoserverRESTWorkspaceTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTWorkspaceTest.class);
 
     public GeoserverRESTWorkspaceTest(String testName) {
         super(testName);

@@ -27,15 +27,14 @@ package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
-import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
-import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -47,7 +46,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
 
-    private final static Logger LOGGER = Logger.getLogger(GeoserverRESTGeoTiffTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTGeoTiffTest.class);
 
     public GeoserverRESTGeoTiffTest(String testName) {
         super(testName);
@@ -72,7 +71,7 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         boolean pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, layerName,"EPSG:4326",ProjectionPolicy.FORCE_DECLARED,"raster");
         assertTrue("publish() failed", pc);
         assertTrue(existsLayer(layerName));
-        LOGGER.info(pc);
+        LOGGER.info("Published "+pc);
         RESTCoverageStore reloadedCS = reader.getCoverageStore(DEFAULT_WS, storeName);
 
         assertEquals(storeName, reloadedCS.getName());

@@ -38,7 +38,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -51,7 +52,7 @@ import org.springframework.core.io.ClassPathResource;
  * @author etj
  */
 public class ConfigTest extends GeoserverRESTTest {
-    private final static Logger LOGGER = Logger.getLogger(ConfigTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ConfigTest.class);
 
     private static final String DEFAULT_WS = "geosolutions";
 

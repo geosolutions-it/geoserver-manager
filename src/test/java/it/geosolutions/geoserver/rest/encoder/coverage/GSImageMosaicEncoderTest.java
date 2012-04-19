@@ -21,8 +21,9 @@ package it.geosolutions.geoserver.rest.encoder.coverage;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -36,7 +37,7 @@ public class GSImageMosaicEncoderTest extends TestCase {
     /**
      * Default logger
      */
-    protected final static Logger LOGGER = Logger.getLogger(GSImageMosaicEncoderTest.class);
+    protected final static Logger LOGGER = LoggerFactory.getLogger(GSImageMosaicEncoderTest.class);
     
     /**
      * TODO implement this test

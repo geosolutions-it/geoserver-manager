@@ -27,11 +27,13 @@ package it.geosolutions.geoserver.rest.decoder.utils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import org.apache.log4j.Logger;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -39,7 +41,7 @@ import org.jdom.input.SAXBuilder;
  */
 public class JDOMBuilder {
 
-    private final static Logger LOGGER = Logger.getLogger(JDOMBuilder.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JDOMBuilder.class);
 
     public static Element buildElement(String response) {
         if(response == null)

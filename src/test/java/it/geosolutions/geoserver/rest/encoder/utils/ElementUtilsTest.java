@@ -1,21 +1,17 @@
 package it.geosolutions.geoserver.rest.encoder.utils;
 
 
-import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoderTest;
-
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.jdom.Content;
 import org.jdom.Element;
 import org.jdom.filter.Filter;
-import org.jdom.output.XMLOutputter;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ElementUtilsTest {
 	
@@ -23,7 +19,7 @@ public class ElementUtilsTest {
     /**
      * Default logger
      */
-    protected final static Logger LOGGER = Logger.getLogger(ElementUtilsTest.class);
+    protected final static Logger LOGGER = LoggerFactory.getLogger(ElementUtilsTest.class);
     
 	
 	final static String NAME="TEST";

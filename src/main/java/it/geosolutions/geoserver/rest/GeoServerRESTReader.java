@@ -29,8 +29,8 @@ import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageList;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStoreList;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
 import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
@@ -46,7 +46,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 
 
 /**
@@ -58,7 +61,7 @@ import org.apache.log4j.Logger;
  */
 public class GeoServerRESTReader {
 
-    private final static Logger LOGGER = Logger.getLogger(GeoServerRESTReader.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoServerRESTReader.class);
     private final String baseurl;
     private String username;
     private String password;

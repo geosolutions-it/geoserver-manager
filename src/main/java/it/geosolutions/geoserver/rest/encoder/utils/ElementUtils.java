@@ -29,9 +29,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -42,7 +43,7 @@ public abstract class ElementUtils {
 	/**
 	 * Default logger
 	 */
-	private final static Logger LOGGER = Logger.getLogger(ElementUtils.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ElementUtils.class);
 
 	/**
 	 * 
