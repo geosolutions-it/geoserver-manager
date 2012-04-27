@@ -161,7 +161,24 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
         }
         System.out.println();
 	}
+	
+	/**
+	 * Test of getWorkspaceNames method, of class GeoServerRESTReader.
+	 */
+	public void testGetNamespaceNames() {
+        if(!enabled()) return;
 
+		List<String> names = reader.getNamespaceNames();
+		assertNotNull(names);
+//        assertEquals(7, names.size()); // value in default gs installation
+
+        System.out.println("Namespaces:" + names.size());
+        System.out.print("Namespaces:");
+		for (String name : names) {
+			System.out.print(name + " ");
+		}
+        System.out.println();
+	}
 
 	/**
 	 * Test of getWorkspaceNames method, of class GeoServerRESTReader.
