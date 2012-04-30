@@ -36,6 +36,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroupList;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerList;
+import it.geosolutions.geoserver.rest.decoder.RESTNamespace;
 import it.geosolutions.geoserver.rest.decoder.RESTNamespaceList;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
@@ -454,6 +455,25 @@ public class GeoServerRESTReader {
     //=== NAMESPACES
     //==========================================================================
 
+    /**
+     * Get a namespace.
+     * 
+     * @param prefix namespace prefix.
+     * 
+     * @return a RESTNamespace, or null if couldn't be created.
+     */
+    public RESTNamespace getNamespace(String prefix) {
+		if (prefix == null || prefix.isEmpty()) {
+			throw new IllegalArgumentException(
+				"Namespace prefix cannot be null or empty");			
+		}
+    	String url = "/rest/namespaces/"+prefix+".xml";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Getting namespace from " + url);
+        }
+        return RESTNamespace.build(load(url));
+    }
+    
     /**
      * Get summary info about all Namespaces.
      *
