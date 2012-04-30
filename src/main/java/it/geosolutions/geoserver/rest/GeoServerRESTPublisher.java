@@ -28,6 +28,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTCoverageList;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSNamespaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
@@ -109,6 +110,84 @@ public class GeoServerRESTPublisher {
 		final String wsxml = wsenc.toString();
 		final String result = HTTPUtils.postXml(sUrl, wsxml, gsuser, gspass);
 		return result != null;
+	}
+	
+	/**
+	 * Create both a workspace and its associated namespace.
+	 * 
+	 * Note that this method is equivalent to {@link #createNamespace}.
+	 * 
+	 * @param name Name for the new workspace, which will be also its associated namespace prefix.
+	 * @param uri Namespace URI. Cannot be empty.
+	 * @return <TT>true</TT> if the Workspace and its associated namespace were successfully created.
+	 */
+	public boolean createWorkspace(final String name, final URI uri) {
+		// This is really an alias to createNamespace, as GeoServer
+		// will automatically create the workspace as well.
+		return createNamespace(name, uri);
+	}
+	
+	// ==========================================================================
+	// === NAMESPACES
+	// ==========================================================================
+
+	/**
+	 * Create a new namespace. GeoServer will automatically create the corresponding workspace.
+	 * 
+	 * Prefix and uri are mandatory and cannot be empty.
+	 * If a namespace with the given prefix already exists, it won't be created. 
+	 * 
+	 * @param prefix The name of the new namespace.
+	 * @param uri The URI of the new namespace.
+	 * @return <TT>true</TT> if the namespace was successfully created.
+     * @see <a href="http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html#namespaces"> GeoServer Documentation</a>
+	 */
+	public boolean createNamespace(final String prefix, final URI uri) {
+		final String sUrl = restURL + "/rest/namespaces";
+		final GSNamespaceEncoder nsenc = new GSNamespaceEncoder(prefix, uri);
+		final String nsxml = nsenc.toString();
+		final String result = HTTPUtils.postXml(sUrl, nsxml, gsuser, gspass);
+		return result != null;
+	}
+	
+	/**
+	 * Update a namespace URI.
+	 * 
+	 * Prefix and uri are mandatory and cannot be empty.
+	 * A namespace with the given prefix should exist.
+	 * 
+	 * @param prefix The prefix of an existing namespace.
+	 * @param uri The new URI.
+	 * @return <TT>true</TT> if the namespace was successfully updated.
+	 */
+	public boolean updateNamespace(final String prefix, final URI uri) {
+		final String sUrl = restURL + "/rest/namespaces/"+ encode(prefix);
+		final GSNamespaceEncoder nsenc = new GSNamespaceEncoder(prefix, uri);
+		final String nsxml = nsenc.toString();
+		final String result = HTTPUtils.put(sUrl, nsxml, "application/xml", gsuser, gspass);
+		return result != null;
+	}
+	
+	/**
+	 * Remove a given Namespace. It will remove the associated workspace as well.
+	 * 
+	 * @param prefix
+	 *            The namespace prefix
+	 * @param recurse
+	 *            The recurse parameter is used to recursively delete all
+	 *            resources contained in the workspace associated with this
+	 *            namespace. This includesdata stores, coverage stores,
+	 *            feature types, etc... Allowable values for this parameter
+	 *            are <i>true</i> or <i>false</i>. The default (safer) value
+	 *            is <i>false</i>.
+	 * @return <TT>true</TT> if the namespace was successfully removed.
+	 */
+	public boolean removeNamespace(final String prefix, boolean recurse) {
+		// Hack: We are instead calling removeWorkspace, as DELETE on
+		// a namespace will leave associated workspace in an inconsistent
+		// state. See https://jira.codehaus.org/browse/GEOS-5075
+		// TODO switch to namespace when GEOS-5075 is solved
+		return removeWorkspace(prefix, recurse);
 	}
 
 	// ==========================================================================
