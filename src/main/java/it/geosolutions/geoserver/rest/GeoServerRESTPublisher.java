@@ -27,6 +27,7 @@ package it.geosolutions.geoserver.rest;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageList;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
+import it.geosolutions.geoserver.rest.encoder.GSBackupEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSNamespaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
@@ -82,6 +83,122 @@ public class GeoServerRESTPublisher {
 		this.gsuser = username;
 		this.gspass = password;
 	}
+
+
+    // ==========================================================================
+    // === BACKUP and RESTORE
+    // ==========================================================================
+
+    /**
+     * Issues a GeoServer BACKUP.
+     * <P>
+     * This is the equivalent call with cUrl:
+     *
+     * <PRE>
+     * {@code curl -u admin:geoserver -XPOST \
+     *      -H 'Content-type: text/xml' \
+     *      --data "&lt;task&gt;&lt;path&gt;${BACKUP_DATADIR}&lt;/path&gt;&lt;/task&gt;" \
+     *      http://$GSIP:$GSPORT/$SERVLET/rest/bkprst/backup}
+     * </PRE>
+     *
+     * @param backupDir
+     *            the target Backup Dir String.
+     *
+     * @return <TT>id</TT> of the backup.
+     * @throws IllegalArgumentException
+     *             if the backup_dir is null or empty
+     */
+    public String backup(final String backupDir) throws IllegalArgumentException
+    {
+        return backup(backupDir, false, false, false);
+    }
+
+    /**
+     * Issues a GeoServer BACKUP.
+     * <P>
+     * This is the equivalent call with cUrl:
+     *
+     * <PRE>
+     * {@code curl -u admin:geoserver -XPOST \
+     *      -H 'Content-type: text/xml' \
+     *      --data "&lt;task&gt;&lt;path&gt;${BACKUP_DATADIR}&lt;/path&gt;&lt;includedata&gt;${includedata}&lt;/includedata&gt;&lt;includegwc&gt;${includegwc}&lt;/includegwc&gt;&lt;includelog&gt;${includelog}&lt;/includelog&gt;&lt;/task&gt;" \
+     *      http://$GSIP:$GSPORT/$SERVLET/rest/bkprst/backup}
+     * </PRE>
+     *
+     * @param backupDir
+     *            the target Backup Dir String.
+     * @param includedata
+     *            whether or not include the data dir Boolean.
+     * @param includegwc
+     *            whether or not include the geowebcache dir Boolean.
+     * @param includelog
+     *            whether or not include the log dir Boolean.
+     *
+     * @return <TT>id</TT> of the backup.
+     * @throws IllegalArgumentException
+     *             if the backup_dir is null or empty
+     */
+    public String backup(final String backupDir,
+    		final boolean includedata,
+    		final boolean includegwc,
+    		final boolean includelog) throws IllegalArgumentException
+    {
+        if ((backupDir == null) || backupDir.isEmpty())
+        {
+            throw new IllegalArgumentException(
+                "The backup_dir must not be null or empty");
+        }
+
+        StringBuilder bkpUrl = new StringBuilder(restURL);
+        bkpUrl.append("/rest/bkprst/backup");
+
+        final GSBackupEncoder bkpenc = new GSBackupEncoder(backupDir);
+        bkpenc.setIncludeData(includedata);
+        bkpenc.setIncludeGwc(includegwc);
+        bkpenc.setIncludeLog(includelog);
+        final String result = HTTPUtils.post(bkpUrl.toString(), bkpenc.toString(),
+                "text/xml", gsuser, gspass);
+
+        return result;
+    }
+
+    /**
+     * Issues a GeoServer RESTORE.
+     * <P>
+     * This is the equivalent call with cUrl:
+     *
+     * <PRE>
+     * {@code curl -u admin:geoserver -XPOST \
+     *      -H 'Content-type: text/xml' \
+     *      --data "&lt;task&gt;&lt;path&gt;${BACKUP_DATADIR}&lt;/path&gt;&lt;/task&gt;" \
+     *      http://$GSIP:$GSPORT/$SERVLET/rest/bkprst/restore}
+     * </PRE>
+     *
+     * @param backupDir
+     *            the target Backup Dir String.
+     *
+     * @return <TT>id</TT> of the backup.
+     * @throws IllegalArgumentException
+     *             if the backup_dir is null or empty
+     */
+    public String restore(final String backupDir) throws IllegalArgumentException
+    {
+        if ((backupDir == null) || backupDir.isEmpty())
+        {
+            throw new IllegalArgumentException(
+                "The backup_dir must not be null or empty");
+        }
+
+        StringBuilder bkpUrl = new StringBuilder(restURL);
+        bkpUrl.append("/rest/bkprst/restore");
+
+        final GSBackupEncoder bkpenc = new GSBackupEncoder(backupDir);
+        
+        final String result = HTTPUtils.post(bkpUrl.toString(), bkpenc.toString(),
+                "text/xml", gsuser, gspass);
+
+        return result;
+    }
 
 	// ==========================================================================
 	// === WORKSPACES
