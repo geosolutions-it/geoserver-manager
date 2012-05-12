@@ -26,7 +26,11 @@
 package it.geosolutions.geoserver.rest.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.jdom.Element;
 
 /**
@@ -108,15 +112,44 @@ public class RESTDataStore {
     public String getName() {
         return dsElem.getChildText("name");
     }
+    
+    public String getStoreType() {
+    	return dsElem.getChildText("type");
+    }
+    
+    public String getDescription() {
+        return dsElem.getChildText("description");
+    }
 
+    public boolean isEnabled() {
+    	return Boolean.parseBoolean(dsElem.getChildText("enabled"));
+    }
+    
     public String getWorkspaceName() {
         return dsElem.getChild("workspace").getChildText("name");
     }
-
-    protected String getConnectionParameter(String paramName) {
+    
+    public Map<String, String> getConnectionParameters() {
         Element elConnparm = dsElem.getChild("connectionParameters");
         if (elConnparm != null) {
-            for (Element entry : (List<Element>) elConnparm.getChildren("entry")) {
+        	@SuppressWarnings("unchecked")
+			List<Element> elements = (List<Element>)elConnparm.getChildren("entry");
+        	Map<String, String> params = new HashMap<String, String>(elements.size());
+            for (Element element : elements) {
+                String key = element.getAttributeValue("key");
+                String value = element.getTextTrim();
+                params.put(key, value);
+            }
+            return params;
+        }
+        return null;
+    }
+
+	@SuppressWarnings("unchecked")
+	protected String getConnectionParameter(String paramName) {
+        Element elConnparm = dsElem.getChild("connectionParameters");
+        if (elConnparm != null) {
+        	for (Element entry : (List<Element>) elConnparm.getChildren("entry")) {
                 String key = entry.getAttributeValue("key");
                 if (paramName.equals(key)) {
                     return entry.getTextTrim();
@@ -126,7 +159,7 @@ public class RESTDataStore {
 
         return null;
     }
-
+	
     public DBType getType() {
         return DBType.get(getConnectionParameter("dbtype"));
     }

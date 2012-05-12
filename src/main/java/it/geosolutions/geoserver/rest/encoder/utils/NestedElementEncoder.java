@@ -155,7 +155,7 @@ public class NestedElementEncoder extends XmlElement {
 		// if some previous similar object is found
 		final Element search;
 		if ((search = ElementUtils.contains(getRoot(), new NestedElementFilter(
-				getRoot(), key, value))) != null) {
+				getRoot(), key, null))) != null) {
 			// remove it
 			ElementUtils.remove(getRoot(), search);
 		}

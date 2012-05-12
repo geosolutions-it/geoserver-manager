@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-package it.geosolutions.geoserver.rest.encoder;
+package it.geosolutions.geoserver.rest.encoder.datastore;
 
 import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;

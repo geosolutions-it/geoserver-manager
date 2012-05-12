@@ -30,11 +30,12 @@ import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import it.geosolutions.geoserver.rest.encoder.GSBackupEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSNamespaceEncoder;
-import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
+import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.datastore.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 
 import java.io.File;
@@ -655,20 +656,20 @@ public class GeoServerRESTPublisher {
 	}
 
 	/**
-	 * The file, url, and external endpoints are used to specify the method that
-	 * is used to upload the file.
-	 * 
-	 * The file method is used to directly upload a file from a local source.
+	 * The {@code file}, {@code url}, and {@code external} endpoints are used to specify
+	 * the method that is used to upload the file.
+	 * <ul>
+	 * <li>The {@code file} method is used to directly upload a file from a local source.
 	 * The body of the request is the file itself.
 	 * 
-	 * The url method is used to indirectly upload a file from an remote source.
+	 * <li>The {@code url} method is used to indirectly upload a file from an remote source.
 	 * The body of the request is a url pointing to the file to upload. This url
 	 * must be visible from the server.
 	 * 
-	 * The external method is used to forgo upload and use an existing file on
+	 * <li>The {@code external} method is used to forgo upload and use an existing file on
 	 * the server. The body of the request is the absolute path to the existing
 	 * file.
-	 * 
+	 * </ul>
 	 * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
 	 * 
 	 */
@@ -677,7 +678,7 @@ public class GeoServerRESTPublisher {
 	}
 
 	// ==========================================================================
-	// === DATASTORE
+	// === DATASTORES
 	// ==========================================================================
 
 	/**
@@ -702,11 +703,52 @@ public class GeoServerRESTPublisher {
 		String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
 		return result != null;
 	}
+	
+	/**
+	 * Create a datastore (any datastore extending GSAbstractDatastoreEncoder).
+	 * 
+	 * @param workspace
+	 *            Name of the workspace to contain the datastore. This will also
+	 *            be the prefix of any layer names contained in the datastore.
+	 * @param datastore
+	 *            the set of parameters to be set to the datastore (including
+	 *            connection parameters).
+	 * @return <TT>true</TT> if the datastore has been successfully
+	 *         created, <TT>false</TT> otherwise
+	 */
+	public boolean createDatastore(String workspace,
+			GSAbstractDatastoreEncoder datastore) {
+		String sUrl = restURL + "/rest/workspaces/" + workspace
+				+ "/datastores/";
+		String xml = datastore.toString();
+		String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
+		return result != null;
+	}
+
+	/**
+	 * Update a datastore (any datastore extending GSAbstractDatastoreEncoder).
+	 * 
+	 * @param workspace
+	 *            Name of the workspace that contains the datastore.
+	 * @param datastore
+	 *            the set of parameters to be set to the datastore (including
+	 *            connection parameters).
+	 * @return <TT>true</TT> if the datastore has been successfully
+	 *         updated, <TT>false</TT> otherwise
+	 */
+	public boolean updateDatastore(String workspace,
+			GSAbstractDatastoreEncoder datastore) {
+		String sUrl = restURL + "/rest/workspaces/" + workspace
+				+ "/datastores/" + datastore.getName();
+		String xml = datastore.toString();
+		String result = HTTPUtils.putXml(sUrl, xml, gsuser, gspass);
+		return result != null;
+	}
 
 	// ==========================================================================
 	// === SHAPEFILES
 	// ==========================================================================
-
+	
 	/**
 	 * Publish a zipped shapefile. <BR>
 	 * The defaultCRS will be set to EPSG:4326.
@@ -895,6 +937,57 @@ public class GeoServerRESTPublisher {
 			throws FileNotFoundException, IllegalArgumentException {
 
 		return publishShp(workspace, storename, params, layername, UploadMethod.file, zipFile.toURI(), srs, ProjectionPolicy.NONE,null);
+	}
+	
+
+	/**
+	 * Publish a collection of shapefiles.
+	 * 
+	 * It will automatically create the store and publish each shapefile as a layer.
+	 * 
+	 * @param workspace the name of the workspace to use
+	 * @param storeName the name of the store to create
+	 * @param resource the shapefile collection. It can be: <ul>
+	 *  <li>A path to a directory containing shapefiles in the server.
+	 * 	<li>A local zip file containing shapefiles that will be uploaded.
+	 *  <li>A URL pointing to a shapefile collection in the wild web (not tested).</ul>
+	 * @return {@code true} if publication successful.
+	 * @throws FileNotFoundException if the specified zip file does not exist.
+	 */
+	public boolean publishShpCollection(String workspace, String storeName, URI resource)
+			throws FileNotFoundException {
+		
+		// Deduce upload method & mime type from resource syntax.
+		UploadMethod method = null;
+		String mime = null;
+		if (resource.getScheme().equals("file") || resource.isAbsolute() == false) {
+			File f = new File(resource);
+			if (f.exists() && f.isFile() && f.toString().endsWith(".zip")) {
+				method = UploadMethod.file;
+				mime = "application/zip";				
+			} else if (f.isDirectory()) {
+				method = UploadMethod.external;
+				mime = "text/plain"; 				
+			}
+		} else {
+			try {
+				if(resource.toURL() != null) {
+					method = UploadMethod.url;
+					mime = "text/plain";					
+				}
+			} catch (MalformedURLException e) {
+				throw new IllegalArgumentException("Resource is not recognized as a zip file, or a directory, or a valid URL", e);
+			}
+		}
+		
+		// Create store, upload data, and publish layers
+		return createStore(
+				workspace, DataStoreType.datastores,
+				storeName, method,
+				DataStoreExtension.shp, // TODO if GEOS-5113 is accepted, change to DataStoreExtension.shpdir 
+				mime, resource, 
+				ParameterConfigure.ALL,
+				new NameValuePair[0]);
 	}
 
 	/**
@@ -1159,7 +1252,7 @@ public class GeoServerRESTPublisher {
 	 * 
 	 */
 	public enum DataStoreExtension {
-		shp, properties, h2, spatialite
+		shp, /*shpdir,*/ properties, h2, spatialite // TODO uncomment if GEOS-5113 is accepted
 	}
 
 	/**
