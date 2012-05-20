@@ -984,7 +984,7 @@ public class GeoServerRESTPublisher {
 		return createStore(
 				workspace, DataStoreType.datastores,
 				storeName, method,
-				DataStoreExtension.shp, // TODO if GEOS-5113 is accepted, change to DataStoreExtension.shpdir 
+				DataStoreExtension.shp,
 				mime, resource, 
 				ParameterConfigure.ALL,
 				new NameValuePair[0]);
@@ -1252,7 +1252,7 @@ public class GeoServerRESTPublisher {
 	 * 
 	 */
 	public enum DataStoreExtension {
-		shp, /*shpdir,*/ properties, h2, spatialite // TODO uncomment if GEOS-5113 is accepted
+		shp, properties, h2, spatialite
 	}
 
 	/**

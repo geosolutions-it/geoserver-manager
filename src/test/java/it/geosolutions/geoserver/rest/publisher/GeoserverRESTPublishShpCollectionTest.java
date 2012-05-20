@@ -70,11 +70,8 @@ public class GeoserverRESTPublishShpCollectionTest extends GeoserverRESTTest {
         // Publish shp collection
         assertTrue(publisher.publishShpCollection(workspace, storeName, location));
         
-        // Test store type */
-        /* TODO uncomment if GEOS-5113 is accepted
         String storeType = reader.getDatastore(workspace, storeName).getStoreType();
-        assertEquals(storeType, "Directory of spatial files (shapefiles)");
-        */
+        assertEquals(storeType, "Shapefile");
         
         // Test published layer names
         List<String> layers = reader.getLayers().getNames();
