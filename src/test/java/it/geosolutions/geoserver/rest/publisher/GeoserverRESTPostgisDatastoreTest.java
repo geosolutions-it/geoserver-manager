@@ -28,7 +28,7 @@ package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.encoder.datastore.GSPostGISDatastoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

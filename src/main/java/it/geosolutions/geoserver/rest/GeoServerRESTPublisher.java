@@ -35,7 +35,7 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
-import it.geosolutions.geoserver.rest.encoder.datastore.GSPostGISDatastoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 
 import java.io.File;
@@ -694,6 +694,8 @@ public class GeoServerRESTPublisher {
 	 * 
 	 * @return <TT>true</TT> if the PostGIS datastore has been successfully
 	 *         created, <TT>false</TT> otherwise
+	 * @deprecated Will be deleted in next version 1.5.x.
+	 * Use {@link #createDatastore(String, GSAbstractDatastoreEncoder)} instead.
 	 */
 	public boolean createPostGISDatastore(String workspace,
 			GSPostGISDatastoreEncoder datastoreEncoder) {
@@ -705,7 +707,7 @@ public class GeoServerRESTPublisher {
 	}
 	
 	/**
-	 * Create a datastore (any datastore extending GSAbstractDatastoreEncoder).
+	 * Create a datastore (any datastore extending {@link GSAbstractDatastoreEncoder}).
 	 * 
 	 * @param workspace
 	 *            Name of the workspace to contain the datastore. This will also
@@ -726,7 +728,7 @@ public class GeoServerRESTPublisher {
 	}
 
 	/**
-	 * Update a datastore (any datastore extending GSAbstractDatastoreEncoder).
+	 * Update a datastore (any datastore extending {@link GSAbstractDatastoreEncoder}).
 	 * 
 	 * @param workspace
 	 *            Name of the workspace that contains the datastore.
