@@ -34,6 +34,9 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  * @author Eric Grosso
  * @author ETj
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * 
+ * @deprecated Will be removed in next version 1.5.x.
+ *   Use {@link it.geosolutions.geoserver.rest.encoder.datastore.GSPostGISDatastoreEncoder} instead.
  */
 public class GSPostGISDatastoreEncoder extends PropertyXMLEncoder {
 

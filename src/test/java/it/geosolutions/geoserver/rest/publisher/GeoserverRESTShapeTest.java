@@ -166,11 +166,12 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         String ns = "geosolutions";
         String storeName = "resttestshp";
         String layerName = "cities";
+        final String styleName = "restteststyle";
 
         File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
         publisher.removeDatastore(DEFAULT_WS, storeName,true);
+        publisher.removeStyle(styleName);
         
-        final String styleName = "restteststyle";
         File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
 
         // insert style
