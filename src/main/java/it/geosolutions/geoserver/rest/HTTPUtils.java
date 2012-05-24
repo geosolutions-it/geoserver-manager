@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Low level HTTP utilities.
  */
-class HTTPUtils {
+public class HTTPUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(HTTPUtils.class);
 
     /**

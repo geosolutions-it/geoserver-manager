@@ -34,7 +34,6 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
-import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 
@@ -695,7 +694,7 @@ public class GeoServerRESTPublisher {
 	 * @return <TT>true</TT> if the PostGIS datastore has been successfully
 	 *         created, <TT>false</TT> otherwise
 	 * @deprecated Will be deleted in next version 1.5.x.
-	 * Use {@link #createDatastore(String, GSAbstractDatastoreEncoder)} instead.
+	 * Use {@link GeoServerRESTDatastoreManager} instead.
 	 */
 	public boolean createPostGISDatastore(String workspace,
 			GSPostGISDatastoreEncoder datastoreEncoder) {
@@ -703,47 +702,6 @@ public class GeoServerRESTPublisher {
 				+ "/datastores/";
 		String xml = datastoreEncoder.toString();
 		String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
-		return result != null;
-	}
-	
-	/**
-	 * Create a datastore (any datastore extending {@link GSAbstractDatastoreEncoder}).
-	 * 
-	 * @param workspace
-	 *            Name of the workspace to contain the datastore. This will also
-	 *            be the prefix of any layer names contained in the datastore.
-	 * @param datastore
-	 *            the set of parameters to be set to the datastore (including
-	 *            connection parameters).
-	 * @return <TT>true</TT> if the datastore has been successfully
-	 *         created, <TT>false</TT> otherwise
-	 */
-	public boolean createDatastore(String workspace,
-			GSAbstractDatastoreEncoder datastore) {
-		String sUrl = restURL + "/rest/workspaces/" + workspace
-				+ "/datastores/";
-		String xml = datastore.toString();
-		String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
-		return result != null;
-	}
-
-	/**
-	 * Update a datastore (any datastore extending {@link GSAbstractDatastoreEncoder}).
-	 * 
-	 * @param workspace
-	 *            Name of the workspace that contains the datastore.
-	 * @param datastore
-	 *            the set of parameters to be set to the datastore (including
-	 *            connection parameters).
-	 * @return <TT>true</TT> if the datastore has been successfully
-	 *         updated, <TT>false</TT> otherwise
-	 */
-	public boolean updateDatastore(String workspace,
-			GSAbstractDatastoreEncoder datastore) {
-		String sUrl = restURL + "/rest/workspaces/" + workspace
-				+ "/datastores/" + datastore.getName();
-		String xml = datastore.toString();
-		String result = HTTPUtils.putXml(sUrl, xml, gsuser, gspass);
 		return result != null;
 	}
 

@@ -22,14 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package it.geosolutions.geoserver.rest.publisher;
+package it.geosolutions.geoserver.rest.manager;
 
 import org.junit.Test;
+
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.GeoServerRESTManager;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
@@ -45,41 +46,46 @@ import it.geosolutions.geoserver.rest.encoder.datastore.GSDirectoryOfShapefilesD
  * 
  * <li>Tests constructors and getters from {@link RESTDataStore} (reader).
  * 
- * <li>Tests {@link GeoServerRESTPublisher#createDatastore} and
- * {@link GeoServerRESTPublisher#updateDatastore} methods.</ul>
+ * <li>Tests {@link GeoServerRESTDatastoreManager} create and update methods.</ul>
  * 
  * <p>The sequence is:
  * <ol>
  * <li>Create a DirectoryOfShapefilesDatastoreEncoder, with default parameters.
- * <li>Publish via createDatastore.
+ * <li>Publish via GeoServerRESTDatastoreManager.create.
  * <li>Read the datastore from server.
  * <li>Test all parameter values.
  * <li>Create a new Encoder from it.
  * <li>Change all datastore parameter to non-default ones.
- * <li>Update via updateDatastore.
+ * <li>Update via GeoServerRESTDatastoreManager.update.
  * <li>Read again.
  * <li>Test all new values.
  * </ol>
  * 
  * @author Oscar Fonts
  */
-public class GeoserverRESTCreateReadUpdateDatastoreTest extends GeoserverRESTTest {
-
+public class GeoserverRESTDatastoreManagerTest extends GeoserverRESTTest {
+	
+	public final GeoServerRESTManager manager;
+	
 	private static final String WS_NAME = DEFAULT_WS;
 	private static final String DS_NAME = "testCreateDatastore";
 	private static final String DS_DESCRIPTION = "A description";
 	private static URL LOCATION_1;
 	private static URL LOCATION_2;
 	
-	public GeoserverRESTCreateReadUpdateDatastoreTest(String testName) throws Exception {
+	public GeoserverRESTDatastoreManagerTest(String testName) throws Exception {
 		super(testName);
+		manager = new GeoServerRESTManager(new URL(RESTURL), RESTUSER, RESTPW);
+
 		LOCATION_1 = new URL("file:data/1");
 		LOCATION_2 = new URL("file:data/2");
 	}
 
 	@Test
 	public void test() throws Exception {
-		assertTrue(enabled());
+        if (!enabled()) {
+            return;
+        }
 		
     	// Delete all resources except styles
     	deleteAllWorkspacesRecursively();
@@ -89,7 +95,7 @@ public class GeoserverRESTCreateReadUpdateDatastoreTest extends GeoserverRESTTes
         
 		// Create a directory of spatial files with default parameters
 		GSDirectoryOfShapefilesDatastoreEncoder create = new GSDirectoryOfShapefilesDatastoreEncoder(DS_NAME, LOCATION_1);
-		assertTrue(publisher.createDatastore(WS_NAME, create));
+		assertTrue(manager.getDatastoreManager().create(WS_NAME, create));
 		
 		// Read the store from server; check all parameter values
 		RESTDataStore read = reader.getDatastore(WS_NAME, DS_NAME);
@@ -115,7 +121,7 @@ public class GeoserverRESTCreateReadUpdateDatastoreTest extends GeoserverRESTTes
 		update.setCacheAndReuseMemoryMaps(false);
 		
 		//update the store
-		assertTrue(publisher.updateDatastore(WS_NAME, update));
+		assertTrue(manager.getDatastoreManager().update(WS_NAME, update));
 		
 		// Read again, check that all parameters have changed
 		read = reader.getDatastore(WS_NAME, DS_NAME);

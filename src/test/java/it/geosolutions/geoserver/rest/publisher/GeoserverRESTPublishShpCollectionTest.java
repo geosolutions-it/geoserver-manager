@@ -45,7 +45,9 @@ public class GeoserverRESTPublishShpCollectionTest extends GeoserverRESTTest {
     
     @Test
     public void testLocalZip() throws Exception {
-    	assertTrue(enabled());
+        if (!enabled()) {
+            return;
+        }
     	
         URI location = new ClassPathResource("testdata/multipleshp.zip").getFile().toURI();
         test(location);
@@ -53,7 +55,9 @@ public class GeoserverRESTPublishShpCollectionTest extends GeoserverRESTTest {
     
     @Test
     public void testExternalDir() throws Exception {
-    	assertTrue(enabled());
+        if (!enabled()) {
+            return;
+        }
     	
         URI location = new ClassPathResource("testdata/multipleshapefiles").getFile().toURI();
         test(location);
