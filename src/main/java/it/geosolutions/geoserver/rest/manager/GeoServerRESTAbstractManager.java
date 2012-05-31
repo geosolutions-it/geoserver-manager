@@ -24,32 +24,43 @@
  */
 package it.geosolutions.geoserver.rest.manager;
 
+import it.geosolutions.geoserver.rest.HTTPUtils;
+
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Abstract manager, common functionality and interface
- * for all GeoServerREST<i>Foo</i>Manager classes.
+ * Abstract manager, common functionality and interface for all
+ * GeoServerREST<i>Foo</i>Manager classes.
  * 
  * @author Oscar Fonts
+ * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public abstract class GeoServerRESTAbstractManager {
-	
-	protected final URL restURL;
-	protected final String gsuser;
-	protected final String gspass;
-	
-	/**
-	 * Default constructor.
-	 * 
-	 * Indicates connection parameters to remote GeoServer instance.
-	 * 
-	 * @param restURL  GeoServer REST API endpoint
-	 * @param username GeoServer REST API authorized username
-	 * @param password GeoServer REST API password for the former username
-	 */
-	public GeoServerRESTAbstractManager(URL restURL, String username, String password) {		
-		this.restURL = restURL;
-		this.gsuser = username;
-		this.gspass = password;
-	}
+
+    protected final URL restURL;
+    protected final String gsuser;
+    protected final String gspass;
+
+    /**
+     * Default constructor.
+     * 
+     * Indicates connection parameters to remote GeoServer instance.
+     * 
+     * @param restURL GeoServer REST API endpoint
+     * @param username GeoServer REST API authorized username
+     * @param password GeoServer REST API password for the former username
+     * @throws MalformedURLException if restURL is malformed
+     */
+    public GeoServerRESTAbstractManager(URL restURL, String username, String password)
+        throws IllegalArgumentException, MalformedURLException {
+        if (restURL == null || username == null || password == null)
+            throw new IllegalArgumentException("Unable to create the manager using a null argument");
+
+        this.restURL = new URL(restURL.getProtocol(), restURL.getHost(), restURL.getPort(),
+                               HTTPUtils.decurtSlash(restURL.getPath()), null);
+        
+        this.gsuser = username;
+        this.gspass = password;
+    }
 }

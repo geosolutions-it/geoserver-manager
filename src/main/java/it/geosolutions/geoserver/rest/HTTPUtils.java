@@ -455,16 +455,50 @@ public class HTTPUtils {
     }
 
     /**
-     * recursively remove ending slashes
-     * 
      * @param geoserverURL
-     * @return
+     * @return recursively remove ending slashes 
      */
     public static String decurtSlash(String geoserverURL) {
-        if (geoserverURL.endsWith("/")) {
+        if (geoserverURL!=null && geoserverURL.endsWith("/")) {
             geoserverURL = decurtSlash(geoserverURL.substring(0, geoserverURL.length() - 1));
         }
         return geoserverURL;
+    }
+    
+    /**
+     * @param str a string array
+     * @return create a StringBuffer appending all the passed arguments
+     */
+    public static StringBuffer append(String ... str){
+        if (str==null){
+            return null;
+        }
+        
+        StringBuffer buf=new StringBuffer();
+        for (String s: str){
+            if (s!=null)
+                buf.append(s);
+        }
+        return buf;
+    }
+    
+    /**
+     * Wrapper for {@link #append(String...)}
+     * @param base base URL
+     * @param str strings to append
+     * @return the base URL with parameters attached
+     */
+    public static StringBuffer append(URL base, String ... str){
+        if (str==null){
+            return append(base.toString());
+        }
+        
+        StringBuffer buf=new StringBuffer(base.toString());
+        for (String s: str){
+            if (s!=null)
+                buf.append(s);
+        }
+        return buf;
     }
 
 }

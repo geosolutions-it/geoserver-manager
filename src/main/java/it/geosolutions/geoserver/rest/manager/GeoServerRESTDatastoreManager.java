@@ -27,6 +27,7 @@ package it.geosolutions.geoserver.rest.manager;
 import it.geosolutions.geoserver.rest.HTTPUtils;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -36,57 +37,57 @@ import java.net.URL;
  * {@link GSAbstractDatastoreEncoder}.
  * 
  * @author Oscar Fonts
+ * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GeoServerRESTDatastoreManager extends GeoServerRESTAbstractManager {
 
-	/**
-	 * Default constructor.
-	 * 
-	 * @param restURL  GeoServer REST API endpoint
-	 * @param username GeoServer REST API authorized username
-	 * @param password GeoServer REST API password for the former username
-	 */
-	public GeoServerRESTDatastoreManager(URL restURL, String username, String password) {
-		super(restURL, username, password);
-	}
-	
-	/**
-	 * Create a datastore.
-	 * 
-	 * @param workspace
-	 *            Name of the workspace to contain the datastore. This will also
-	 *            be the prefix of any layer names contained in the datastore.
-	 * @param datastore
-	 *            the set of parameters to be set to the datastore (including
-	 *            connection parameters).
-	 * @return <TT>true</TT> if the datastore has been successfully
-	 *         created, <TT>false</TT> otherwise
-	 */
+    /**
+     * Default constructor.
+     * 
+     * @param restURL GeoServer REST API endpoint
+     * @param username GeoServer REST API authorized username
+     * @param password GeoServer REST API password for the former username
+     * @throws MalformedURLException
+     * @throws IllegalArgumentException
+     */
+    public GeoServerRESTDatastoreManager(URL restURL, String username, String password)
+        throws IllegalArgumentException, MalformedURLException {
+        super(restURL, username, password);
+    }
 
-	public boolean create(String workspace, GSAbstractDatastoreEncoder datastore) {
-		String sUrl = restURL + "/rest/workspaces/" + workspace
-				+ "/datastores/";
-		String xml = datastore.toString();
-		String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
-		return result != null;
-	}
+    /**
+     * Create a datastore.
+     * 
+     * @param workspace Name of the workspace to contain the datastore. This
+     *            will also be the prefix of any layer names contained in the
+     *            datastore.
+     * @param datastore the set of parameters to be set to the datastore
+     *            (including connection parameters).
+     * @return <TT>true</TT> if the datastore has been successfully created,
+     *         <TT>false</TT> otherwise
+     */
 
-	/**
-	 * Update a datastore.
-	 * 
-	 * @param workspace
-	 *            Name of the workspace that contains the datastore.
-	 * @param datastore
-	 *            the set of parameters to be set to the datastore (including
-	 *            connection parameters).
-	 * @return <TT>true</TT> if the datastore has been successfully
-	 *         updated, <TT>false</TT> otherwise
-	 */
-	public boolean update(String workspace, GSAbstractDatastoreEncoder datastore) {
-		String sUrl = restURL + "/rest/workspaces/" + workspace
-				+ "/datastores/" + datastore.getName();
-		String xml = datastore.toString();
-		String result = HTTPUtils.putXml(sUrl, xml, gsuser, gspass);
-		return result != null;
-	}
+    public boolean create(String workspace, GSAbstractDatastoreEncoder datastore) {
+        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/datastores/").toString();
+        String xml = datastore.toString();
+        String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
+        return result != null;
+    }
+
+    /**
+     * Update a datastore.
+     * 
+     * @param workspace Name of the workspace that contains the datastore.
+     * @param datastore the set of parameters to be set to the datastore
+     *            (including connection parameters).
+     * @return <TT>true</TT> if the datastore has been successfully updated,
+     *         <TT>false</TT> otherwise
+     */
+    public boolean update(String workspace, GSAbstractDatastoreEncoder datastore) {
+        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/datastores/",
+                                       datastore.getName()).toString();
+        String xml = datastore.toString();
+        String result = HTTPUtils.putXml(sUrl, xml, gsuser, gspass);
+        return result != null;
+    }
 }

@@ -27,6 +27,7 @@ package it.geosolutions.geoserver.rest;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTAbstractManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTDatastoreManager;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -39,6 +40,7 @@ import java.net.URL;
  * <li>get<i>Foo</i>Manager, full-fledged management of catalog objects.
  * </ul>
  * @author Oscar Fonts
+ * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
 	
@@ -55,8 +57,10 @@ public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
 	 * @param restURL  GeoServer REST API endpoint
 	 * @param username GeoServer REST API authorized username
 	 * @param password GeoServer REST API password for the former username
+	 * @throws MalformedURLException {@link GeoServerRESTAbstractManager#GeoServerRESTAbstractManager(URL, String, String)}
+	 * @throws IllegalArgumentException {@link GeoServerRESTAbstractManager#GeoServerRESTAbstractManager(URL, String, String)}
 	 */
-	public GeoServerRESTManager(URL restURL, String username, String password) {
+	public GeoServerRESTManager(URL restURL, String username, String password) throws IllegalArgumentException, MalformedURLException {
 		super(restURL, username, password);
 		
 		// Internal publisher and reader, provide simple access methods.
