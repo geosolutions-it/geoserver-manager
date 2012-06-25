@@ -1324,6 +1324,19 @@ public class GeoServerRESTPublisher {
 	}
 
 	/**
+	 * Same as {@link publishGeoTIFF(String, String, String, File, String, ProjectionPolicy, String, double[])}
+	 * but without the last parameter (bbox). Kept here for backwards compatibility.
+	 * @deprecated
+	 */
+	public boolean publishGeoTIFF(String workspace, String storeName,
+			String resourceName, File geotiff, String srs,
+			ProjectionPolicy policy, String defaultStyle)
+			throws FileNotFoundException, IllegalArgumentException {
+		return publishGeoTIFF(workspace, storeName, resourceName,
+				geotiff, srs, policy, defaultStyle, null);
+	}
+	
+	/**
 	 * @see {@link #publishExternalGeoTIFF(String, String, File, String, String, ProjectionPolicy, String)}
 	 * @param workspace
 	 * @param storeName
@@ -1332,13 +1345,14 @@ public class GeoServerRESTPublisher {
 	 * @param srs
 	 * @param policy
 	 * @param defaultStyle
+	 * @param bbox An array of 4 doubles indicating envelope in EPSG:4326. Order is [Xmin, Ymin, Xmax, Ymax]
 	 * @return
 	 * @throws FileNotFoundException
 	 * @throws IllegalArgumentException
 	 */
 	public boolean publishGeoTIFF(String workspace, String storeName,
 			String resourceName, File geotiff, String srs,
-			ProjectionPolicy policy, String defaultStyle)
+			ProjectionPolicy policy, String defaultStyle, double[] bbox)
 			throws FileNotFoundException, IllegalArgumentException {
 		if (workspace == null || storeName == null || geotiff == null
 				|| resourceName == null || srs == null || policy == null
@@ -1360,6 +1374,9 @@ public class GeoServerRESTPublisher {
 		coverageEncoder.setName(resourceName);
 		coverageEncoder.setSRS(srs);
 		coverageEncoder.setProjectionPolicy(policy);
+		if(bbox != null && bbox.length == 4) {
+			coverageEncoder.setLatLonBoundingBox(bbox[0], bbox[1], bbox[2], bbox[3], "EPSG:4326");
+		}
 
 		if (!createCoverage(workspace, storeName, coverageEncoder)) {
 			LOGGER.error("Unable to create a coverage store for coverage: "
