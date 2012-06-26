@@ -135,11 +135,21 @@ public abstract class GSResourceEncoder
 		})).size() == 0 ? false : true;
 	}
 
-	/**
-	 * NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED
-	 */
+    /**
+     * Reprojection policy for a published layer. One of:
+     * <ul>
+     * <li>{@link #REPROJECT_TO_DECLARED} Reproject from native to declared CRS
+     * <li>{@link #FORCE_DECLARED} Use the declared CRS (ignore native)
+     * <li>{@link #NONE} No reprojection (use native CRS)
+     * </ul>
+     */
 	public enum ProjectionPolicy {
-		REPROJECT_TO_DECLARED, FORCE_DECLARED, NONE
+        /** Reproject from native to declared CRS */
+        REPROJECT_TO_DECLARED,
+        /** Use the declared CRS (ignore native) */
+        FORCE_DECLARED,
+        /** No reprojection */
+        NONE
 	}
 
 	private final static String PROJECTIONPOLICY = "projectionPolicy";

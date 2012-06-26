@@ -51,7 +51,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Connect to a GeoServer instance to publish or modify data.
+ * Connect to a GeoServer instance to publish or modify its contents via REST
+ * API.
  * <P>
  * There are no modifiable instance fields, so all the calls are thread-safe.
  * 
@@ -60,30 +61,45 @@ import org.slf4j.LoggerFactory;
  */
 public class GeoServerRESTPublisher {
 
+    /** The logger for this class */
 	private static final Logger LOGGER = LoggerFactory.getLogger(GeoServerRESTPublisher.class);
+	
+    /**
+     * GeoServer instance base URL. E.g.:
+     * <TT>http://localhost:8080/geoserver</TT>.
+     */
 	private final String restURL;
+	
+    /**
+     * GeoServer instance privileged username, with read & write permission on
+     * REST API
+     */
 	private final String gsuser;
+	
+    /**
+     * GeoServer instance password for privileged username with r&w permission
+     * on REST API
+     */
 	private final String gspass;
 
-	/**
-	 * Creates a <TT>GeoServerRESTPublisher</TT> for a given GeoServer instance
-	 * with the given auth credentials.
-	 * 
-	 * @param restURL
-	 *            the base GeoServer URL (e.g.:
-	 *            <TT>http://localhost:8080/geoserver</TT>)
-	 * @param username
-	 *            username auth credential
-	 * @param password
-	 *            password auth credential
-	 */
+    /**
+     * Creates a <TT>GeoServerRESTPublisher</TT> to connect against a GeoServer
+     * instance with the given URL and user credentials.
+     * 
+     * @param restURL
+     *            the base GeoServer URL (e.g.:
+     *            <TT>http://localhost:8080/geoserver</TT>)
+     * @param username
+     *            auth credential
+     * @param password
+     *            auth credential
+     */
 	public GeoServerRESTPublisher(String restURL, String username,
 			String password) {
 		this.restURL = HTTPUtils.decurtSlash(restURL);
 		this.gsuser = username;
 		this.gspass = password;
 	}
-
 
     // ==========================================================================
     // === BACKUP and RESTORE
@@ -92,39 +108,33 @@ public class GeoServerRESTPublisher {
     /**
      * Issues a GeoServer BACKUP.
      * <P>
-     * This is the equivalent call with cUrl:
-     *
-     * <PRE>
-     * {@code curl -u admin:geoserver -XPOST \
-     *      -H 'Content-type: text/xml' \
-     *      --data "&lt;task&gt;&lt;path&gt;${BACKUP_DATADIR}&lt;/path&gt;&lt;/task&gt;" \
-     *      http://$GSIP:$GSPORT/$SERVLET/rest/bkprst/backup}
-     * </PRE>
-     *
+     * Won't include data, cached tiles, or logs. Use
+     * {@link #backup(String, boolean, boolean, boolean)} to control these
+     * parameters.
+     * 
      * @param backupDir
      *            the target Backup Dir String.
-     *
+     * 
      * @return <TT>id</TT> of the backup.
      * @throws IllegalArgumentException
-     *             if the backup_dir is null or empty
+     *             if the backupDir is null or empty
      */
     public String backup(final String backupDir) throws IllegalArgumentException
     {
+    	/*
+    	 * This is the equivalent call with cUrl:
+    	 * 
+	     * {@code curl -u admin:geoserver -XPOST \
+	     *      -H 'Content-type: text/xml' \
+	     *      --data "&lt;task&gt;&lt;path&gt;${BACKUP_DATADIR}&lt;/path&gt;&lt;/task&gt;" \
+	     *      ${restURL}/rest/bkprst/backup}
+    	 */
         return backup(backupDir, false, false, false);
     }
 
     /**
      * Issues a GeoServer BACKUP.
-     * <P>
-     * This is the equivalent call with cUrl:
-     *
-     * <PRE>
-     * {@code curl -u admin:geoserver -XPOST \
-     *      -H 'Content-type: text/xml' \
-     *      --data "&lt;task&gt;&lt;path&gt;${BACKUP_DATADIR}&lt;/path&gt;&lt;includedata&gt;${includedata}&lt;/includedata&gt;&lt;includegwc&gt;${includegwc}&lt;/includegwc&gt;&lt;includelog&gt;${includelog}&lt;/includelog&gt;&lt;/task&gt;" \
-     *      http://$GSIP:$GSPORT/$SERVLET/rest/bkprst/backup}
-     * </PRE>
-     *
+     * 
      * @param backupDir
      *            the target Backup Dir String.
      * @param includedata
@@ -133,16 +143,23 @@ public class GeoServerRESTPublisher {
      *            whether or not include the geowebcache dir Boolean.
      * @param includelog
      *            whether or not include the log dir Boolean.
-     *
+     * 
      * @return <TT>id</TT> of the backup.
      * @throws IllegalArgumentException
-     *             if the backup_dir is null or empty
+     *             if the backupDir is null or empty.
      */
     public String backup(final String backupDir,
     		final boolean includedata,
     		final boolean includegwc,
     		final boolean includelog) throws IllegalArgumentException
     {
+       /* This is the equivalent call with cUrl:
+        *
+        * {@code curl -u admin:geoserver -XPOST \
+        *      -H 'Content-type: text/xml' \
+        *      --data "&lt;task&gt;&lt;path&gt;${BACKUP_DATADIR}&lt;/path&gt;&lt;includedata&gt;${includedata}&lt;/includedata&gt;&lt;includegwc&gt;${includegwc}&lt;/includegwc&gt;&lt;includelog&gt;${includelog}&lt;/includelog&gt;&lt;/task&gt;" \
+        *      ${restURL}/rest/bkprst/backup}
+        */
         if ((backupDir == null) || backupDir.isEmpty())
         {
             throw new IllegalArgumentException(
@@ -164,25 +181,24 @@ public class GeoServerRESTPublisher {
 
     /**
      * Issues a GeoServer RESTORE.
-     * <P>
-     * This is the equivalent call with cUrl:
-     *
-     * <PRE>
-     * {@code curl -u admin:geoserver -XPOST \
-     *      -H 'Content-type: text/xml' \
-     *      --data "&lt;task&gt;&lt;path&gt;${BACKUP_DATADIR}&lt;/path&gt;&lt;/task&gt;" \
-     *      http://$GSIP:$GSPORT/$SERVLET/rest/bkprst/restore}
-     * </PRE>
-     *
+     * 
      * @param backupDir
-     *            the target Backup Dir String.
-     *
+     *            the source backup dir.
+     * 
      * @return <TT>id</TT> of the backup.
      * @throws IllegalArgumentException
-     *             if the backup_dir is null or empty
+     *             if the backupDir is null or empty
      */
     public String restore(final String backupDir) throws IllegalArgumentException
     {
+        /*
+         * This is the equivalent call with cUrl:
+         *
+         * {@code curl -u admin:geoserver -XPOST \
+         *      -H 'Content-type: text/xml' \
+         *      --data "&lt;task&gt;&lt;path&gt;${BACKUP_DATADIR}&lt;/path&gt;&lt;/task&gt;" \
+         *      ${restURL}/rest/bkprst/restore}
+         */
         if ((backupDir == null) || backupDir.isEmpty())
         {
             throw new IllegalArgumentException(
@@ -204,24 +220,27 @@ public class GeoServerRESTPublisher {
 	// === WORKSPACES
 	// ==========================================================================
 
-	/**
-	 * Create a new Workspace
-	 * 
-	 * @param workspace
-	 *            The name of the new workspace.
-	 * 
-	 *            <P>
-	 *            This is the equivalent call with cUrl:
-	 * 
-	 *            <PRE>
-	 * {@code curl -u admin:geoserver -XPOST \
-	 *      -H 'Content-type: text/xml' \
-	 *      -d "<workspace><name>$WORKSPACE</name></workspace>" \
-	 *      http://$GSIP:$GSPORT/$SERVLET/rest/workspaces
-	 * }
-	 * </PRE>
-	 */
+    /**
+     * Create a new Workspace.
+     * <P>
+     * GeoServer will automatically create an associated Namespace with the URI
+     * being "http://{workspaceName}". To specify a custom Namespace URI, use
+     * {@link #createWorkspace(String, URI)}.
+     * 
+     * @param workspace
+     *            The name of the new workspace.
+     * 
+     * @return <TT>true</TT> if the workspace was created.
+     */
 	public boolean createWorkspace(final String workspace) {
+	    /* This is the equivalent call with cUrl:
+	     * 
+	     * {@code curl -u admin:geoserver -XPOST \
+	     *      -H 'Content-type: text/xml' \
+	     *      -d "<workspace><name>$WORKSPACE</name></workspace>" \
+	     *      http://$GSIP:$GSPORT/$SERVLET/rest/workspaces
+	     * }
+	     */
 		final String sUrl = restURL + "/rest/workspaces";
 		final GSWorkspaceEncoder wsenc = new GSWorkspaceEncoder(workspace);
 		final String wsxml = wsenc.toString();
@@ -229,18 +248,22 @@ public class GeoServerRESTPublisher {
 		return result != null;
 	}
 	
-	/**
-	 * Create both a workspace and its associated namespace.
-	 * 
-	 * Note that this method is equivalent to {@link #createNamespace}.
-	 * 
-	 * @param name Name for the new workspace, which will be also its associated namespace prefix.
-	 * @param uri Namespace URI. Cannot be empty.
-	 * @return <TT>true</TT> if the Workspace and its associated namespace were successfully created.
-	 */
+    /**
+     * Create both a workspace and its associated namespace.
+     * <P>
+     * Note that this method is equivalent to {@link #createNamespace}.
+     * 
+     * @param name
+     *            Name for the new workspace, which will be also its associated
+     *            namespace prefix.
+     * @param uri
+     *            Namespace URI. Cannot be empty.
+     * @return <TT>true</TT> if the Workspace and its associated namespace were
+     *         successfully created.
+     */
 	public boolean createWorkspace(final String name, final URI uri) {
 		// This is really an alias to createNamespace, as GeoServer
-		// will automatically create the workspace as well.
+		// will automatically create the associated workspace as well.
 		return createNamespace(name, uri);
 	}
 	
@@ -248,17 +271,23 @@ public class GeoServerRESTPublisher {
 	// === NAMESPACES
 	// ==========================================================================
 
-	/**
-	 * Create a new namespace. GeoServer will automatically create the corresponding workspace.
-	 * 
-	 * Prefix and uri are mandatory and cannot be empty.
-	 * If a namespace with the given prefix already exists, it won't be created. 
-	 * 
-	 * @param prefix The name of the new namespace.
-	 * @param uri The URI of the new namespace.
-	 * @return <TT>true</TT> if the namespace was successfully created.
-     * @see <a href="http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html#namespaces"> GeoServer Documentation</a>
-	 */
+    /**
+     * Create a new Namespace. GeoServer will automatically create the
+     * corresponding Workspace.
+     * 
+     * Prefix and URI are mandatory and cannot be empty. If a Namespace with the
+     * given prefix already exists, it won't be created.
+     * 
+     * @param prefix
+     *            The name of the new Namespace.
+     * @param uri
+     *            The URI of the new Namespace.
+     * 
+     * @return <TT>true</TT> if the Namespace was successfully created.
+     * @see <a
+     *      href="http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html#namespaces">
+     *      GeoServer Documentation</a>
+     */
 	public boolean createNamespace(final String prefix, final URI uri) {
 		final String sUrl = restURL + "/rest/namespaces";
 		final GSNamespaceEncoder nsenc = new GSNamespaceEncoder(prefix, uri);
@@ -267,16 +296,19 @@ public class GeoServerRESTPublisher {
 		return result != null;
 	}
 	
-	/**
-	 * Update a namespace URI.
-	 * 
-	 * Prefix and uri are mandatory and cannot be empty.
-	 * A namespace with the given prefix should exist.
-	 * 
-	 * @param prefix The prefix of an existing namespace.
-	 * @param uri The new URI.
-	 * @return <TT>true</TT> if the namespace was successfully updated.
-	 */
+    /**
+     * Update a Namespace URI.
+     * 
+     * Prefix and URI are mandatory and cannot be empty. A Namespace with the
+     * given prefix should exist.
+     * 
+     * @param prefix
+     *            The prefix of an existing Namespace.
+     * @param uri
+     *            The new URI.
+     * 
+     * @return <TT>true</TT> if the Namespace was successfully updated.
+     */
 	public boolean updateNamespace(final String prefix, final URI uri) {
 		final String sUrl = restURL + "/rest/namespaces/"+ encode(prefix);
 		final GSNamespaceEncoder nsenc = new GSNamespaceEncoder(prefix, uri);
@@ -285,20 +317,22 @@ public class GeoServerRESTPublisher {
 		return result != null;
 	}
 	
-	/**
-	 * Remove a given Namespace. It will remove the associated workspace as well.
-	 * 
-	 * @param prefix
-	 *            The namespace prefix
-	 * @param recurse
-	 *            The recurse parameter is used to recursively delete all
-	 *            resources contained in the workspace associated with this
-	 *            namespace. This includesdata stores, coverage stores,
-	 *            feature types, etc... Allowable values for this parameter
-	 *            are <i>true</i> or <i>false</i>. The default (safer) value
-	 *            is <i>false</i>.
-	 * @return <TT>true</TT> if the namespace was successfully removed.
-	 */
+    /**
+     * Remove a given Namespace. It will remove the associated Workspace as
+     * well.
+     * 
+     * @param prefix
+     *            The Namespace prefix
+     * @param recurse
+     *            The recurse parameter is used to recursively delete all
+     *            resources contained in the workspace associated with this
+     *            Namespace. This includes data stores, coverage stores, feature
+     *            types, etc... Allowable values for this parameter are
+     *            <i>true</i> or <i>false</i>. The default (safer) value is
+     *            <i>false</i>.
+     * 
+     * @return <TT>true</TT> if the Namespace was successfully removed.
+     */
 	public boolean removeNamespace(final String prefix, boolean recurse) {
 		// Hack: We are instead calling removeWorkspace, as DELETE on
 		// a namespace will leave associated workspace in an inconsistent
@@ -311,24 +345,22 @@ public class GeoServerRESTPublisher {
 	// === STYLES
 	// ==========================================================================
 
-	/**
-	 * Store and publish an SLD.
-	 * <P>
-	 * This is the equivalent call with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code curl -u admin:geoserver -XPOST \
-	 *      -H 'Content-type: application/vnd.ogc.sld+xml' \
-	 *      -d @$FULLSLD \
-	 *      http://$GSIP:$GSPORT/$SERVLET/rest/styles}
-	 * </PRE>
-	 * 
-	 * @param sldBody
-	 *            the SLD document as an XML String.
-	 * 
-	 * @return <TT>true</TT> if the operation completed successfully.
-	 */
+    /**
+     * Store and publish a Style.
+     * 
+     * @param sldBody
+     *            the full SLD document as a String.
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     */
 	public boolean publishStyle(String sldBody) {
+	    /* This is the equivalent call with cUrl:
+	     * 
+	     * {@code curl -u admin:geoserver -XPOST \
+         *      -H 'Content-type: application/vnd.ogc.sld+xml' \
+         *      -d @$FULLSLD \
+         *      http://$GSIP:$GSPORT/$SERVLET/rest/styles}
+	     */
 		try {
 			return publishStyle(sldBody, null);
 		} catch (IllegalArgumentException e) {
@@ -339,29 +371,28 @@ public class GeoServerRESTPublisher {
 		return false;
 	}
 
-	/**
-	 * Store and publish an SLD.
-	 * <P>
-	 * This is the equivalent call with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code curl -u admin:geoserver -XPOST \
-	 *      -H 'Content-type: application/vnd.ogc.sld+xml' \
-	 *      -d @$FULLSLD \
-	 *      http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=name}
-	 * </PRE>
-	 * 
-	 * @param sldBody
-	 *            the SLD document as an XML String.
-	 * @param name
-	 *            the Style name (can be null).
-	 * 
-	 * @return <TT>true</TT> if the operation completed successfully.
-	 * @throws IllegalArgumentException
-	 *             if the style body is null or empty
-	 */
+    /**
+     * Store and publish a Style, assigning it a name.
+     * 
+     * @param sldBody
+     *            the full SLD document as a String.
+     * @param name
+     *            the Style name.
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException
+     *             if the style body is null or empty.
+     */
 	public boolean publishStyle(final String sldBody, final String name)
 			throws IllegalArgumentException {
+	    /*
+	     * This is the equivalent call with cUrl:
+         * 
+         * {@code curl -u admin:geoserver -XPOST \
+         *      -H 'Content-type: application/vnd.ogc.sld+xml' \
+         *      -d @$FULLSLD \
+         *      http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=name}
+	     */
 		if (sldBody == null || sldBody.isEmpty()) {
 			throw new IllegalArgumentException(
 					"The style body may not be null or empty");
@@ -377,10 +408,9 @@ public class GeoServerRESTPublisher {
 	}
 
 	/**
-	 * Store and publish an SLD.
+	 * Store and publish a Style.
 	 * 
-	 * @param sldFile
-	 *            the File containing the SLD document.
+	 * @param sldFile the File containing the SLD document.
 	 * 
 	 * @return <TT>true</TT> if the operation completed successfully.
 	 */
@@ -388,16 +418,16 @@ public class GeoServerRESTPublisher {
 		return publishStyle(sldFile, null);
 	}
 
-	/**
-	 * Store and publish an SLD, assigning it a name.
-	 * 
-	 * @param sldFile
-	 *            the File containing the SLD document.
-	 * @param name
-	 *            the Style name.
-	 * 
-	 * @return <TT>true</TT> if the operation completed successfully.
-	 */
+    /**
+     * Store and publish a Style, assigning it a name.
+     * 
+     * @param sldFile
+     *            the File containing the SLD document.
+     * @param name
+     *            the Style name.
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     */
 	public boolean publishStyle(File sldFile, String name) {
 		String sUrl = restURL + "/rest/styles";
 		if (name != null && !name.isEmpty()) {
@@ -409,31 +439,28 @@ public class GeoServerRESTPublisher {
 		return result != null;
 	}
 
-	/**
-	 * Update SLD called as 'name'.
-	 * <P>
-	 * This is the equivalent call with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code curl -u admin:geoserver -XPUT \
-	 *      -H 'Content-type: application/vnd.ogc.sld+xml' \
-	 *      -d @$FULLSLD \
-	 *      http://$GSIP:$GSPORT/$SERVLET/rest/styles/$NAME}
-	 * </PRE>
-	 * 
-	 * @param sldBody
-	 *            the SLD document as an XML String.
-	 * @param name
-	 *            the Style name to modify.
-	 * 
-	 * @return <TT>true</TT> if the operation completed successfully.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if the style body or name are null or empty
-	 * 
-	 */
+    /**
+     * Update a Style.
+     * 
+     * @param sldBody
+     *            the new SLD document as a String.
+     * @param name
+     *            the Style name to update.
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException
+     *             if the style body or name are null or empty.
+     */
 	public boolean updateStyle(final String sldBody, final String name)
 			throws IllegalArgumentException {
+	    /*
+	     * This is the equivalent call with cUrl:
+         * 
+         * {@code curl -u admin:geoserver -XPUT \
+         *      -H 'Content-type: application/vnd.ogc.sld+xml' \
+         *      -d @$FULLSLD \
+         *      http://$GSIP:$GSPORT/$SERVLET/rest/styles/$NAME}
+	     */
 		if (sldBody == null || sldBody.isEmpty()) {
 			throw new IllegalArgumentException(
 					"The style body may not be null or empty");
@@ -450,20 +477,18 @@ public class GeoServerRESTPublisher {
 		return result != null;
 	}
 
-	/**
-	 * Update an SLD called 'name'.
-	 * 
-	 * @param sldFile
-	 *            the File containing the SLD document.
-	 * @param name
-	 *            the Style name.
-	 * 
-	 * @return <TT>true</TT> if the operation completed successfully.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if the sldFile file or name are null or name is empty
-	 * 
-	 */
+    /**
+     * Update a Style.
+     * 
+     * @param sldFile
+     *            the File containing the SLD document.
+     * @param name
+     *            the Style name.
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException
+     *             if the sldFile file or name are null or name is empty.
+     */
 	public boolean updateStyle(final File sldFile, final String name)
 			throws IllegalArgumentException {
 
@@ -484,21 +509,21 @@ public class GeoServerRESTPublisher {
 
 	}
 
-	/**
-	 * Remove a Style.<br>
-	 * 
-	 * The Style will be unpublished and the related SLD file will be removed
-	 * (if purge==true).<br>
-	 * 
-	 * @param styleName
-	 *            the name of the Style to remove.
-	 * @param purge
-	 *            and the related SLD file will be removed.
-	 * 
-	 * @return <TT>true</TT> if the operation completed successfully.
-	 * @throws IllegalArgumentException
-	 *             if styleName is null or empty
-	 */
+    /**
+     * Remove a Style.
+     * <P>
+     * The Style will be unpublished, and (optionally) the SLD file will be
+     * removed.
+     * 
+     * @param styleName
+     *            the name of the Style to remove.
+     * @param purge
+     *            remove the related SLD file from disk.
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException
+     *             if styleName is null or empty.
+     */
 	public boolean removeStyle(String styleName, final boolean purge)
 			throws IllegalArgumentException {
 		if (styleName == null || styleName.isEmpty())
@@ -542,38 +567,193 @@ public class GeoServerRESTPublisher {
 		return false;
 	}
 
-	private boolean createDataStore(String workspace, String storeName,
-			UploadMethod method, DataStoreExtension extension, String mimeType,
-			URI uri, ParameterConfigure configure, NameValuePair... params)
-			throws FileNotFoundException, IllegalArgumentException {
-		return createStore(workspace, DataStoreType.DATASTORES, storeName,
-				method, extension, mimeType, uri, configure, params);
-	}
+    // ==========================================================================
+    // === DATASTORE PUBLISHING
+    // ==========================================================================
 
-	private boolean createCoverageStore(String workspace, String storeName,
-			UploadMethod method, CoverageStoreExtension extension,
-			String mimeType, URI uri, ParameterConfigure configure,
-			NameValuePair... params) throws FileNotFoundException,
-			IllegalArgumentException {
-		return createStore(workspace, DataStoreType.COVERAGESTORES, storeName,
-				method, extension, mimeType, uri, configure, params);
-	}
+    /**
+     * DataStoreType definitions.
+     * <UL>
+     * <LI>{@link #DATASTORES} vector based data sources.
+     * <LI>{@link #COVERAGESTORES} raster based data sources.
+     * </UL>
+     * 
+     * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+     */
+    public enum DataStoreType {
+        /**
+         * Raster based data sources.
+         */
+        COVERAGESTORES,
+        /**
+         * Vector based data sources. Can be a file in the case of a Shapefile,
+         * a database connection in the case of PostGIS, or a server in the case
+         * of a remote Web Feature Service.
+         */
+        DATASTORES;
 
-	/**
-	 * 
-	 * @param workspace
-	 * @param dsType
-	 * @param storeName
-	 * @param method
-	 * @param extension
-	 * @param mimeType
-	 * @param uri
-	 * @param configure
-	 * @param params
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws IllegalArgumentException
-	 */
+        /**
+         * Get the type name of a DataStoreType.
+         * 
+         * @param type
+         *            the DataStoreType.
+         * @return "featuretypes.xml" for DATASTORES, "coverages.xml" otherwise.
+         */
+        public static String getTypeName(DataStoreType type) {
+            switch (type) {
+            case COVERAGESTORES:
+                return "coverages.xml"; // Format
+            case DATASTORES:
+                return "featuretypes.xml";
+            default:
+                return "coverages.xml";
+            }
+        }
+    }
+
+    /**
+     * Specifies the method used to publish a resource.
+     * <ul>
+     * <li>{@link #FILE} upload a file from a local source.
+     * <li>{@link #URL} indirectly upload a file from a remote source.
+     * <li>{@link #EXTERNAL} don't upload; use an existing file on the server.
+     * </ul>
+     * 
+     * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+     */
+    public enum UploadMethod {
+        /**
+         * directly upload a file from a local source. The body of the request
+         * is the file itself.
+         */
+        FILE,
+        /**
+         * indirectly upload a file from a remote source. The body of the
+         * request is the URL where the data is published. This url must be
+         * visible from the server.
+         */
+        URL,
+        /**
+         * forgo upload, and use an existing file on the server. The body of the
+         * request is the absolute local path to the existing file.
+         */
+        EXTERNAL
+    }
+
+    /**
+     * Vector data format being uploaded. Following extensions are supported:
+     * <ul>
+     * <li>{@link #SHP} Shapefile
+     * <li>{@link #PROPERTIES} Property file
+     * <li>{@link #H2} H2 Database
+     * <li>{@link #SPATIALITE} SpatiaLite Database
+     * </ul>
+     * 
+     * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+     */
+    public enum DataStoreExtension {
+        /** Shapefile */
+        SHP,
+        /** Properties file */
+        PROPERTIES,
+        /** H2 Database */
+        H2,
+        /** SpatiaLite Database */
+        SPATIALITE
+    }
+
+    /**
+     * Raster data format being uploaded. Following extensions are supported:
+     * <ul>
+     * <li>{@link #GEOTIFF} GeoTiff coverage
+     * <li>{@link #IMAGEMOSAIC} ImageMosaic
+     * <li>{@link #WORLDIMAGE} Geo referenced image (JPEG,PNG,TIF)
+     * </ul>
+     * 
+     * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+     */
+    public enum CoverageStoreExtension {
+        /** GeoTiff coverage */
+        GEOTIFF,
+        /** ImageMosaic */
+        IMAGEMOSAIC,
+        /** Geo referenced image (JPEG,PNG,TIF) */
+        WORLDIMAGE
+    }
+
+    /**
+     * Control if feature types are to be automatically configured upon file
+     * upload. It can take one of the three values:
+     * <ul>
+     * <li>{@link #FIRST} Configure first feature type only (default).
+     * <li>{@link #NONE} Don't configure any feature types.
+     * <li>{@link #ALL} Configure all feature types.
+     * </ul>
+     */
+    public static enum ParameterConfigure {
+        /** Configure first feature type only (default). */
+        FIRST,
+        /** Don't configure any feature types. */
+        NONE,
+        /** Configure all feature types. */
+        ALL;
+
+        /**
+         * Returns a lowercase representation of the parameter value, suitable
+         * to construct the rest call.
+         */
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
+    }
+
+    /**
+     * Upload and publish data (vector or raster), and automatically create the
+     * associated Store if needed.
+     * 
+     * This is a generic method; use {@link #createDataStore} and
+     * {@link #createCoverageStore} for vector and raster publishing
+     * respectively.
+     * 
+     * @param workspace
+     *            workspace where data will be published.
+     * @param dsType
+     *            Store type. See {@link DataStoreType}.
+     * @param storeName
+     *            Store name. Will be created if doesn't exist.
+     * @param method
+     *            Publication method. See {@link UploadMethod}.
+     * @param extension
+     *            Dataset format. One of {@link DataStoreExtension} for vector
+     *            data, or one of {@link CoverageStoreExtension} for raster
+     *            data.
+     * @param mimeType
+     *            Dataset MIME type.
+     * @param uri
+     *            The data location. A local path for {@link UploadMethod#FILE},
+     *            a server path for {@link UploadMethod#EXTERNAL}, or a URL for
+     *            {@link UploadMethod#URL}.
+     * @param configure
+     *            Indicate if associated feature types will be automatically
+     *            configured. See {@link ParameterConfigure}.
+     * @param params
+     *            Other parameters to be included in request, such as "update",
+     *            "charset" or "coverageName". See GeoServer REST documentation
+     *            for details: <a href=
+     *            "http://docs.geoserver.org/latest/en/user/restconfig/rest-config-api.html#id2"
+     *            >dataStore</a> and <a href=
+     *            "http://docs.geoserver.org/latest/en/user/restconfig/rest-config-api.html#id4"
+     *            >coverageStore</a> operations.
+     * @return {@code true} if the store was successfully created.
+     * @throws FileNotFoundException
+     *             if local file does not exist when using the
+     *             {@link UploadMethod#FILE} method.
+     * @throws IllegalArgumentException
+     *             if any of the mandatory {@code workspace}, {@code dsType},
+     *             {@code storeName}, {@code method}, {@code extension},
+     *             {@code mimeType} or {@code uri} parameters are {@code null}.
+     */
 	private boolean createStore(String workspace, DataStoreType dsType,
 			String storeName, UploadMethod method, Enum extension,
 			String mimeType, URI uri, ParameterConfigure configure,
@@ -629,73 +809,119 @@ public class GeoServerRESTPublisher {
 
 	}
 
-	/**
-	 * A data store is a source of spatial data that is vector based. It can be
-	 * a file in the case of a Shapefile, a database in the case of PostGIS, or
-	 * a server in the case of a remote Web Feature Service.<br>
-	 * 
-	 * A coverage store is a source of spatial data that is raster based.<br>
-	 * 
-	 * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
-	 * 
-	 */
-	public enum DataStoreType {
-		COVERAGESTORES, DATASTORES;
+    /**
+     * Upload and publish vector data, and automatically create the associated
+     * DataStore if needed.
+     * 
+     * Note that this is same as {@link #createStore} but specific for vector
+     * data (that is, {@code dsType} being {@link DataStoreType#DATASTORES}).
+     * 
+     * @param workspace
+     *            workspace where data will be published.
+     * @param storeName
+     *            DataStore name. Will be created if doesn't exist.
+     * @param method
+     *            Publication method. See {@link UploadMethod}.
+     * @param extension
+     *            Dataset format. One of {@link DataStoreExtension}.
+     * @param mimeType
+     *            Dataset MIME type.
+     * @param uri
+     *            The data location. A local path for {@link UploadMethod#FILE},
+     *            a server path for {@link UploadMethod#EXTERNAL}, or a URL for
+     *            {@link UploadMethod#URL}.
+     * @param configure
+     *            Indicate if associated feature types will be automatically
+     *            configured. See {@link ParameterConfigure}.
+     * @param params
+     *            Other parameters to be included in request, such as "update"
+     *            or "charset". See GeoServer REST documentation for details: <a
+     *            href=
+     *            "http://docs.geoserver.org/latest/en/user/restconfig/rest-config-api.html#id2"
+     *            >dataStore operations</a>.
+     * @return {@code true} if the store was successfully created.
+     * @throws FileNotFoundException
+     *             if local file does not exist when using the
+     *             {@link UploadMethod#FILE} method.
+     * @throws IllegalArgumentException
+     *             if any of the mandatory {@code workspace}, {@code storeName},
+     *             {@code method}, {@code extension}, {@code mimeType} or
+     *             {@code uri} parameters are {@code null}.
+     */
+    private boolean createDataStore(String workspace, String storeName,
+            UploadMethod method, DataStoreExtension extension, String mimeType,
+            URI uri, ParameterConfigure configure, NameValuePair... params)
+            throws FileNotFoundException, IllegalArgumentException {
+        return createStore(workspace, DataStoreType.DATASTORES, storeName,
+                method, extension, mimeType, uri, configure, params);
+    }
 
-		public static String getTypeName(DataStoreType type) {
-			switch (type) {
-			case COVERAGESTORES:
-				return "coverages.xml"; // Format
-			case DATASTORES:
-				return "featuretypes.xml";
-			default:
-				return "coverages.xml";
-			}
-		}
-	}
+    /**
+     * Upload and publish raster data, and automatically create the associated
+     * CoverageStore if needed.
+     * 
+     * Note that this is same as {@link #createStore} but specific for raster
+     * data (that is, {@code dsType} being {@link DataStoreType#COVERAGESTORES}
+     * ).
+     * 
+     * @param workspace
+     *            workspace where data will be published.
+     * @param storeName
+     *            CoverageStore name. Will be created if doesn't exist.
+     * @param method
+     *            Publication method. See {@link UploadMethod}.
+     * @param extension
+     *            Dataset format. One of {@link CoverageStoreExtension}.
+     * @param mimeType
+     *            Dataset MIME type.
+     * @param uri
+     *            The data location. A local path for {@link UploadMethod#FILE},
+     *            a server path for {@link UploadMethod#EXTERNAL}, or a URL for
+     *            {@link UploadMethod#URL}.
+     * @param configure
+     *            Indicate if associated feature types will be automatically
+     *            configured. See {@link ParameterConfigure}.
+     * @param params
+     *            Other parameters to be included in request, such as
+     *            "coverageName". See GeoServer REST documentation for details:
+     *            <a href=
+     *            "http://docs.geoserver.org/latest/en/user/restconfig/rest-config-api.html#id4"
+     *            >coverageStore operations</a>.
+     * @return {@code true} if the store was successfully created.
+     * @throws FileNotFoundException
+     *             if local file does not exist when using the
+     *             {@link UploadMethod#FILE} method.
+     * @throws IllegalArgumentException
+     *             if any of the mandatory {@code workspace}, {@code storeName},
+     *             {@code method}, {@code extension}, {@code mimeType} or
+     *             {@code uri} parameters are {@code null}.
+     */
+    private boolean createCoverageStore(String workspace, String storeName,
+            UploadMethod method, CoverageStoreExtension extension,
+            String mimeType, URI uri, ParameterConfigure configure,
+            NameValuePair... params) throws FileNotFoundException,
+            IllegalArgumentException {
+        return createStore(workspace, DataStoreType.COVERAGESTORES, storeName,
+                method, extension, mimeType, uri, configure, params);
+    }
 
-	/**
-	 * The {@code file}, {@code url}, and {@code external} endpoints are used to specify
-	 * the method that is used to upload the file.
-	 * <ul>
-	 * <li>The {@code file} method is used to directly upload a file from a local source.
-	 * The body of the request is the file itself.
-	 * 
-	 * <li>The {@code url} method is used to indirectly upload a file from an remote source.
-	 * The body of the request is a url pointing to the file to upload. This url
-	 * must be visible from the server.
-	 * 
-	 * <li>The {@code external} method is used to forgo upload and use an existing file on
-	 * the server. The body of the request is the absolute path to the existing
-	 * file.
-	 * </ul>
-	 * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
-	 * 
-	 */
-	public enum UploadMethod {
-		FILE, URL, EXTERNAL
-	}
-
-	// ==========================================================================
-	// === DATASTORES
-	// ==========================================================================
-
-	/**
-	 * Create a PostGIS datastore.
-	 * 
-	 * @param workspace
-	 *            Name of the workspace to contain the database. This will also
-	 *            be the prefix of any layer names created from tables in the
-	 *            database.
-	 * @param datastoreEncoder
-	 *            the set of parameters to be set to the datastore (including
-	 *            connection params)
-	 * 
-	 * @return <TT>true</TT> if the PostGIS datastore has been successfully
-	 *         created, <TT>false</TT> otherwise
-	 * @deprecated Will be deleted in next version 1.5.x.
-	 * Use {@link GeoServerRESTDatastoreManager} instead.
-	 */
+    /**
+     * Create a PostGIS datastore.
+     * 
+     * @deprecated Will be deleted in next version 1.5.x, use
+     *             {@link GeoServerRESTDatastoreManager} instead.
+     * 
+     * @param workspace
+     *            Name of the workspace to contain the database. This will also
+     *            be the prefix of any layer names created from tables in the
+     *            database.
+     * @param datastoreEncoder
+     *            the set of parameters to be set to the datastore (including
+     *            connection params).
+     * 
+     * @return <TT>true</TT> if the PostGIS datastore has been successfully
+     *         created, <TT>false</TT> otherwise
+     */
 	public boolean createPostGISDatastore(String workspace,
 			GSPostGISDatastoreEncoder datastoreEncoder) {
 		String sUrl = restURL + "/rest/workspaces/" + workspace
@@ -705,65 +931,160 @@ public class GeoServerRESTPublisher {
 		return result != null;
 	}
 
+    /**
+     * @deprecated Will be removed in the next release.
+     */
+    public boolean publishDBLayer(String workspace, String storename,
+            String layername, String srs, String defaultStyle) {
+
+        final GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+
+        fte.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
+        fte.addKeyword("KEYWORD");
+        fte.setName(layername);
+        fte.setSRS(srs); // srs=null?"EPSG:4326":srs);
+        final GSLayerEncoder layerEncoder = new GSLayerEncoder();
+        layerEncoder.setDefaultStyle(defaultStyle);
+        return publishDBLayer(workspace, storename, fte, layerEncoder);
+    }
+
+    /**
+     * Publish and configure a new layer from an existing DataStore (v. gr. a
+     * layer from a DB table).
+     * 
+     * @param workspace
+     *            Workspace name where DataStore is.
+     * @param storename
+     *            DataStore name.
+     * @param fte
+     *            FeatureType configuration details using a
+     *            {@link GSFeatureTypeEncoder}.
+     * @return {@code true} if layer is successfully created.
+     */
+    public boolean publishDBLayer(final String workspace,
+            final String storename, final GSFeatureTypeEncoder fte,
+            final GSLayerEncoder layerEncoder) {
+        /*
+         * This is the equivalent call with cUrl:
+         * 
+         * {@code curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \
+         * -d
+         * "<featureType><name>easia_gaul_1_aggr</name><nativeCRS>EPSG:4326</nativeCRS><enabled>true</enabled></featureType>"
+         * \ http://localhost:8080/geoserver/rest/workspaces/it.geosolutions/
+         * datastores/pg_kids/featuretypes }
+         * 
+         * and a PUT to <BR> restURL + "/rest/layers/" workspace + : + layerName
+         */
+        String ftypeXml = fte.toString();
+        StringBuilder postUrl = new StringBuilder(restURL)
+                .append("/rest/workspaces/").append(workspace)
+                .append("/datastores/").append(storename)
+                .append("/featuretypes");
+
+        final String layername = fte.getName();
+        if (layername == null || layername.isEmpty()) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error("GSFeatureTypeEncoder has no valid name associated, try using GSFeatureTypeEncoder.setName(String)");
+            return false;
+        }
+
+        String configuredResult = HTTPUtils.postXml(postUrl.toString(),
+                ftypeXml, this.gsuser, this.gspass);
+        boolean published = configuredResult != null;
+        boolean configured = false;
+
+        if (!published) {
+            LOGGER.warn("Error in publishing (" + configuredResult + ") "
+                    + workspace + ":" + storename + "/" + layername);
+        } else {
+            LOGGER.info("DB layer successfully added (layer:" + layername + ")");
+
+            if (layerEncoder == null) {
+                if (LOGGER.isErrorEnabled())
+                    LOGGER.error("GSLayerEncoder is null: Unable to find the defauldStyle for this layer");
+                return false;
+            }
+
+            configured = configureLayer(workspace, layername, layerEncoder);
+
+            if (!configured) {
+                LOGGER.warn("Error in configuring (" + configuredResult + ") "
+                        + workspace + ":" + storename + "/" + layername);
+            } else {
+                LOGGER.info("DB layer successfully configured (layer:"
+                        + layername + ")");
+            }
+        }
+
+        return published && configured;
+    }
+
 	// ==========================================================================
 	// === SHAPEFILES
 	// ==========================================================================
 	
-	/**
-	 * Publish a zipped shapefile. <BR>
-	 * The defaultCRS will be set to EPSG:4326.
-	 * 
-	 * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
-	 * 
-	 * @param workspace
-	 * @param storename
-	 * @param layername
-	 * @param zipFile
-	 * @return true if the operation completed successfully.
-	 * @throws FileNotFoundException, IllegalArgumentException
-	 */
+    /**
+     * Upload an publish a local shapefile.
+     * <P>
+     * The defaultCRS will be set to EPSG:4326.
+     * 
+     * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
+     * 
+     * @param workspace
+     *            The workspace name.
+     * @param storename
+     *            The store name.
+     * @param layername
+     *            The layer name.
+     * @param zipFile
+     *            The zipped file to publish.
+     * 
+     * @return {@code true} if the operation completed successfully.
+     * @throws FileNotFoundException
+     *             , IllegalArgumentException
+     */
 	public boolean publishShp(String workspace, String storename,
 			String datasetname, File zipFile) throws FileNotFoundException, IllegalArgumentException {
 		return publishShp(workspace, storename, new NameValuePair[0], datasetname,UploadMethod.FILE, zipFile.toURI(), "EPSG:4326", ProjectionPolicy.NONE,null);
 	}
 
-	/**
-	 * 
-	 * Publish a shapefile.<br>
-	 * 
-	 * @param workspace
-	 *            the name of the workspace to use
-	 * @param storename
-	 *            the name of the store to create
-	 * @param storeParams
-	 *            parameters to append to the url (can be null).<br>
-	 *            Accepted parameters are:<br>
-	 *            <ul>
-	 *            <li><b>charset</b> used to set the charset</li>
-	 *            </ul>
-	 * @param layername
-	 *            the name of the layer to configure
-	 * @param method
-	 *            {@link UploadMethod}
-	 * @param fileUri
-	 *            the uri of the file containing the shapefile.It should be:
-	 *            <ul>
-	 *            <li>A zip file if 'method' is file</li>
-	 *            <li>A shp file if 'method' is external</li>
-	 *            <li>A zip file if 'method' is uri (UNTESTED)</li>
-	 *            </ul>
-	 * @param srs
-	 *            the native CRS
-	 * @param policy
-	 *            {@link ProjectionPolicy}
-	 * @param defaultStyle
-	 *            the default style to set (can be null).
-	 * @return true if success false otherwise
-	 * @throws FileNotFoundException
-	 *             if file to upload is not found
-	 * @throws IllegalArgumentException
-	 *             if some arguments are null.
-	 */
+    /**
+     * Publish a shapefile.
+     * 
+     * @param workspace
+     *            the name of the workspace to use
+     * @param storename
+     *            the name of the store to create
+     * @param storeParams
+     *            parameters to append to the url (can be null).<br>
+     *            Accepted parameters are:<br>
+     *            <ul>
+     *            <li><b>charset</b> used to set the charset</li>
+     *            </ul>
+     * @param layername
+     *            the name of the layer to configure
+     * @param method
+     *            {@link UploadMethod}
+     * @param fileUri
+     *            the uri of the file containing the shapefile.It should be:
+     *            <ul>
+     *            <li>A zip file if 'method' is file</li>
+     *            <li>A shp file if 'method' is external</li>
+     *            <li>A zip file if 'method' is uri (UNTESTED)</li>
+     *            </ul>
+     * @param srs
+     *            the native CRS
+     * @param policy
+     *            {@link ProjectionPolicy}
+     * @param defaultStyle
+     *            the default style to set (can be null).
+     * @return true if success false otherwise
+     * 
+     * @throws FileNotFoundException
+     *             if file to upload is not found
+     * @throws IllegalArgumentException
+     *             if any of the mandatory arguments are {@code null}.
+     */
 	public boolean publishShp(String workspace, String storeName,
 			NameValuePair[] storeParams, String datasetName, UploadMethod method, URI shapefile,
 			String srs, ProjectionPolicy policy, String defaultStyle)
@@ -814,20 +1135,30 @@ public class GeoServerRESTPublisher {
 		return configureLayer(workspace, datasetName, layerEncoder);
 	}
 
-	/**
- 	 * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
- 	 * 
-	 * Publish a zipped shapefile.
-	 * 
-	 * @param workspace
-	 * @param storename
-	 * @param layerName
-	 * @param nativeCrs
-	 * @param defaultStyle
-	 *            may be null
-	 * @return true if the operation completed successfully.
-	 * @throws FileNotFoundException
-	 */
+    /**
+     * Publish a zipped shapefile.
+     * 
+     * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
+     * 
+     * @param workspace
+     *            the name of the workspace to use
+     * @param storename
+     *            the name of the store to create
+     * @param layername
+     *            the name of the layer to configure
+     * @param zipFile
+     *            The zipped file to publish
+     * @param nativeCrs
+     *            the native CRS
+     * @param defaultStyle
+     *            the default style to set (can be null).
+     * 
+     * @return {@code true} if the operation completed successfully
+     * @throws FileNotFoundException
+     *             if file to upload is not found
+     * @throws IllegalArgumentException
+     *             if any of the mandatory arguments are {@code null}.
+     */
 	public boolean publishShp(String workspace, String storename,
 			String layerName, File zipFile, String nativeCrs,
 			String defaultStyle) throws FileNotFoundException, IllegalArgumentException {
@@ -835,63 +1166,75 @@ public class GeoServerRESTPublisher {
 		return publishShp(workspace, storename, (NameValuePair[])null, layerName, UploadMethod.FILE, zipFile.toURI(), nativeCrs, ProjectionPolicy.NONE,defaultStyle);
 	}
 
-	/**
-	 * Publish a zipped shapefile.
-	 * 
-	 * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
-	 * 
-	 * <P>
-	 * These are the equivalent calls with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code
-	 * curl -u admin:geoserver -XPUT -H 'Content-type: application/zip' \
-	 *       --data-binary @$ZIPFILE \
-	 *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/datastores/$STORENAME/file.shp
-	 * 
-	 * curl -u admin:geoserver -XPOST -H 'Content-type: text/xml'  \
-	 *       -d "<featureType><name>$BARE</name><nativeCRS>EPSG:4326</nativeCRS><enabled>true</enabled></featureType>"  \
-	 *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/datastores/$STORENAME/featuretypes/$LAYERNAME
-	 *  }
-	 * </PRE>
-	 * 
-	 * @return true if the operation completed successfully.
-	 */
+	        /**
+     * Publish a zipped shapefile.
+     * 
+     * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
+     * 
+     * @param workspace
+     *            the name of the workspace to use
+     * @param storename
+     *            the name of the store to create
+     * @param layername
+     *            the name of the layer to configure
+     * @param zipFile
+     *            The zipped file to publish
+     * @param srs
+     *            the native CRS
+     * 
+     * @return {@code true} if the operation completed successfully.
+     * @throws FileNotFoundException
+     *             if file to upload is not found
+     * @throws IllegalArgumentException
+     *             if any of the mandatory arguments are {@code null}.
+     */
 	public boolean publishShp(String workspace, String storename,
 			String layername, File zipFile, String srs)
 			throws FileNotFoundException {
+        /*
+         * These are the equivalent calls with cUrl:
+         * 
+         * {@code curl -u admin:geoserver -XPUT -H 'Content-type:
+         * application/zip' \ --data-binary @$ZIPFILE \
+         * http://$GSIP:$GSPORT/$SERVLET
+         * /rest/workspaces/$WORKSPACE/datastores/$STORENAME/file.shp
+         * 
+         * curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \ -d
+         * "<featureType><name>$BARE</name><nativeCRS>EPSG:4326</nativeCRS><enabled>true</enabled></featureType>"
+         * \
+         * http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/datastores/
+         * $STORENAME/featuretypes/$LAYERNAME }
+         */
 		return publishShp(workspace, storename, (NameValuePair[])null, layername, UploadMethod.FILE, zipFile.toURI(), srs, ProjectionPolicy.NONE,null);
 	}
 
-	/**
-	 * 
-	 * Publish a zipped shapefile.<br>
-	 * 
-	 * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
-	 * 
-	 * http://docs.geoserver.org/stable/en/user
-	 * /restconfig/rest-config-examples/rest-
-	 * config-examples-curl.html#uploading-a-shapefile
-	 * 
-	 * @param workspace
-	 *            the name of the workspace to use
-	 * @param storename
-	 *            the name of the store to create
-	 * @param layername
-	 *            the name of the layer to configure
-	 * @param zipFile
-	 *            the zip file containing the shapefile
-	 * @param srs
-	 *            the native CRS
-	 * @param params
-	 *            parameters to append to the url (can be null).<br>
-	 *            Accepted parameters are:<br>
-	 *            <ul>
-	 *            <li><b>charset</b> used to set the charset</li>
-	 *            </ul>
-	 * @return true if success false otherwise
-	 * @throws FileNotFoundException, IllegalArgumentException
-	 */
+	    /**
+     * Publish a zipped shapefile.
+     * 
+     * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
+     * 
+     * @param workspace
+     *            the name of the workspace to use
+     * @param storename
+     *            the name of the store to create
+     * @param layername
+     *            the name of the layer to configure
+     * @param zipFile
+     *            the zip file containing the shapefile
+     * @param srs
+     *            the native CRS
+     * @param params
+     *            parameters to append to the url (can be null).<br>
+     *            Accepted parameters are:<br>
+     *            <ul>
+     *            <li><b>charset</b> used to set the charset</li>
+     *            </ul>
+     * @return {@code true} if the operation completed successfully.
+     * @throws FileNotFoundException
+     *             if file to upload is not found
+     * @throws IllegalArgumentException
+     *             if any of the mandatory arguments are {@code null}.
+     */
 	public boolean publishShp(String workspace, String storename,
 			String layername, File zipFile, String srs, NameValuePair... params)
 			throws FileNotFoundException, IllegalArgumentException {
@@ -900,20 +1243,28 @@ public class GeoServerRESTPublisher {
 	}
 	
 
-	/**
-	 * Publish a collection of shapefiles.
-	 * 
-	 * It will automatically create the store and publish each shapefile as a layer.
-	 * 
-	 * @param workspace the name of the workspace to use
-	 * @param storeName the name of the store to create
-	 * @param resource the shapefile collection. It can be: <ul>
-	 *  <li>A path to a directory containing shapefiles in the server.
-	 * 	<li>A local zip file containing shapefiles that will be uploaded.
-	 *  <li>A URL pointing to a shapefile collection in the wild web (not tested).</ul>
-	 * @return {@code true} if publication successful.
-	 * @throws FileNotFoundException if the specified zip file does not exist.
-	 */
+	                    /**
+     * Publish a collection of shapefiles.
+     * <P>
+     * Will automatically create the store and publish each shapefile as a
+     * layer.
+     * 
+     * @param workspace
+     *            the name of the workspace to use
+     * @param storeName
+     *            the name of the store to create
+     * @param resource
+     *            the shapefile collection. It can be:
+     *            <ul>
+     *            <li>A path to a directory containing shapefiles in the server.
+     *            <li>A local zip file containing shapefiles that will be
+     *            uploaded. <li>A URL pointing to a shapefile collection in the
+     *            wild web (not tested).
+     *            </ul>
+     * @return {@code true} if publication successful.
+     * @throws FileNotFoundException
+     *             if the specified zip file does not exist.
+     */
 	public boolean publishShpCollection(String workspace, String storeName, URI resource)
 			throws FileNotFoundException {
 		
@@ -950,310 +1301,163 @@ public class GeoServerRESTPublisher {
 				new NameValuePair[0]);
 	}
 
-	/**
-	 * @param workspace
-	 * @param storename
-	 * @param layername
-	 * @param srs
-	 * @param defaultStyle
-	 * @return
-	 * @deprecated will be removed in the next release
-	 */
-	public boolean publishDBLayer(String workspace, String storename,
-			String layername, String srs, String defaultStyle) {
+    // ==========================================================================
+    // === COVERAGES
+    // ==========================================================================
 
-		final GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
-
-		fte.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
-		fte.addKeyword("KEYWORD");
-		fte.setName(layername);
-		fte.setSRS(srs); // srs=null?"EPSG:4326":srs);
-		final GSLayerEncoder layerEncoder = new GSLayerEncoder();
-		layerEncoder.setDefaultStyle(defaultStyle);
-		return publishDBLayer(workspace, storename, fte, layerEncoder);
-	}
-
-	/**
-	 * 
-	 * Publish a table in a PostGis store as a new layer.
-	 * 
-	 * <P>
-	 * This is the equivalent call with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \
-	 *      -d "<featureType><name>easia_gaul_1_aggr</name><nativeCRS>EPSG:4326</nativeCRS><enabled>true</enabled></featureType>" \
-	 *      http://localhost:8080/geoserver/rest/workspaces/it.geosolutions/datastores/pg_kids/featuretypes
-	 * }
-	 * </PRE>
-	 * 
-	 * and a PUT to <BR>
-	 * restURL + "/rest/layers/" workspace + : + layerName
-	 * 
-	 * @param workspace
-	 * @param storename
-	 * @param fte
-	 *            GSFeatureTypeEncoder encoding creating FeatureType
-	 * @return true if layer is successfully created
-	 * 
-	 * 
-	 */
-	public boolean publishDBLayer(final String workspace,
-			final String storename, final GSFeatureTypeEncoder fte,
-			final GSLayerEncoder layerEncoder) {
-		String ftypeXml = fte.toString();
-		StringBuilder postUrl = new StringBuilder(restURL)
-				.append("/rest/workspaces/").append(workspace)
-				.append("/datastores/").append(storename)
-				.append("/featuretypes");
-
-		final String layername = fte.getName();
-		if (layername == null || layername.isEmpty()) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("GSFeatureTypeEncoder has no valid name associated, try using GSFeatureTypeEncoder.setName(String)");
-			return false;
-		}
-
-		String configuredResult = HTTPUtils.postXml(postUrl.toString(),
-				ftypeXml, this.gsuser, this.gspass);
-		boolean published = configuredResult != null;
-		boolean configured = false;
-
-		if (!published) {
-			LOGGER.warn("Error in publishing (" + configuredResult + ") "
-					+ workspace + ":" + storename + "/" + layername);
-		} else {
-			LOGGER.info("DB layer successfully added (layer:" + layername + ")");
-
-			if (layerEncoder == null) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("GSLayerEncoder is null: Unable to find the defauldStyle for this layer");
-				return false;
-			}
-
-			configured = configureLayer(workspace, layername, layerEncoder);
-
-			if (!configured) {
-				LOGGER.warn("Error in configuring (" + configuredResult + ") "
-						+ workspace + ":" + storename + "/" + layername);
-			} else {
-				LOGGER.info("DB layer successfully configured (layer:"
-						+ layername + ")");
-			}
-		}
-
-		return published && configured;
-	}
-
-	/**
-	 * The configure parameter is used to control how the data store is
-	 * configured upon file upload. It can take one of the three values
-	 * <i>first</i>, <i>none</i>, or <i>all</i>.
-	 * <ul>
-	 * <li><b>first</b> - This is the default.</li>
-	 * <li><b>none</b> - Do not configure any feature types.</li>
-	 * <li><b>all</b> - Configure all feature types.</li>
-	 * </ul>
-	 */
-	public static enum ParameterConfigure {
-		FIRST, NONE, ALL;
-
-		/**
-		 * Overrides the default toString method printing a toLowerCase
-		 * representation of this Parameter which is suitable to build parameter
-		 * in the rest URL
-		 */
-		@Override
-		public String toString() {
-			return this.name().toLowerCase();
-		}
-	}
-
-	/**
-	 * The update parameter is used to control how existing data is handled when
-	 * the file is PUT into a datastore that (a) already exists and (b) already
-	 * contains a schema that matches the content of the file. It can take one
-	 * of the two values <i>append</i>, or <i>overwrite</i>.<br>
-	 * append - Data being uploaded is appended to the existing data. This is
-	 * the default.<br>
-	 * overwrite - Data being uploaded replaces any existing data.<br>
-	 * 
-	 * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
-	 * 
-	 */
+    /**
+     * Controls how existing data is handled when the file is PUT into a
+     * datastore that (a) already exists and (b) already contains a schema that
+     * matches the content of the file. It can take one of the two values:
+     * <ul>
+     * <li>{@link #APPEND} Data being uploaded is appended to the existing data.
+     * This is the default.
+     * <li>{@link #OVERWRITE} Data being uploaded replaces any existing data.
+     * </ul>
+     * 
+     * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+     */
 	public static enum ParameterUpdate {
-		APPEND, OVERWRITE;
+        /** Data being uploaded is appended to the existing data. */
+        APPEND,
+        /** Data being uploaded replaces any existing data. */
+        OVERWRITE;
 
+        /**
+         * Returns a lowercase representation of the parameter. Useful when
+         * constructing the REST request.
+         */
 		@Override
 		public String toString() {
 			return this.name().toLowerCase();
 		}
 	}
 
-	// ==========================================================================
-	// === COVERAGES
-	// ==========================================================================
+    /**
+     * Represents the format used to GET, PUT or POST information via REST. For
+     * example consider the resource "foo". To request a representation of foo
+     * as XML the request uri would end with "foo.xml". To request as JSON the
+     * request uri would end with "foo.json". When no format is specified the
+     * server will use its own internal format, usually html.
+     * <P>
+     * In a POST or PUT operation the format specifies 1) the representatin of
+     * the content being sent to the server, and 2) the representation of the
+     * response to be sent back. The former is specified with the Content-type
+     * header. To send a representation in XML, the content type "text/xml" or
+     * "application/xml" would be used. The latter is specified with the Accepts
+     * header as specified in the above paragraph describing a GET operation.
+     * <P>
+     * The following table defines the Content-type values for each format:
+     * <ul>
+     * <li>XML (application/xml)</li>
+     * <li>JSON (application/json)</li>
+     * <li>HTML (application/html)</li>
+     * <li>SLD (application/vnd.ogc.sld+xml)</li>
+     * </ul>
+     */
+    public enum Format {
+        XML, JSON, HTML, SLD;
 
-	/**
-	 * 
-	 * Publish a file.
-	 * <P>
-	 * This is an example with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code
-	 * curl -u admin:geoserver -XPUT -H 'Content-type: application/zip' \
-	 * 
-	 *       --data-binary @$ZIPFILE \
-	 * 
-	 *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$COVERAGESTORE/file.worldimage
-	 * </PRE>
-	 * 
-	 * @param workspace
-	 *            Workspace to use
-	 * @param coveragestore
-	 *            Name of the coveragestore
-	 * @param file
-	 *            file to upload
-	 * @param configure
-	 *            Configure parameter. It may be null.
-	 * @param params
-	 *            parameters to append to the url (can be null).<br>
-	 *            Accepted parameters are:
-	 *            <ul>
-	 *            <li> <b>coverageName=name</b> coverageName parameter to
-	 *            append. Only works if configure is not set to
-	 *            ParameterConfigure.NONE. </li>
-	 *            </ul>
-	 * @see #{@link ParameterConfigure}
-	 * @return true if the operation completed successfully.
-	 */
+        /**
+         * Gets the mime type from a format.
+         * 
+         * @param f
+         *            the format key.
+         * @return The content-type (mime), or {@code null} if not in the enum.
+         */
+        public static String getContentType(Format f) {
+            switch (f) {
+            case XML:
+                return "application/xml";
+            case HTML:
+                return "application/html";
+            case JSON:
+                return "application/json";
+            case SLD:
+                return "application/vnd.ogc.sld+xml";
+            default:
+                return null;
+            }
+
+        }
+    }
+
+    /**
+     * Upload and publish a raster file.
+     * 
+     * @param workspace
+     *            Workspace to use
+     * @param coveragestore
+     *            Name of the coveragestore
+     * @param file
+     *            file to upload
+     * @param configure
+     *            Configure parameter. See {@link ParameterConfigure}. It can be
+     *            null.
+     * @param params
+     *            parameters to append to the url (can be null).<br>
+     *            Accepted parameters are:
+     *            <ul>
+     *            <li><b>coverageName=name</b> coverageName parameter to append.
+     *            Only works if configure is not set to ParameterConfigure.NONE.
+     *            </li>
+     *            </ul>
+     * @return true if the operation completed successfully.
+     */
 	private boolean publishCoverage(String workspace, String coveragestore,
 			CoverageStoreExtension extension, String mimeType, File file,
 			ParameterConfigure configure, NameValuePair... params)
 			throws FileNotFoundException {
+        /*
+         * This is an example with cUrl:
+         * 
+         * {@code curl -u admin:geoserver -XPUT -H 'Content-type:
+         * application/zip' \ --data-binary @$ZIPFILE \
+         * http://$GSIP:$GSPORT/$SERVLET
+         * /rest/workspaces/$WORKSPACE/coveragestores
+         * /$COVERAGESTORE/file.worldimage
+         */
 		return createCoverageStore(workspace, coveragestore, UploadMethod.FILE,
 				extension, mimeType, file.toURI(), configure, params);
 	}
 
-	/**
-	 * Represents the format used to get, put or post information via ReST. For
-	 * example consider the resource “foo”. To request a representation of foo
-	 * as XML the request uri would end with “foo.xml”. To request as JSON the
-	 * request uri would end with “foo.json”. When no format is specified the
-	 * server will use its own internal format, usually html.
-	 * 
-	 * In a POST or PUT operation the format specifies 1) the representatin of
-	 * the content being sent to the server, and 2) the representation of the
-	 * resposne to be sent back. The former is specified with the Content-type
-	 * header. To send a representation in XML, the content type “text/xml” or
-	 * “application/xml” would be used. The latter is specified with the Accepts
-	 * header as specified in the above paragraph describing a GET operation.
-	 * 
-	 * The following table defines the Content-type values for each format: <br>
-	 * Format Content-type</br>
-	 * <ul>
-	 * <li>XML application/xml</li>
-	 * <li>JSON application/json</li>
-	 * <li>HTML application/html</li>
-	 * <li>SLD application/vnd.ogc.sld+xml</li>
-	 * </ul>
-	 */
-	public enum Format {
-		XML, JSON, HTML, SLD;
-
-		public static String getContentType(Format f) {
-			switch (f) {
-			case XML:
-				return "application/xml";
-			case HTML:
-				return "application/html";
-			case JSON:
-				return "application/json";
-			case SLD:
-				return "application/vnd.ogc.sld+xml";
-			default:
-				return null;
-			}
-
-		}
-	}
-
-	/**
-	 * 
-	 * The extension parameter specifies the type of data being uploaded. The
-	 * following extensions are supported:
-	 * <ul>
-	 * <li>Extension:<b>geotiff</b> Datastore:<b>GeoTiff coverage</b></li>
-	 * <li>Extension:<b>imagemosaic</b> Datastore:<b>ImageMosaic</b></li>
-	 * <li>Extension:<b>worldimage</b> Datastore:<b>Geo referenced image
-	 * (JPEG,PNG,TIF)</b></li>
-	 * </ul>
-	 * 
-	 * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
-	 * 
-	 */
-	public enum CoverageStoreExtension {
-		GEOTIFF, IMAGEMOSAIC, WORLDIMAGE
-	}
-
-	/**
-	 * 
-	 * The extension parameter specifies the type of data being uploaded. The
-	 * following extensions are supported:
-	 * <ul>
-	 * <li>Extension:<b>shp</b> Datastore:<b>Shapefile</b></li>
-	 * <li>Extension:<b>properties</b> Datastore:<b>Property file</b></li>
-	 * <li>Extension:<b>h2</b> Datastore:<b>H2 Database</b></li>
-	 * <li>Extension:<b>spatialite</b> Datastore:<b>SpatiaLite Database</b></li>
-	 * </ul>
-	 * 
-	 * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
-	 * 
-	 */
-	public enum DataStoreExtension {
-		SHP, PROPERTIES, H2, SPATIALITE
-	}
-
-	/**
-	 * 
-	 * Publish a file sending it to the GeoServer.
-	 * 
-	 * <P>
-	 * Here is an example call with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code
-	 * curl -u admin:geoserver -XPUT -H 'Content-type: application/zip' \
-	 * 
-	 *       --data-binary @$ZIPFILE \
-	 * 
-	 *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$COVERAGESTORE/file.worldimage
-	 * </PRE>
-	 * 
-	 * @param workspace
-	 *            Workspace to use
-	 * @param coveragestore
-	 *            Name of the coveragestore
-	 * @param file
-	 *            file to upload
-	 * @param configure
-	 *            Configure parameter. It may be null.
-	 * @param update
-	 *            Accepted parameters are:
-	 *            <ul>
-	 *            <li> See <b>{@link #ParameterUpdate}</b> </li>
-	 *            </ul>
-	 * @see #{@link ParameterConfigure}
-	 * @return true if the operation completed successfully.
-	 * @throws IllegalArgumentException
-	 * @throws FileNotFoundException
-	 */
+    /**
+     * Publish a raster file local to the server.
+     * 
+     * @param workspace
+     *            Workspace to use
+     * @param coveragestore
+     *            Name of the coveragestore
+     * @param file
+     *            absolute path to the file location in the server
+     * @param configure
+     *            Configure parameter. It may be null.
+     * @param update
+     *            Accepted parameters are:
+     *            <ul>
+     *            <li>See <b>{@link #ParameterUpdate}</b></li>
+     *            </ul>
+     * @see #{@link ParameterConfigure}
+     * @return true if the operation completed successfully.
+     * @throws IllegalArgumentException
+     * @throws FileNotFoundException
+     */
 	private boolean publishExternalCoverage(String workspace,
 			String coveragestore, CoverageStoreExtension extension,
 			String mimeType, File file, ParameterConfigure configure,
 			ParameterUpdate update) throws FileNotFoundException,
 			IllegalArgumentException {
+        /*
+         * Curl example:
+         * 
+         * {@code curl -u admin:geoserver -XPUT -H 'Content-type:
+         * application/zip' \
+         * 
+         * --data-binary @$ZIPFILE \
+         * 
+         * http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores
+         * /$COVERAGESTORE/file.worldimage
+         */
 		return createCoverageStore(workspace, coveragestore,
 				UploadMethod.EXTERNAL, extension, mimeType, file.toURI(),
 				configure,
@@ -1266,8 +1470,18 @@ public class GeoServerRESTPublisher {
 	// ==========================================================================
 
 	/**
-	 * Simple wrapper for {@link #publishGeoTIFF(String, String, String, File)}
-	 */
+     * Upload and publish a GeoTIFF image.
+     * 
+     * @param workspace
+     *            Workspace to use
+     * @param storeName
+     *            The store name to be used or created.
+     * @param geotiff
+     *            The GeoTIFF file.
+     * @return true if success.
+     * @throws FileNotFoundException
+     *             if GeoTIFF file does not exist.
+     */
 	public boolean publishGeoTIFF(String workspace, String storeName,
 			File geotiff) throws FileNotFoundException {
 		return publishCoverage(workspace, storeName,
@@ -1275,33 +1489,23 @@ public class GeoServerRESTPublisher {
 				ParameterConfigure.FIRST, (NameValuePair[]) null);
 	}
 
-	/**
-	 * Publish a GeoTiff. Simple wrapper for
-	 * {@link #publishCoverage(String, String, CoverageStoreExtension, String, File, ParameterConfigure, NameValuePair...)}
-	 * <P>
-	 * This is the equivalent call with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code
-	 * curl -u admin:geoserver -XPUT -H 'Content-type: text' -d "file:$FULLPATH" \
-	 *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$STORENAME/external.geotiff
-	 *  }
-	 * </PRE>
-	 * 
-	 * @param workspace
-	 *            Workspace to use
-	 * @param storeName
-	 *            Name of the coveragestore (if null the file name will be used)
-	 * @param coverageName
-	 *            the name of the coverage (if null the file name will be used)
-	 * @param geotiff
-	 *            file to upload
-	 * @return true if the operation completed successfully.
-	 * @throws FileNotFoundException
-	 *             if file does not exists
-	 * @throws IllegalArgumentException
-	 *             if workspace or geotiff are null
-	 */
+    /**
+     * Upload and publish a GeoTIFF image.
+     * 
+     * @param workspace
+     *            Workspace to use
+     * @param storeName
+     *            Name of the coveragestore (if null the file name will be used)
+     * @param coverageName
+     *            the name of the coverage (if null the file name will be used)
+     * @param geotiff
+     *            file to upload
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException
+     *             if file does not exists
+     * @throws IllegalArgumentException
+     *             if workspace or geotiff are null
+     */
 	public boolean publishGeoTIFF(final String workspace,
 			final String storeName, final String coverageName,
 			final File geotiff) throws FileNotFoundException,
@@ -1323,11 +1527,14 @@ public class GeoServerRESTPublisher {
 						: (NameValuePair[]) null);
 	}
 
-	/**
-	 * Same as {@link publishGeoTIFF(String, String, String, File, String, ProjectionPolicy, String, double[])}
-	 * but without the last parameter (bbox). Kept here for backwards compatibility.
-	 * @deprecated
-	 */
+    /**
+     * Same as
+     * {@link #publishGeoTIFF(String, String, String, File, String, ProjectionPolicy, String, double[])}
+     * but without the last parameter (bbox). Kept here for backwards
+     * compatibility.
+     * 
+     * @deprecated use the former method with bbox set to null.
+     */
 	public boolean publishGeoTIFF(String workspace, String storeName,
 			String resourceName, File geotiff, String srs,
 			ProjectionPolicy policy, String defaultStyle)
@@ -1336,26 +1543,39 @@ public class GeoServerRESTPublisher {
 				geotiff, srs, policy, defaultStyle, null);
 	}
 	
-	/**
-	 * @see {@link #publishExternalGeoTIFF(String, String, File, String, String, ProjectionPolicy, String)}
-	 * @param workspace
-	 * @param storeName
-	 * @param resourceName
-	 * @param geotiff
-	 * @param srs
-	 * @param policy
-	 * @param defaultStyle
-	 * @param bbox An array of 4 doubles indicating envelope in EPSG:4326. Order is [Xmin, Ymin, Xmax, Ymax]
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws IllegalArgumentException
-	 */
+    /**
+     * Upload and publish a GeoTIFF image.
+     * 
+     * @param workspace
+     *            Workspace to use
+     * @param storeName
+     *            Name of the coveragestore (if null the file name will be used)
+     * @param coverageName
+     *            the name of the coverage (if null the file name will be used)
+     * @param geotiff
+     *            file to upload
+     * @param srs
+     *            the native CRS
+     * @param policy
+     *            projection policy. See {@link ProjectionPolicy}.
+     * @param defaultStyle
+     *            the default style to apply.
+     * @param bbox
+     *            An array of 4 doubles indicating envelope in EPSG:4326. Order
+     *            is [Xmin, Ymin, Xmax, Ymax].
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException
+     *             if file does not exists
+     * @throws IllegalArgumentException
+     *             if workspace or geotiff are null
+     * 
+     */
 	public boolean publishGeoTIFF(String workspace, String storeName,
-			String resourceName, File geotiff, String srs,
+            String coverageName, File geotiff, String srs,
 			ProjectionPolicy policy, String defaultStyle, double[] bbox)
 			throws FileNotFoundException, IllegalArgumentException {
 		if (workspace == null || storeName == null || geotiff == null
-				|| resourceName == null || srs == null || policy == null
+                || coverageName == null || srs == null || policy == null
 				|| defaultStyle == null)
 			throw new IllegalArgumentException("Unable to run: null parameter");
 
@@ -1371,7 +1591,7 @@ public class GeoServerRESTPublisher {
 
 		// config coverage props (srs)
 		final GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
-		coverageEncoder.setName(resourceName);
+        coverageEncoder.setName(coverageName);
 		coverageEncoder.setSRS(srs);
 		coverageEncoder.setProjectionPolicy(policy);
 		if(bbox != null && bbox.length == 4) {
@@ -1388,25 +1608,31 @@ public class GeoServerRESTPublisher {
 		final GSLayerEncoder layerEncoder = new GSLayerEncoder();
 		layerEncoder.setDefaultStyle(defaultStyle);
 
-		return configureLayer(workspace, resourceName, layerEncoder);
+        return configureLayer(workspace, coverageName, layerEncoder);
 	}
 
-	/**
-	 * 
-	 * Publish a GeoTiff already in a filesystem readable by GeoServer.
-	 * 
-	 * @param workspace
-	 *            an existing workspace
-	 * @param storeName
-	 *            the coverageStore to be created
-	 * @param geotiff
-	 *            the geoTiff to be published
-	 * @param srs
-	 * @param policy
-	 * @param defaultStyle
-	 * @return
-	 * @throws FileNotFoundException
-	 */
+    /**
+     * Publish a GeoTiff already in a filesystem readable by GeoServer.
+     * 
+     * @param workspace
+     *            an existing workspace
+     * @param storeName
+     *            the coverageStore to be created
+     * @param geotiff
+     *            the geoTiff to be published
+     * @param srs
+     *            the native CRS
+     * @param policy
+     *            projection policy. See {@link ProjectionPolicy}.
+     * @param defaultStyle
+     *            the default style to apply.
+     * 
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException
+     *             if file does not exists
+     * @throws IllegalArgumentException
+     *             if any of the mandatory parameters are null.
+     */
 	public boolean publishExternalGeoTIFF(String workspace, String storeName,
 			File geotiff, String coverageName, String srs,
 			ProjectionPolicy policy, String defaultStyle)
@@ -1430,24 +1656,26 @@ public class GeoServerRESTPublisher {
 				coverageEncoder, layerEncoder) != null ? true : false;
 	}
 
-	/**
-	 * Publish a GeoTiff already in a filesystem readable by GeoServer.
-	 * 
-	 * @param workspace
-	 *            an existing workspace
-	 * @param storeName
-	 *            the coverageStore to be created
-	 * @param geotiff
-	 *            the geoTiff to be published
-	 * @param coverageEncoder
-	 * @param layerEncoder
-	 * @return true if successfully configured
-	 * 
-	 * 
-	 * @throws FileNotFoundException
-	 * @throws IllegalArgumentException
-	 *             if null parameter
-	 */
+    /**
+     * Publish a GeoTiff already in a filesystem readable by GeoServer.
+     * 
+     * @param workspace
+     *            an existing workspace
+     * @param storeName
+     *            the coverageStore to be created
+     * @param geotiff
+     *            the geoTiff to be published
+     * @param coverageEncoder
+     *            coverage details. See {@link GSCoverageEncoder}.
+     * @param layerEncoder
+     *            layer details, See {@link GSLayerEncoder}.
+     * 
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException
+     *             if file does not exists
+     * @throws IllegalArgumentException
+     *             if any of the mandatory parameters are null.
+     */
 	public RESTCoverageStore publishExternalGeoTIFF(final String workspace,
 			final String storeName, final File geotiff,
 			final GSCoverageEncoder coverageEncoder,
@@ -1498,50 +1726,48 @@ public class GeoServerRESTPublisher {
 	// === WORLDIMAGE
 	// ==========================================================================
 
-	/**
-	 * {@link #publishWorldImage(String, String, File, ParameterConfigure, NameValuePair...)}
-	 */
+    /**
+     * Publish a zipped worldimage file. It is assumed that the the zip-file
+     * contain the *.prj to set the srs.
+     * 
+     * @param workspace
+     *            Workspace to use
+     * @param coveragestore
+     *            Name of the coveragestore
+     * @param zipFile
+     *            zip file to upload
+     * 
+     * @return true if the operation completed successfully.
+     */
 	public boolean publishWorldImage(String workspace, String coveragestore,
 			File zipFile) throws FileNotFoundException {
 		return publishWorldImage(workspace, coveragestore, zipFile,
 				ParameterConfigure.FIRST, (NameValuePair) null);
 	}
 
-	/**
-	 * 
-	 * Publish a zipped worldimage file. It is assumed that the the zip-file
-	 * contain the *.prj to set the srs.
-	 * <P>
-	 * This is equivalent call with cUrl:
-	 * 
-	 * <PRE>
-	 * {@code
-	 * curl -u admin:geoserver -XPUT -H 'Content-type: application/zip' \
-	 * 
-	 *       --data-binary @$ZIPFILE \
-	 * 
-	 *       http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$COVERAGESTORE/file.worldimage
-	 * </PRE>
-	 * 
-	 * @param workspace
-	 *            Workspace to use
-	 * @param coveragestore
-	 *            Name of the coveragestore
-	 * @param zipFile
-	 *            zip file to upload
-	 * @param configure
-	 *            Configure parameter. It may be null.
-	 * @param params
-	 *            parameters to append to the url (can be null).<br>
-	 *            Accepted parameters are:
-	 *            <ul>
-	 *            <li> <b>coverageName=name</b> coverageName parameter to
-	 *            append. Only works if configure is not set to
-	 *            ParameterConfigure.NONE. </li>
-	 *            </ul>
-	 * @see #{@link ParameterConfigure}
-	 * @return true if the operation completed successfully.
-	 */
+    /**
+     * Publish a zipped worldimage file. It is assumed that the the zip-file
+     * contain the *.prj to set the srs.
+     * 
+     * @param workspace
+     *            Workspace to use
+     * @param coveragestore
+     *            Name of the coveragestore
+     * @param zipFile
+     *            zip file to upload
+     * @param configure
+     *            Configure parameter. See {@link ParameterConfigure}. It can be
+     *            null.
+     * @param params
+     *            parameters to append to the url (can be null).<br>
+     *            Accepted parameters are:
+     *            <ul>
+     *            <li><b>coverageName=name</b> coverageName parameter to append.
+     *            Only works if configure is not set to
+     *            {@link ParameterConfigure#NONE}.</li>
+     *            </ul>
+     * @return true if the operation completed successfully.
+     */
 	public boolean publishWorldImage(String workspace, String coveragestore,
 			File zipFile, ParameterConfigure configure, NameValuePair... params)
 			throws FileNotFoundException {
@@ -1554,11 +1780,18 @@ public class GeoServerRESTPublisher {
 	// === MOSAIC
 	// ==========================================================================
 
-	/**
-	 * Publish imagemosaic as zip file
-	 * 
-	 * @see {@link #publishWorldImage(String, String, File)}
-	 */
+    /**
+     * Publish imagemosaic as zip file.
+     * 
+     * @param workspace
+     *            Workspace to use
+     * @param storeName
+     *            Name of the coveragestore
+     * @param zipFile
+     *            file to upload
+     * 
+     * @return true if the operation completed successfully.
+     */
 	public boolean publishImageMosaic(String workspace, String storeName,
 			File zipFile) throws FileNotFoundException {
 		return publishCoverage(workspace, storeName,
@@ -1566,11 +1799,29 @@ public class GeoServerRESTPublisher {
 				ParameterConfigure.FIRST, (NameValuePair[]) null);
 	}
 
-	/**
-	 * Publish imagemosaic as zip file
-	 * 
-	 * @see {@link #publishWorldImage(String, String, File, ParameterConfigure, NameValuePair...)}
-	 */
+    /**
+     * Publish imagemosaic as zip file.
+     * 
+     * @param workspace
+     *            Workspace to use
+     * @param storeName
+     *            Name of the coveragestore
+     * @param zipFile
+     *            file to upload
+     * @param configure
+     *            Configure parameter. See {@link ParameterConfigure}. It can be
+     *            null.
+     * @param params
+     *            parameters to append to the url (can be null).<br>
+     *            Accepted parameters are:
+     *            <ul>
+     *            <li><b>coverageName=name</b> coverageName parameter to append.
+     *            Only works if configure is not set to ParameterConfigure.NONE.
+     *            </li>
+     *            </ul>
+     * 
+     * @return true if the operation completed successfully.
+     */
 	public boolean publishImageMosaic(String workspace, String storeName,
 			File zipFile, ParameterConfigure configure, NameValuePair... params)
 			throws FileNotFoundException {
@@ -1579,26 +1830,21 @@ public class GeoServerRESTPublisher {
 				configure, params);
 	}
 
-	/**
-	 * Publish a Mosaic from a filesystem currently readable by GeoServer.
-	 * 
-	 * <P>
-	 * Sample cUrl usage:<BR>
-	 * <>
-	 * <TT>curl -u admin:geoserver -XPUT -H 'Content-type: text' -d "file:$ABSPORTDIR"
-	 *          http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$BAREDIR/external.imagemosaic </TT>
-	 * 
-	 * @param workspace
-	 *            an existing workspace
-	 * @param storeName
-	 *            the name of the coverageStore to be created
-	 * @param mosaicDir
-	 *            the directory where the raster images are located
-	 * @param configure
-	 *            a specify if a coverage should be configured
-	 * @return true if the operation completed successfully.
-	 * @throws FileNotFoundException
-	 */
+    /**
+     * Publish a Mosaic from a filesystem currently readable by GeoServer.
+     * 
+     * @param workspace
+     *            an existing workspace
+     * @param storeName
+     *            the name of the coverageStore to be created
+     * @param mosaicDir
+     *            the directory where the raster images are located
+     * @param configure
+     *            a specify if a coverage should be configured
+     * 
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException
+     */
 	public RESTCoverageStore createExternaMosaicDatastore(String workspace,
 			String storeName, File mosaicDir, ParameterConfigure configure,
 			ParameterUpdate update) throws FileNotFoundException {
@@ -1623,29 +1869,24 @@ public class GeoServerRESTPublisher {
 		return RESTCoverageStore.build(sendResult);
 	}
 
-	/**
-	 * Publish a Mosaic already in a filesystem readable by GeoServer.
-	 * 
-	 * <P>
-	 * Sample cUrl usage:<BR>
-	 * <TT>curl -u admin:geoserver -XPUT -H 'Content-type: text' -d "file:$ABSPORTDIR"
-	 *          http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$BAREDIR/external.imagemosaic </TT>
-	 * 
-	 * @param workspace
-	 *            an existing workspace
-	 * @param storeName
-	 *            the name of the coverageStore to be created
-	 * @param mosaicDir
-	 *            the directory where the raster images are located
-	 * @param srs
-	 *            the coverage declared SRS
-	 * @param defaultStyle
-	 *            may be null
-	 * 
-	 * @return true if the operation completed successfully.
-	 * 
-	 * @throws FileNotFoundException
-	 */
+	    /**
+     * Publish a Mosaic already in a filesystem readable by GeoServer.
+     * 
+     * @param workspace
+     *            an existing workspace
+     * @param storeName
+     *            the name of the coverageStore to be created
+     * @param mosaicDir
+     *            the directory where the raster images are located
+     * @param srs
+     *            the coverage declared SRS
+     * @param defaultStyle
+     *            may be null
+     * 
+     * @return true if the operation completed successfully.
+     * 
+     * @throws FileNotFoundException
+     */
 	public boolean publishExternalMosaic(String workspace, String storeName,
 			File mosaicDir, String srs, String defaultStyle)
 			throws FileNotFoundException {
@@ -1662,18 +1903,10 @@ public class GeoServerRESTPublisher {
 				coverageEncoder, layerEncoder);
 	}
 
-	/**
-	 * @deprecated use {@link #publishExternalMosaic(String workspace, final
-	 *             String storeName, File mosaicDir, GSCoverageEncoder
-	 *             coverageEncoder, GSLayerEncoder layerEncoder)}
-	 * @param workspace
-	 * @param storeName
-	 * @param mosaicDir
-	 * @param coverageEncoder
-	 * @param layerEncoder
-	 * @return
-	 * @throws FileNotFoundException
-	 */
+    /**
+     * @deprecated use
+     *             {@link #publishExternalMosaic(String, String, File, GSCoverageEncoder, GSLayerEncoder)}
+     */
 	public boolean createExternalMosaic(String workspace, String storeName,
 			File mosaicDir, GSCoverageEncoder coverageEncoder,
 			GSLayerEncoder layerEncoder) throws FileNotFoundException {
@@ -1681,30 +1914,25 @@ public class GeoServerRESTPublisher {
 				coverageEncoder, layerEncoder);
 	}
 
-	/**
-	 * Publish a Mosaic already in a filesystem readable by GeoServer.
-	 * 
-	 * <P>
-	 * Sample cUrl usage:<BR>
-	 * <TT>curl -u admin:geoserver -XPUT -H 'Content-type: text' -d "file:$ABSPORTDIR"
-	 *          http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/coveragestores/$BAREDIR/external.imagemosaic </TT>
-	 * 
-	 * @param workspace
-	 *            an existing workspace
-	 * @param storeName
-	 *            the name of the coverageStore to be created
-	 * @param mosaicDir
-	 *            the directory where the raster images are located
-	 * @param coverageEncoder
-	 *            the set of parameters to be set to the coverage (bbox, srs,
-	 *            ...)
-	 * @param layerEncoder
-	 *            the set of parameters to be set to the layer (defaultstyle,
-	 *            wmspath, ...)
-	 * @return true if the operation completed successfully.
-	 * 
-	 * @throws FileNotFoundException
-	 */
+	    /**
+     * Publish a Mosaic already in a filesystem readable by GeoServer.
+     * 
+     * @param workspace
+     *            an existing workspace
+     * @param storeName
+     *            the name of the coverageStore to be created
+     * @param mosaicDir
+     *            the directory where the raster images are located
+     * @param coverageEncoder
+     *            the set of parameters to be set to the coverage (bbox, srs,
+     *            ...)
+     * @param layerEncoder
+     *            the set of parameters to be set to the layer (defaultstyle,
+     *            wmspath, ...)
+     * 
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException
+     */
 	public boolean publishExternalMosaic(String workspace,
 			final String storeName, File mosaicDir,
 			GSCoverageEncoder coverageEncoder, GSLayerEncoder layerEncoder)
@@ -1744,23 +1972,20 @@ public class GeoServerRESTPublisher {
 		return true;
 	}
 
-	// ==========================================================================
-	// === COVERAGES
-	// ==========================================================================
+    // ==========================================================================
+    // === REMOVING THINGS
+    // ==========================================================================
 
-	/**
-	 * Remove the Coverage configuration from GeoServer. <BR>
-	 * First, the associated layer is removed, then the Coverage configuration
-	 * itself.
-	 * <P>
-	 * <B>CHECKME</B> Maybe the coveragestore has to be removed as well.
-	 * 
-	 * <P>
-	 * REST URL:
-	 * <TT>http://localhost:8080/geoserver/rest/workspaces/it.geosolutions/coveragestores/gbRESTtestStore/coverages/resttestdem.xml</TT>
-	 * 
-	 * @return true if the operation completed successfully.
-	 */
+    /**
+     * Remove the Coverage configuration from GeoServer.
+     * <P>
+     * First, the associated layer is removed, then the Coverage configuration
+     * itself.
+     * <P>
+     * <B>CHECKME</B> Maybe the coveragestore has to be removed as well.
+     * 
+     * @return true if the operation completed successfully.
+     */
 	public boolean unpublishCoverage(String workspace, String storename,
 			String layerName) {
 		try {
@@ -1822,17 +2047,14 @@ public class GeoServerRESTPublisher {
 		}
 	}
 
-	// ==========================================================================
-	// === FEATURETYPES
-	// ==========================================================================
-
-	/**
-	 * Removes the featuretype and the associated layer. <BR>
-	 * You may also want to {@link #removeDatastore(String, String) remove the
-	 * datastore}.
-	 * 
-	 * @return true if the operation completed successfully.
-	 */
+    /**
+     * Removes the featuretype and the associated layer.
+     * <P>
+     * You may also want to {@link #removeDatastore(String, String) remove the
+     * datastore}.
+     * 
+     * @return true if the operation completed successfully.
+     */
 	public boolean unpublishFeatureType(String workspace, String storename,
 			String layerName) {
 		try {
@@ -2084,34 +2306,13 @@ public class GeoServerRESTPublisher {
 		}
 	}
 
-	/**
-	 * reload the target geoserver configuration
-	 * 
-	 * @return true if success
-	 * 
-	 * @see http 
-	 *      ://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
-	 */
-	public boolean reload() {
-		String sUrl = restURL + "/rest/reload";
-		String result = HTTPUtils.post(sUrl, "", "text/plain", gsuser, gspass);
-		return result != null;
-	}
-
-	/**
-	 * reset the target geoserver configuration
-	 * 
-	 * @return true if success
-	 * 
-	 * @see http 
-	 *      ://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
-	 */
-	public boolean reset() {
-		String sUrl = restURL + "/rest/reset";
-		String result = HTTPUtils.post(sUrl, "", "text/plain", gsuser, gspass);
-		return result != null;
-	}
-
+    /**
+     * Remove a layer group.
+     * 
+     * @param name
+     *            the layer group name.
+     * @return true if succeeded.
+     */
 	public boolean removeLayerGroup(String name) {
 		try {
 			URL deleteUrl = new URL(restURL + "/rest/layergroups/" + name);
@@ -2132,10 +2333,6 @@ public class GeoServerRESTPublisher {
 			return false;
 		}
 	}
-
-	// ==========================================================================
-	// ===
-	// ==========================================================================
 
 	/**
 	 * remove a generic given layer from a given workspace
@@ -2182,6 +2379,44 @@ public class GeoServerRESTPublisher {
 
 		return result;
 	}
+
+    // ==========================================================================
+    // === CATALOG REFRESHING
+    // ==========================================================================
+
+    /**
+     * Reload the target geoserver configuration
+     * 
+     * @return true if success
+     * 
+     * @see <a
+     *      href="http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html">GeoServer
+     *      REST Config API</a>
+     */
+    public boolean reload() {
+        String sUrl = restURL + "/rest/reload";
+        String result = HTTPUtils.post(sUrl, "", "text/plain", gsuser, gspass);
+        return result != null;
+    }
+
+    /**
+     * Reset the target geoserver configuration
+     * 
+     * @return true if success
+     * 
+     * @see <a
+     *      href="http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html">GeoServer
+     *      REST Config API</a>
+     */
+    public boolean reset() {
+        String sUrl = restURL + "/rest/reset";
+        String result = HTTPUtils.post(sUrl, "", "text/plain", gsuser, gspass);
+        return result != null;
+    }
+
+    // ==========================================================================
+    // === MISCELLANEA
+    // ==========================================================================
 
 	/**
 	 * Allows to configure some layer attributes such and DefaultStyle
@@ -2306,10 +2541,6 @@ public class GeoServerRESTPublisher {
 	/**
 	 * @deprecated use
 	 *             {@link #createCoverage(String, String, GSCoverageEncoder)}
-	 * @param ce
-	 * @param wsname
-	 * @param csname
-	 * @return
 	 */
 	public boolean createCoverage(final GSCoverageEncoder ce,
 			final String wsname, final String csname) {
@@ -2399,8 +2630,8 @@ public class GeoServerRESTPublisher {
 		return sendResult != null;
 	}
 
-	/**
-     *
+    /**
+     * Appends ".DUMMY" to any string containing a dot (<i>sic</i>).
      */
 	protected String sanitize(String s) {
 		if (s.indexOf(".") != -1) {
@@ -2409,17 +2640,17 @@ public class GeoServerRESTPublisher {
 		return s;
 	}
 
-	/**
-	 * Append params generating a string in the form: <br>
-	 * <p>
-	 * NAME_0=VALUE_0&NAME_1=VALUE_1&....&NAME_n-1=VALUE_n-1
-	 * </p>
-	 * </br>
-	 * 
-	 * @param params
-	 *            an array of NameValuePair
-	 * @return the parameter string or empty an string
-	 */
+    /**
+     * Append params generating a string in the form:
+     * <p>
+     * NAME_0=VALUE_0&NAME_1=VALUE_1&....&NAME_n-1=VALUE_n-1
+     * </p>
+     * </br>
+     * 
+     * @param params
+     *            an array of NameValuePair
+     * @return the parameter string or empty an string
+     */
 	private String appendParameters(NameValuePair... params) {
 		StringBuilder sbUrl = new StringBuilder();
 		// append parameters
@@ -2462,6 +2693,13 @@ public class GeoServerRESTPublisher {
 		return sbUrl.toString();
 	}
 
+    /**
+     * URL-encodes a String.
+     * 
+     * @param s
+     *            The original string.
+     * @return The encoded string.
+     */
 	protected String encode(String s) {
 		// try {
 		// return URLEncoder.encode(s,"UTF-8");
