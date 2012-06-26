@@ -609,6 +609,15 @@ public class GeoServerRESTPublisher {
                 return "coverages.xml";
             }
         }
+
+        /**
+         * Returns a lowercase representation of the parameter value, suitable
+         * to construct the rest call.
+         */
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
     }
 
     /**
@@ -637,7 +646,16 @@ public class GeoServerRESTPublisher {
          * forgo upload, and use an existing file on the server. The body of the
          * request is the absolute local path to the existing file.
          */
-        EXTERNAL
+        EXTERNAL;
+
+        /**
+         * Returns a lowercase representation of the parameter value, suitable
+         * to construct the rest call.
+         */
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
     }
 
     /**
@@ -659,7 +677,16 @@ public class GeoServerRESTPublisher {
         /** H2 Database */
         H2,
         /** SpatiaLite Database */
-        SPATIALITE
+        SPATIALITE;
+
+        /**
+         * Returns a lowercase representation of the parameter value, suitable
+         * to construct the rest call.
+         */
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
     }
 
     /**
@@ -678,7 +705,16 @@ public class GeoServerRESTPublisher {
         /** ImageMosaic */
         IMAGEMOSAIC,
         /** Geo referenced image (JPEG,PNG,TIF) */
-        WORLDIMAGE
+        WORLDIMAGE;
+
+        /**
+         * Returns a lowercase representation of the parameter value, suitable
+         * to construct the rest call.
+         */
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
     }
 
     /**
@@ -1144,7 +1180,7 @@ public class GeoServerRESTPublisher {
      *            the name of the workspace to use
      * @param storename
      *            the name of the store to create
-     * @param layername
+     * @param layerName
      *            the name of the layer to configure
      * @param zipFile
      *            The zipped file to publish
