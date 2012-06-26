@@ -30,7 +30,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTManager;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
@@ -65,8 +64,6 @@ import it.geosolutions.geoserver.rest.encoder.datastore.GSDirectoryOfShapefilesD
  */
 public class GeoserverRESTDatastoreManagerTest extends GeoserverRESTTest {
 	
-	public final GeoServerRESTManager manager;
-	
 	private static final String WS_NAME = DEFAULT_WS;
 	private static final String DS_NAME = "testCreateDatastore";
 	private static final String DS_DESCRIPTION = "A description";
@@ -75,7 +72,6 @@ public class GeoserverRESTDatastoreManagerTest extends GeoserverRESTTest {
 	
 	public GeoserverRESTDatastoreManagerTest(String testName) throws Exception {
 		super(testName);
-		manager = new GeoServerRESTManager(new URL(RESTURL), RESTUSER, RESTPW);
 
 		LOCATION_1 = new URL("file:data/1");
 		LOCATION_2 = new URL("file:data/2");

@@ -65,9 +65,10 @@ public abstract class GeoserverRESTTest extends TestCase {
 	public static final String RESTUSER;
 	public static final String RESTPW;
 
-	public static final URL URL;
-	public static final GeoServerRESTReader reader;
-	public static final GeoServerRESTPublisher publisher;
+	public static URL URL;
+	public static GeoServerRESTManager manager;
+	public static GeoServerRESTReader reader;
+	public static GeoServerRESTPublisher publisher;
 
     private static boolean enabled = false;
     private static Boolean existgs = null;
@@ -82,15 +83,14 @@ public abstract class GeoserverRESTTest extends TestCase {
         if( ! enabled )
             LOGGER.warn("Tests are disabled. Please read the documentation to enable them.");
 
-		URL lurl = null;
-		try {
-			lurl = new URL(RESTURL);
-		} catch (MalformedURLException ex) {
+        try {
+        	URL = new URL(RESTURL);
+			manager = new GeoServerRESTManager(URL, RESTUSER, RESTPW);
+			reader = manager.getReader();
+			publisher = manager.getPublisher();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
 		}
-
-		URL = lurl;
-		reader = new GeoServerRESTReader(lurl, RESTUSER, RESTPW);
-        publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
 	}
 
     private static String getenv(String envName, String envDefault) {
@@ -205,7 +205,7 @@ public abstract class GeoserverRESTTest extends TestCase {
             List<String> stores = reader.getDatastores(workspace).getNames();
 
             for (String storename : stores) {
-                RESTDataStore store = reader.getDatastore(workspace, storename);
+//                RESTDataStore store = reader.getDatastore(workspace, storename);
 
 //                if(store.getType() == RESTDataStore.DBType.POSTGIS) {
 //                    LOGGER.info("Skipping PG datastore " + store.getWorkspaceName()+":"+store.getName());

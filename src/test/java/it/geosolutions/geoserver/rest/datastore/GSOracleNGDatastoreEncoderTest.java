@@ -110,7 +110,8 @@ public class GSOracleNGDatastoreEncoderTest extends GeoserverRESTTest {
         assertTrue(publisher.createWorkspace(wsName));
         
         // creation test
-        boolean created = publisher.createDatastore(wsName, datastoreEncoder);
+        
+        boolean created = manager.getDatastoreManager().create(wsName, datastoreEncoder);
 
         if( ! pgIgnore )
             assertTrue("OracleNG datastore not created", created);
@@ -119,15 +120,15 @@ public class GSOracleNGDatastoreEncoderTest extends GeoserverRESTTest {
 
 
         RESTDataStore datastore = reader.getDatastore(wsName, datastoreName);
-        LOGGER.info("The type of the created datastore is: " + datastore.getType());
+        LOGGER.info("The type of the created datastore is: " + datastore.getStoreType());
 
         // removing test
-        boolean removed = publisher.removeDatastore(wsName, datastoreName);
+        boolean removed = publisher.removeDatastore(wsName, datastoreName, true);
         if( ! pgIgnore )
             assertTrue("OracleNG datastore not removed", removed);
         else if( ! removed )
             LOGGER.error("*** Datastore " + datastoreName + " has not been removed.");
         
-        assertTrue(publisher.removeWorkspace(wsName));
+        assertTrue(publisher.removeWorkspace(wsName, false));
     }
 }
