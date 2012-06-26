@@ -1199,7 +1199,9 @@ public class GeoServerRESTPublisher {
 			String layerName, File zipFile, String nativeCrs,
 			String defaultStyle) throws FileNotFoundException, IllegalArgumentException {
 		
-		return publishShp(workspace, storename, (NameValuePair[])null, layerName, UploadMethod.FILE, zipFile.toURI(), nativeCrs, ProjectionPolicy.NONE,defaultStyle);
+        return publishShp(workspace, storename, (NameValuePair[]) null,
+                layerName, UploadMethod.FILE, zipFile.toURI(), nativeCrs,
+                ProjectionPolicy.FORCE_DECLARED, defaultStyle);
 	}
 
 	        /**

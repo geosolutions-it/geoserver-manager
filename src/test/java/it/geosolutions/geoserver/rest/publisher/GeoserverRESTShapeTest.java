@@ -235,6 +235,38 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
 
     }
 
+    /**
+     * Test case to solve error described in:
+     * https://github.com/geosolutions-it/geoserver-manager/issues/11
+     * 
+     * @throws IllegalArgumentException
+     * @throws FileNotFoundException
+     */
+    public void testPublishShpUsingDeclaredNativeCRS() throws Exception {
+        if (!enabled())
+            return;
+
+        // layer publication params
+        String workspace = DEFAULT_WS;
+        String storename = "resttestshp";
+        String layerName = "cities";
+        File zipFile = new ClassPathResource("testdata/testshp_no_prj.zip")
+                .getFile();
+        String nativeCrs = "EPSG:4230";
+        String defaultStyle = null;
+
+        // Cleanup
+        deleteAllWorkspacesRecursively();
+        assertTrue(publisher.createWorkspace(workspace));
+
+        // Publish layer
+        assertTrue(publisher.publishShp(workspace, storename, layerName,
+                zipFile, nativeCrs, defaultStyle));
+
+        // Read CRS. Should be using the one indicated at publication time.
+        assertNotNull(reader.getLayer(layerName));
+    }
+
 
     //	public void testDeleteUnexistingFT() throws FileNotFoundException, IOException {
 //		String wsName = "this_ws_does_not_exist";
