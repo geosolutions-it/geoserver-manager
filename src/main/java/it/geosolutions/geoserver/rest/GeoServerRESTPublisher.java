@@ -546,7 +546,7 @@ public class GeoServerRESTPublisher {
 			UploadMethod method, DataStoreExtension extension, String mimeType,
 			URI uri, ParameterConfigure configure, NameValuePair... params)
 			throws FileNotFoundException, IllegalArgumentException {
-		return createStore(workspace, DataStoreType.datastores, storeName,
+		return createStore(workspace, DataStoreType.DATASTORES, storeName,
 				method, extension, mimeType, uri, configure, params);
 	}
 
@@ -555,7 +555,7 @@ public class GeoServerRESTPublisher {
 			String mimeType, URI uri, ParameterConfigure configure,
 			NameValuePair... params) throws FileNotFoundException,
 			IllegalArgumentException {
-		return createStore(workspace, DataStoreType.coveragestores, storeName,
+		return createStore(workspace, DataStoreType.COVERAGESTORES, storeName,
 				method, extension, mimeType, uri, configure, params);
 	}
 
@@ -601,17 +601,17 @@ public class GeoServerRESTPublisher {
 
 		String sentResult = null;
 
-		if (method.equals(UploadMethod.file)) {
+		if (method.equals(UploadMethod.FILE)) {
 			final File file = new File(uri);
 			if (!file.exists())
 				throw new FileNotFoundException("unable to locate file: "
 						+ file);
 			sentResult = HTTPUtils.put(sbUrl.toString(), file, mimeType,
 					gsuser, gspass);
-		} else if (method.equals(UploadMethod.external)) {
+		} else if (method.equals(UploadMethod.EXTERNAL)) {
 			sentResult = HTTPUtils.put(sbUrl.toString(), uri.toString(),
 					mimeType, gsuser, gspass);
-		} else if (method.equals(UploadMethod.url)) {
+		} else if (method.equals(UploadMethod.URL)) {
 			// TODO check
 			sentResult = HTTPUtils.put(sbUrl.toString(), uri.toString(),
 					mimeType, gsuser, gspass);
@@ -640,13 +640,13 @@ public class GeoServerRESTPublisher {
 	 * 
 	 */
 	public enum DataStoreType {
-		coveragestores, datastores;
+		COVERAGESTORES, DATASTORES;
 
 		public static String getTypeName(DataStoreType type) {
 			switch (type) {
-			case coveragestores:
+			case COVERAGESTORES:
 				return "coverages.xml"; // Format
-			case datastores:
+			case DATASTORES:
 				return "featuretypes.xml";
 			default:
 				return "coverages.xml";
@@ -673,7 +673,7 @@ public class GeoServerRESTPublisher {
 	 * 
 	 */
 	public enum UploadMethod {
-		file, url, external
+		FILE, URL, EXTERNAL
 	}
 
 	// ==========================================================================
@@ -724,7 +724,7 @@ public class GeoServerRESTPublisher {
 	 */
 	public boolean publishShp(String workspace, String storename,
 			String datasetname, File zipFile) throws FileNotFoundException, IllegalArgumentException {
-		return publishShp(workspace, storename, new NameValuePair[0], datasetname,UploadMethod.file, zipFile.toURI(), "EPSG:4326", ProjectionPolicy.NONE,null);
+		return publishShp(workspace, storename, new NameValuePair[0], datasetname,UploadMethod.FILE, zipFile.toURI(), "EPSG:4326", ProjectionPolicy.NONE,null);
 	}
 
 	/**
@@ -774,11 +774,11 @@ public class GeoServerRESTPublisher {
 		//
 		final String mimeType;
 		switch (method){
-			case external:
+			case EXTERNAL:
 				mimeType="text/plain";
 				break;
-			case url: // TODO check which mime-type should be used
-			case file:
+			case URL: // TODO check which mime-type should be used
+			case FILE:
 				mimeType="application/zip";
 				break;
 			default:
@@ -786,7 +786,7 @@ public class GeoServerRESTPublisher {
 		}
 		if (!createDataStore(workspace,
 				(storeName != null) ? storeName : FilenameUtils.getBaseName(shapefile.toString()), 
-						method, DataStoreExtension.shp, mimeType,
+						method, DataStoreExtension.SHP, mimeType,
 				shapefile, ParameterConfigure.NONE, storeParams)) {
 			LOGGER.error("Unable to create data store for shapefile: "
 					+ shapefile);
@@ -799,7 +799,7 @@ public class GeoServerRESTPublisher {
 		featureTypeEncoder.setSRS(srs);
 		featureTypeEncoder.setProjectionPolicy(policy);
 
-		if (!createResource(workspace, DataStoreType.datastores, storeName,
+		if (!createResource(workspace, DataStoreType.DATASTORES, storeName,
 				featureTypeEncoder)) {
 			LOGGER.error("Unable to create a coverage store for coverage: "
 					+ shapefile);
@@ -832,7 +832,7 @@ public class GeoServerRESTPublisher {
 			String layerName, File zipFile, String nativeCrs,
 			String defaultStyle) throws FileNotFoundException, IllegalArgumentException {
 		
-		return publishShp(workspace, storename, (NameValuePair[])null, layerName, UploadMethod.file, zipFile.toURI(), nativeCrs, ProjectionPolicy.NONE,defaultStyle);
+		return publishShp(workspace, storename, (NameValuePair[])null, layerName, UploadMethod.FILE, zipFile.toURI(), nativeCrs, ProjectionPolicy.NONE,defaultStyle);
 	}
 
 	/**
@@ -860,7 +860,7 @@ public class GeoServerRESTPublisher {
 	public boolean publishShp(String workspace, String storename,
 			String layername, File zipFile, String srs)
 			throws FileNotFoundException {
-		return publishShp(workspace, storename, (NameValuePair[])null, layername, UploadMethod.file, zipFile.toURI(), srs, ProjectionPolicy.NONE,null);
+		return publishShp(workspace, storename, (NameValuePair[])null, layername, UploadMethod.FILE, zipFile.toURI(), srs, ProjectionPolicy.NONE,null);
 	}
 
 	/**
@@ -896,7 +896,7 @@ public class GeoServerRESTPublisher {
 			String layername, File zipFile, String srs, NameValuePair... params)
 			throws FileNotFoundException, IllegalArgumentException {
 
-		return publishShp(workspace, storename, params, layername, UploadMethod.file, zipFile.toURI(), srs, ProjectionPolicy.NONE,null);
+		return publishShp(workspace, storename, params, layername, UploadMethod.FILE, zipFile.toURI(), srs, ProjectionPolicy.NONE,null);
 	}
 	
 
@@ -923,16 +923,16 @@ public class GeoServerRESTPublisher {
 		if (resource.getScheme().equals("file") || resource.isAbsolute() == false) {
 			File f = new File(resource);
 			if (f.exists() && f.isFile() && f.toString().endsWith(".zip")) {
-				method = UploadMethod.file;
+				method = UploadMethod.FILE;
 				mime = "application/zip";				
 			} else if (f.isDirectory()) {
-				method = UploadMethod.external;
+				method = UploadMethod.EXTERNAL;
 				mime = "text/plain"; 				
 			}
 		} else {
 			try {
 				if(resource.toURL() != null) {
-					method = UploadMethod.url;
+					method = UploadMethod.URL;
 					mime = "text/plain";					
 				}
 			} catch (MalformedURLException e) {
@@ -942,9 +942,9 @@ public class GeoServerRESTPublisher {
 		
 		// Create store, upload data, and publish layers
 		return createStore(
-				workspace, DataStoreType.datastores,
+				workspace, DataStoreType.DATASTORES,
 				storeName, method,
-				DataStoreExtension.shp,
+				DataStoreExtension.SHP,
 				mime, resource, 
 				ParameterConfigure.ALL,
 				new NameValuePair[0]);
@@ -1132,7 +1132,7 @@ public class GeoServerRESTPublisher {
 			CoverageStoreExtension extension, String mimeType, File file,
 			ParameterConfigure configure, NameValuePair... params)
 			throws FileNotFoundException {
-		return createCoverageStore(workspace, coveragestore, UploadMethod.file,
+		return createCoverageStore(workspace, coveragestore, UploadMethod.FILE,
 				extension, mimeType, file.toURI(), configure, params);
 	}
 
@@ -1194,7 +1194,7 @@ public class GeoServerRESTPublisher {
 	 * 
 	 */
 	public enum CoverageStoreExtension {
-		geotiff, imagemosaic, worldimage
+		GEOTIFF, IMAGEMOSAIC, WORLDIMAGE
 	}
 
 	/**
@@ -1212,7 +1212,7 @@ public class GeoServerRESTPublisher {
 	 * 
 	 */
 	public enum DataStoreExtension {
-		shp, properties, h2, spatialite
+		SHP, PROPERTIES, H2, SPATIALITE
 	}
 
 	/**
@@ -1255,7 +1255,7 @@ public class GeoServerRESTPublisher {
 			ParameterUpdate update) throws FileNotFoundException,
 			IllegalArgumentException {
 		return createCoverageStore(workspace, coveragestore,
-				UploadMethod.external, extension, mimeType, file.toURI(),
+				UploadMethod.EXTERNAL, extension, mimeType, file.toURI(),
 				configure,
 				(update != null) ? new NameValuePair[] { new NameValuePair(
 						"update", update.toString()) } : (NameValuePair[]) null);
@@ -1271,7 +1271,7 @@ public class GeoServerRESTPublisher {
 	public boolean publishGeoTIFF(String workspace, String storeName,
 			File geotiff) throws FileNotFoundException {
 		return publishCoverage(workspace, storeName,
-				CoverageStoreExtension.geotiff, "image/geotiff", geotiff,
+				CoverageStoreExtension.GEOTIFF, "image/geotiff", geotiff,
 				ParameterConfigure.FIRST, (NameValuePair[]) null);
 	}
 
@@ -1314,7 +1314,7 @@ public class GeoServerRESTPublisher {
 				workspace,
 				(storeName != null) ? storeName : FilenameUtils
 						.getBaseName(geotiff.getAbsolutePath()),
-				CoverageStoreExtension.geotiff,
+				CoverageStoreExtension.GEOTIFF,
 				"image/geotiff",
 				geotiff,
 				ParameterConfigure.FIRST,
@@ -1361,7 +1361,7 @@ public class GeoServerRESTPublisher {
 
 		if (!createCoverageStore(workspace, (storeName != null) ? storeName
 				: FilenameUtils.getBaseName(geotiff.getAbsolutePath()),
-				UploadMethod.file, CoverageStoreExtension.geotiff,
+				UploadMethod.FILE, CoverageStoreExtension.GEOTIFF,
 				"image/geotiff", geotiff.toURI(), ParameterConfigure.NONE,
 				(NameValuePair[]) null)) {
 			LOGGER.error("Unable to create coverage store for coverage: "
@@ -1466,7 +1466,7 @@ public class GeoServerRESTPublisher {
 
 		// create store
 		final boolean store = publishExternalCoverage(workspace, storeName,
-				CoverageStoreExtension.geotiff, "text/plain", geotiff,
+				CoverageStoreExtension.GEOTIFF, "text/plain", geotiff,
 				ParameterConfigure.NONE, ParameterUpdate.OVERWRITE);
 		if (!store) {
 			return null;
@@ -1546,7 +1546,7 @@ public class GeoServerRESTPublisher {
 			File zipFile, ParameterConfigure configure, NameValuePair... params)
 			throws FileNotFoundException {
 		return publishCoverage(workspace, coveragestore,
-				CoverageStoreExtension.worldimage, "application/zip", zipFile,
+				CoverageStoreExtension.WORLDIMAGE, "application/zip", zipFile,
 				configure, params);
 	}
 
@@ -1562,7 +1562,7 @@ public class GeoServerRESTPublisher {
 	public boolean publishImageMosaic(String workspace, String storeName,
 			File zipFile) throws FileNotFoundException {
 		return publishCoverage(workspace, storeName,
-				CoverageStoreExtension.imagemosaic, "application/zip", zipFile,
+				CoverageStoreExtension.IMAGEMOSAIC, "application/zip", zipFile,
 				ParameterConfigure.FIRST, (NameValuePair[]) null);
 	}
 
@@ -1575,7 +1575,7 @@ public class GeoServerRESTPublisher {
 			File zipFile, ParameterConfigure configure, NameValuePair... params)
 			throws FileNotFoundException {
 		return publishCoverage(workspace, storeName,
-				CoverageStoreExtension.imagemosaic, "application/zip", zipFile,
+				CoverageStoreExtension.IMAGEMOSAIC, "application/zip", zipFile,
 				configure, params);
 	}
 
@@ -2332,7 +2332,7 @@ public class GeoServerRESTPublisher {
 	 */
 	public boolean createCoverage(final String wsname, final String storeName,
 			final GSCoverageEncoder ce) throws IllegalArgumentException {
-		return createResource(wsname, DataStoreType.coveragestores, storeName,
+		return createResource(wsname, DataStoreType.COVERAGESTORES, storeName,
 				ce);
 	}
 

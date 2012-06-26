@@ -59,19 +59,19 @@ import org.jdom.Namespace;
 public class RESTLayer {
 	private final Element layerElem;
 
-	public enum TYPE {
+	public enum Type {
 		VECTOR("VECTOR"),
 		RASTER("RASTER"),
 		UNKNOWN(null);
 
 		private final String restName;
 
-		private TYPE(String restName) {
+		private Type(String restName) {
 			this.restName = restName;
 		}
 
-		public static TYPE get(String restName) {
-			for (TYPE type : values()) {
+		public static Type get(String restName) {
+			for (Type type : values()) {
 				if(type == UNKNOWN)
 					continue;
 				if(type.restName.equals(restName))
@@ -104,8 +104,8 @@ public class RESTLayer {
 		return layerElem.getChildText("type");
 	}
 
-	public TYPE getType() {
-		return TYPE.get(getTypeString());
+	public Type getType() {
+		return Type.get(getTypeString());
 	}
 
 	public String getDefaultStyle() {

@@ -268,7 +268,7 @@ public class GeoServerRESTReader {
      */
 
     public RESTFeatureType getFeatureType(RESTLayer layer) {
-        if(layer.getType() != RESTLayer.TYPE.VECTOR)
+        if(layer.getType() != RESTLayer.Type.VECTOR)
             throw new RuntimeException("Bad layer type for layer " + layer.getName());
 
         String response = loadFullURL(layer.getResourceUrl());
@@ -368,7 +368,7 @@ public class GeoServerRESTReader {
      * @return Coverage details as a {@link RESTCoverage}
      */
     public RESTCoverage getCoverage(RESTLayer layer) {
-        if(layer.getType() != RESTLayer.TYPE.RASTER)
+        if(layer.getType() != RESTLayer.Type.RASTER)
             throw new RuntimeException("Bad layer type for layer " + layer.getName());
 
         String response = loadFullURL(layer.getResourceUrl());

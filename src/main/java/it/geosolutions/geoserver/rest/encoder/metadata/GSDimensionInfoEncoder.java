@@ -45,14 +45,14 @@ public class GSDimensionInfoEncoder extends XmlElement{
 	/**
 	 * Enum for presentation mode
 	 */
-	public enum Presentation{
+	public enum Presentation {
 		LIST,
 		CONTINUOUS_INTERVAL
 	}
 	/**
 	 * Enum for presentation mode which needs arguments
 	 */
-	public enum PresentationDiscrete{
+	public enum PresentationDiscrete {
 		DISCRETE_INTERVAL
 	}
 	
