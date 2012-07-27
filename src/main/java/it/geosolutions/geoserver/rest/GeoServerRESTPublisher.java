@@ -636,17 +636,23 @@ public class GeoServerRESTPublisher {
          * is the file itself.
          */
         FILE,
+        @Deprecated
+        file,
         /**
          * indirectly upload a file from a remote source. The body of the
          * request is the URL where the data is published. This url must be
          * visible from the server.
          */
         URL,
+        @Deprecated
+        url,
         /**
          * forgo upload, and use an existing file on the server. The body of the
          * request is the absolute local path to the existing file.
          */
-        EXTERNAL;
+        EXTERNAL,
+        @Deprecated
+        external;
 
         /**
          * Returns a lowercase representation of the parameter value, suitable
