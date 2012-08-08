@@ -983,6 +983,7 @@ public class GeoServerRESTPublisher {
 
         fte.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
         fte.addKeyword("KEYWORD");
+        fte.setTitle(layername);
         fte.setName(layername);
         fte.setSRS(srs); // srs=null?"EPSG:4326":srs);
         final GSLayerEncoder layerEncoder = new GSLayerEncoder();
@@ -1138,10 +1139,13 @@ public class GeoServerRESTPublisher {
 		final String mimeType;
 		switch (method){
 			case EXTERNAL:
+			case external:
 				mimeType="text/plain";
 				break;
 			case URL: // TODO check which mime-type should be used
 			case FILE:
+			case file:
+			case url:
 				mimeType="application/zip";
 				break;
 			default:
@@ -1159,6 +1163,7 @@ public class GeoServerRESTPublisher {
 		// config coverage props (srs)
 		final GSFeatureTypeEncoder featureTypeEncoder = new GSFeatureTypeEncoder();
 		featureTypeEncoder.setName(datasetName);
+		featureTypeEncoder.setTitle(datasetName);
 		featureTypeEncoder.setSRS(srs);
 		featureTypeEncoder.setProjectionPolicy(policy);
 
@@ -1636,6 +1641,7 @@ public class GeoServerRESTPublisher {
 		// config coverage props (srs)
 		final GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
         coverageEncoder.setName(coverageName);
+		coverageEncoder.setTitle(coverageName);        
 		coverageEncoder.setSRS(srs);
 		coverageEncoder.setProjectionPolicy(policy);
 		if(bbox != null && bbox.length == 4) {
@@ -1689,6 +1695,7 @@ public class GeoServerRESTPublisher {
 		// config coverage props (srs)
 		final GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
 		coverageEncoder.setName(coverageName);
+		coverageEncoder.setTitle(coverageName);
 		coverageEncoder.setSRS(srs);
 		coverageEncoder.setProjectionPolicy(policy);
 
