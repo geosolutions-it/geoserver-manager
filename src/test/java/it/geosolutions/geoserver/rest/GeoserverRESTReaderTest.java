@@ -25,13 +25,16 @@
 
 package it.geosolutions.geoserver.rest;
 
-import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerList;
 import it.geosolutions.geoserver.rest.decoder.RESTNamespaceList;
 import it.geosolutions.geoserver.rest.decoder.RESTWorkspaceList;
+import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
+
 import java.util.List;
+
+import org.junit.Test;
 
 
 /**
@@ -40,13 +43,10 @@ import java.util.List;
  */
 public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 
-    public GeoserverRESTReaderTest(String testName) {
-        super(testName);
-    }
-
 	/**
 	 * Test of getLayers method, of class GeoServerRESTReader.
 	 */
+	@Test
 	public void testGetLayers() {
         if(!enabled()) return;
 
@@ -70,6 +70,7 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 	/**
 	 * Test of getDatastores method, of class GeoServerRESTReader.
 	 */
+	@Test
 	public void testGetDatastores() {
         if(!enabled()) return;
 
@@ -100,6 +101,7 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 
 	}
 
+	@Test
 	public void testGetWSDSNames() {
         if(!enabled())
             return;
@@ -129,6 +131,7 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 	/**
 	 * Test of getDatastore method, of class GeoServerRESTReader.
 	 */
+	@Test
 	public void testGetDatastore() {
         //tested in testGetDatastores()
 	}
@@ -136,12 +139,14 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 	/**
 	 * Test of getLayer method, of class GeoServerRESTReader.
 	 */
+	@Test
 	public void testGetLayer() {
 	}
 
 	/**
 	 * Test of getNamespaceNames method, of class GeoServerRESTReader.
 	 */
+	@Test
 	public void testGetNamespaces() {
         if(!enabled()) return;
 
@@ -165,6 +170,7 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 	/**
 	 * Test of getWorkspaceNames method, of class GeoServerRESTReader.
 	 */
+	@Test
 	public void testGetNamespaceNames() {
         if(!enabled()) return;
 
@@ -183,6 +189,7 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 	/**
 	 * Test of getWorkspaceNames method, of class GeoServerRESTReader.
 	 */
+	@Test
 	public void testGetWorkspaces() {
         if(!enabled()) return;
 
@@ -202,6 +209,7 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 	/**
 	 * Test of getWorkspaceNames method, of class GeoServerRESTReader.
 	 */
+	@Test
 	public void testGetWorkspaceNames() {
         if(!enabled()) return;
 

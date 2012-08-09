@@ -45,6 +45,8 @@ import it.geosolutions.geoserver.rest.decoder.RESTWorkspaceList;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -524,10 +526,13 @@ public class GeoServerRESTReader {
      * Get the names of all the Workspaces.
      * <BR>
      * This is a shortcut call: These info could be retrieved using {@link #getWorkspaces getWorkspaces}
-     * @return the list of the names of all Workspaces.
+     * @return the list of the names of all Workspaces or an empty list.
      */
     public List<String> getWorkspaceNames() {
         RESTWorkspaceList list = getWorkspaces();
+        if(list==null){
+        	return Collections.emptyList();
+        }
         List<String> names = new ArrayList<String>(list.size());
         for (RESTWorkspaceList.RESTShortWorkspace item : list) {
             names.add(item.getName());

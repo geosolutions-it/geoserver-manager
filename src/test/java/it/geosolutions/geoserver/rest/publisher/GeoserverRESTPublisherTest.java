@@ -31,6 +31,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,10 +47,6 @@ import org.slf4j.LoggerFactory;
 public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTPublisherTest.class);
-
-    public GeoserverRESTPublisherTest(String testName) {
-        super(testName);
-    }
 
     protected void cleanupTestFT(String layerName, String ns, String storeName) {
         // dry run delete to work in a known state
@@ -68,6 +65,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         assertFalse("Cleanup failed", existsLayer(layerName));
     }
 
+    @Test
     public void testDeleteUnexistingCoverage() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;
@@ -82,6 +80,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         assertFalse("unpublished not existing layer", ok);
     }
 
+    @Test
     public void testDeleteUnexistingFeatureType() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;
@@ -96,6 +95,7 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         assertFalse("unpublished not existing layer", ok);
     }
 
+    @Test
     public void testDeleteUnexistingDatastore() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;

@@ -40,6 +40,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.commons.httpclient.NameValuePair;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -71,11 +72,7 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTImageMosaicTest.class);
 
-
-    public GeoserverRESTImageMosaicTest(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testCreateDeleteImageMosaicDatastore() {
         if (!enabled()) {
             return;
@@ -170,6 +167,7 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
         assertTrue(publisher.removeWorkspace(wsName));
     }
 
+    @Test
 	public void testPublishImageMosaic() throws IOException {
 
 		if (!enabled()) {

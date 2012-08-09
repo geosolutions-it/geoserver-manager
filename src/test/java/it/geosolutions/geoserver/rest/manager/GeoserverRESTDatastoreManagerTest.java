@@ -24,17 +24,17 @@
  */
 package it.geosolutions.geoserver.rest.manager;
 
-import org.junit.Test;
+import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.datastore.GSDirectoryOfShapefilesDatastoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.datastore.GSShapefileDatastoreEncoder;
 
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import it.geosolutions.geoserver.rest.GeoserverRESTTest;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
-import it.geosolutions.geoserver.rest.encoder.datastore.GSShapefileDatastoreEncoder;
-import it.geosolutions.geoserver.rest.encoder.datastore.GSDirectoryOfShapefilesDatastoreEncoder;
+import org.junit.Test;
 
 /**
  * Test datastore handling (create, read and update):
@@ -70,9 +70,7 @@ public class GeoserverRESTDatastoreManagerTest extends GeoserverRESTTest {
 	private static URL LOCATION_1;
 	private static URL LOCATION_2;
 	
-	public GeoserverRESTDatastoreManagerTest(String testName) throws Exception {
-		super(testName);
-
+	public GeoserverRESTDatastoreManagerTest() throws Exception {
 		LOCATION_1 = new URL("file:data/1");
 		LOCATION_2 = new URL("file:data/2");
 	}

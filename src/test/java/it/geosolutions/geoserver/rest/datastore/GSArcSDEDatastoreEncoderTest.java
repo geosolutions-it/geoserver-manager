@@ -28,6 +28,7 @@ import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSArcSDEDatastoreEncoder;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,8 +69,7 @@ public class GSArcSDEDatastoreEncoderTest extends GeoserverRESTTest {
     private final String pgUser;
     private final String pgPassword;
 
-    public GSArcSDEDatastoreEncoderTest(String testName) {
-        super(testName);
+    public GSArcSDEDatastoreEncoderTest() {
 
         pgIgnore    = System.getProperty("pgIgnore", "false").equalsIgnoreCase("true");
         pgServer      = System.getProperty("pgServer", "localhost");
@@ -79,6 +79,7 @@ public class GSArcSDEDatastoreEncoderTest extends GeoserverRESTTest {
         pgPassword  = System.getProperty("pgPassword", "ptest");
     }
 
+    @Test
     public void testCreateDeleteArcSDEDatastore() {
         if (!enabled()) {
             return;

@@ -148,7 +148,7 @@ public abstract class GSResourceEncoder
         REPROJECT_TO_DECLARED,
         /** Use the declared CRS (ignore native) */
         FORCE_DECLARED,
-        /** No reprojection */
+        /** Keep native */
         NONE
 	}
 
@@ -226,6 +226,22 @@ public abstract class GSResourceEncoder
 	 */
 	public void setSRS(final String srs) {
 		set(SRS, srs);
+	}
+	
+	private final static String NATIVECRS = "nativeCRS";
+
+	/**
+	 * Add the 'nativeCRS' node with a text value from 'nativeCRS'
+	 */
+	protected void addNativeCRS(final String nativeCRS) {
+		add(NATIVECRS, nativeCRS);
+	}
+
+	/**
+	 * Set or modify the 'nativeCRS' node with a text value from 'nativeCRS'
+	 */
+	public void setNativeCRS(final String nativeCRS) {
+		set(NATIVECRS, nativeCRS);
 	}
 
 	private final static String LATLONBBMINX = "latLonBoundingBox/minx";

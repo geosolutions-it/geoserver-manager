@@ -40,11 +40,7 @@ import java.net.URI;
  * @author Oscar Fonts
  */
 public class GeoserverRESTNamespaceTest extends GeoserverRESTTest {
-
-	public GeoserverRESTNamespaceTest(String testName) {
-		super(testName);
-	}
-
+	
 	/**
 	 * Test Namespace create
 	 */

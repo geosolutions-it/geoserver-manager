@@ -29,12 +29,17 @@ import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.UploadMethod;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
+import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoderTest;
+import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureEncoderTest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.commons.httpclient.NameValuePair;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -50,18 +55,20 @@ import org.springframework.core.io.ClassPathResource;
 public class GeoserverRESTShapeTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTShapeTest.class);
-
-    public GeoserverRESTShapeTest(String testName) {
-        super(testName);
-    }
     
+    @After
+    public void cleanUp(){
+        if(enabled()){
+        	deleteAllWorkspaces();
+        }
+    }
 
+    @Test
     public void testPublishDeleteShapeZip() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;
         }
 //        Assume.assumeTrue(enabled);
-        deleteAllWorkspaces();
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
         String storeName = "resttestshp";
@@ -91,12 +98,12 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
     }
 
 
+    @Test
     public void testPublishDeleteExternalComplexShapeZip() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;
         }
 //        Assume.assumeTrue(enabled);
-        deleteAllWorkspaces();
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
         String storeName = "resttestshp_complex";
@@ -105,7 +112,7 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         File zipFile = new ClassPathResource("testdata/shapefile/cities.shp").getFile();
         
         // test insert
-        boolean published = publisher.publishShp(DEFAULT_WS, storeName, new NameValuePair[]{new NameValuePair("charset", "UTF-8")},datasetName, UploadMethod.EXTERNAL, zipFile.toURI(), "EPSG:4326",ProjectionPolicy.REPROJECT_TO_DECLARED,"polygon");
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, new NameValuePair[]{new NameValuePair("charset", "UTF-8")},datasetName, UploadMethod.EXTERNAL, zipFile.toURI(), "EPSG:4326",GSCoverageEncoderTest.WGS84,ProjectionPolicy.REPROJECT_TO_DECLARED,"polygon");
         assertTrue("publish() failed", published);
         assertTrue(existsLayer(datasetName));
         
@@ -124,12 +131,12 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         assertTrue("removeDatastore() failed", dsRemoved);
     }
     
+    @Test
     public void testPublishDeleteComplexShapeZip() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;
         }
 //        Assume.assumeTrue(enabled);
-        deleteAllWorkspaces();
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
         String storeName = "resttestshp_complex";
@@ -138,7 +145,7 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
         
         // test insert
-        boolean published = publisher.publishShp(DEFAULT_WS, storeName, new NameValuePair[]{new NameValuePair("charset", "UTF-8")},datasetName, UploadMethod.FILE, zipFile.toURI(), "EPSG:4326",ProjectionPolicy.REPROJECT_TO_DECLARED,"polygon");
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, new NameValuePair[]{new NameValuePair("charset", "UTF-8")},datasetName, UploadMethod.FILE, zipFile.toURI(), "EPSG:4326",GSCoverageEncoderTest.WGS84,ProjectionPolicy.REPROJECT_TO_DECLARED,"polygon");
         assertTrue("publish() failed", published);
         assertTrue(existsLayer(datasetName));
         
@@ -157,11 +164,13 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         assertTrue("removeDatastore() failed", dsRemoved);
     }
 
+    @Test
     public void testPublishDeleteStyledShapeZip() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;
         }
 //        Assume.assumeTrue(enabled);
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
         String ns = "geosolutions";
         String storeName = "resttestshp";
@@ -199,12 +208,12 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         assertFalse(reader.existsStyle(styleName));
     }
 
+    @Test
     public void testPublishDeleteShapeZipWithParams() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;
         }
 //        Assume.assumeTrue(enabled);
-        deleteAllWorkspaces();
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
         String storeName = "resttestshp";
@@ -242,6 +251,7 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
      * @throws IllegalArgumentException
      * @throws FileNotFoundException
      */
+    @Test
     public void testPublishShpUsingDeclaredNativeCRS() throws Exception {
         if (!enabled())
             return;
@@ -265,16 +275,48 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
 
         // Read CRS. Should be using the one indicated at publication time.
         assertNotNull(reader.getLayer(layerName));
+        
+        // remove also datastore
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storename,true);
+        assertTrue("removeDatastore() failed", dsRemoved);
+    }
+    
+    /**
+     * Test case to solve error described in:
+     * https://github.com/geosolutions-it/geoserver-manager/issues/11
+     * 
+     * @throws IllegalArgumentException
+     * @throws FileNotFoundException
+     */
+    @Test
+    public void testPublishShpUsingWKTNativeCRS() throws Exception {
+        if (!enabled())
+            return;
+
+        // layer publication params
+        String workspace = DEFAULT_WS;
+        String storename = "resttestshp";
+        String layerName = "10m_populated_places";
+        File zipFile = new ClassPathResource("testdata/test_noepsg.zip")
+                .getFile();
+        String nativeCrs = "EPSG:4326";
+        String defaultStyle = null;
+
+        // Cleanup
+        deleteAllWorkspacesRecursively();
+        assertTrue(publisher.createWorkspace(workspace));
+
+        // Publish layer
+        assertTrue(publisher.publishShp(workspace, storename, layerName,
+                zipFile, nativeCrs, defaultStyle));
+
+        // Read CRS. Should be using the one indicated at publication time.
+        assertNotNull(reader.getLayer(layerName));
+        
+        // remove also datastore
+        boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storename,true);
+        assertTrue("removeDatastore() failed", dsRemoved);
     }
 
-
-    //	public void testDeleteUnexistingFT() throws FileNotFoundException, IOException {
-//		String wsName = "this_ws_does_not_exist";
-//		String storeName = "this_store_does_not_exist";
-//		String layerName = "this_layer_does_not_exist";
-//
-//		boolean ok = publisher.unpublishFT(wsName, storeName, layerName);
-//		assertFalse("unpublished not existing layer", ok);
-//	}
     
 }

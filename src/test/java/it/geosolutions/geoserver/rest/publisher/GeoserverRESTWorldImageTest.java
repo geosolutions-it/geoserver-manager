@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.httpclient.NameValuePair;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -47,10 +48,7 @@ public class GeoserverRESTWorldImageTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTWorldImageTest.class);
 
-    public GeoserverRESTWorldImageTest(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testPublishWorldImage() throws IOException {
 
 		if (!enabled()) {

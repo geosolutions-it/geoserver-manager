@@ -38,6 +38,7 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -55,10 +56,7 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(GeoserverRESTStyleTest.class);
 
-	public GeoserverRESTStyleTest(String testName) {
-		super(testName);
-	}
-
+	@Test
 	public void testStyles() throws IOException {
 		if (!enabled())
 			return;
@@ -116,6 +114,7 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 		assertFalse("Cleanup failed", reader.existsStyle(styleName));
 	}
 
+	@Test
 	public void testPublishDeleteStyleFile() throws FileNotFoundException,
 			IOException {
 		if (!enabled()) {
@@ -147,6 +146,7 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 		assertFalse(reader.existsStyle(styleName));
 	}
 
+	@Test
 	public void testPublishDeleteStyleString() throws FileNotFoundException,
 			IOException {
 		if (!enabled()) {
@@ -193,6 +193,7 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 
 	}
 
+	@Test
 	public void testUpdateDefaultStyle() throws FileNotFoundException,
 			IOException {
 		if (!enabled()) {

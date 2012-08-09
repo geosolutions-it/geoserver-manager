@@ -37,6 +37,13 @@ import org.slf4j.LoggerFactory;
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GSCoverageEncoderTest extends TestCase {
+	public static final String WGS84="GEOGCS[\"WGS84(DD)," +
+	 "DATUM[\"WGS84\"," +
+	 "SPHEROID[\"WGS84\", 6378137.0, 298.257223563]]," +
+	 "PRIMEM[\"Greenwich\", 0.0]," +
+	 "UNIT[\"degree\", 0.017453292519943295]," +
+	 "AXIS[\"Geodetic longitude\", EAST]," +
+	 "AXIS[\"Geodetic latitude\", NORTH]]";
 
     public GSCoverageEncoderTest() {
     }
@@ -54,11 +61,22 @@ public class GSCoverageEncoderTest extends TestCase {
 		GSResourceEncoder/*<GSDimensionInfoEncoder>*/ re=new GSCoverageEncoder();
 		
 		re.setProjectionPolicy(ProjectionPolicy.FORCE_DECLARED);
+		re.setSRS("EPSG:4326");
 		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"projectionPolicy",ProjectionPolicy.FORCE_DECLARED.toString()));
+		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"srs","EPSG:4326"));
 		
 		re.setProjectionPolicy(ProjectionPolicy.NONE);
+		re.setNativeCRS("EPSG:4326");
 		Assert.assertNull(ElementUtils.contains(re.getRoot(),"projectionPolicy",ProjectionPolicy.FORCE_DECLARED.toString()));
 		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"projectionPolicy",ProjectionPolicy.NONE.toString()));
+		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"nativeCRS","EPSG:4326"));
+		
+		re.setProjectionPolicy(ProjectionPolicy.REPROJECT_TO_DECLARED);
+		re.setNativeCRS(WGS84);
+		re.setSRS("EPSG:4326");
+		Assert.assertNull(ElementUtils.contains(re.getRoot(),"projectionPolicy",ProjectionPolicy.FORCE_DECLARED.toString()));
+		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"nativeCRS",WGS84));
+		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"srs","EPSG:4326"));
 	}
 	
 	/**
@@ -68,13 +86,15 @@ public class GSCoverageEncoderTest extends TestCase {
 	public void testBB(){
 		GSResourceEncoder/*<GSDimensionInfoEncoder>*/ re=new GSCoverageEncoder();
 		
-		re.setLatLonBoundingBox(-180d, 90d, 180d, -90d, null);
+		re.setLatLonBoundingBox(-180d, 90d, 180d, -90d, WGS84);
 		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"minx","-180.0"));
+		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"crs",WGS84));
 		
-		re.setLatLonBoundingBox(-90d, 45d, 180d, -90d, null);
+		re.setLatLonBoundingBox(-90d, 45d, 180d, -90d, WGS84);
 		
 		Assert.assertNull(ElementUtils.contains(re.getRoot(),"minx","-180.0"));
 		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"minx","-90.0"));
+		Assert.assertNotNull(ElementUtils.contains(re.getRoot(),"crs",WGS84));
 	}
     
     @Test

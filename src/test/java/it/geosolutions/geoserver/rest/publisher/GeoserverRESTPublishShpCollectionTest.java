@@ -24,12 +24,13 @@
  */
 package it.geosolutions.geoserver.rest.publisher;
 
-import org.junit.Test;
+import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+
 import java.net.URI;
 import java.util.List;
-import org.springframework.core.io.ClassPathResource;
 
-import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * @author Oscar Fonts
@@ -38,10 +39,6 @@ public class GeoserverRESTPublishShpCollectionTest extends GeoserverRESTTest {
 
     final String workspace = DEFAULT_WS;
     final String storeName = "testshpcollection";
-    
-    public GeoserverRESTPublishShpCollectionTest(String testName) {
-        super(testName);
-    }
     
     @Test
     public void testLocalZip() throws Exception {

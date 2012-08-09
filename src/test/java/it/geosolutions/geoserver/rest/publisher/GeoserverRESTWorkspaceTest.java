@@ -31,6 +31,7 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy
 import java.io.File;
 import java.io.IOException;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -47,10 +48,7 @@ public class GeoserverRESTWorkspaceTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTWorkspaceTest.class);
 
-    public GeoserverRESTWorkspaceTest(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testWorkspaces() {
         if (!enabled()) return;
         deleteAll();
@@ -69,6 +67,7 @@ public class GeoserverRESTWorkspaceTest extends GeoserverRESTTest {
      * remove workspace and all of its contents
      * @throws IOException
      */
+    @Test
     public void testWorkspaceRemoval() throws IOException {
         if (!enabled()) return;
         	deleteAll();

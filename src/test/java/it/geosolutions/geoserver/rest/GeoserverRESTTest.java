@@ -39,6 +39,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +58,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author etj
  */
-public abstract class GeoserverRESTTest extends TestCase {
+public abstract class GeoserverRESTTest extends Assert {
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTTest.class);
 
     protected static final String DEFAULT_WS = "geosolutions";
@@ -100,14 +102,9 @@ public abstract class GeoserverRESTTest extends TestCase {
         return ret != null? ret : envDefault;
     }
 
-    public GeoserverRESTTest(String testName) {
-        super(testName);
-    }
+    @BeforeClass
+    public static void setUp() throws Exception {
 
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
 
         if(enabled) {
             if(existgs == null) {
@@ -120,12 +117,11 @@ public abstract class GeoserverRESTTest extends TestCase {
             }
 
             if ( ! existgs ) {
-                System.out.println("Failing test " + this.getClass().getSimpleName() + "::" + this.getName() + " : geoserver not found");
+                System.out.println("Failing tests  : geoserver not found");
                 fail("GeoServer not found");
             }
-            System.out.println("\n-------------------> RUNNING TEST " + this.getName());
         } else {
-            System.out.println("Skipping test " + this.getClass().getSimpleName() + "::" + this.getName());
+            System.out.println("Skipping tests ");
         }
     }
 

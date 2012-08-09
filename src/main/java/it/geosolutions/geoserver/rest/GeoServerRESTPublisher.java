@@ -61,7 +61,9 @@ import org.slf4j.LoggerFactory;
  */
 public class GeoServerRESTPublisher {
 
-    /** The logger for this class */
+    public static final String DEFAULT_CRS = "EPSG:4326";
+
+	/** The logger for this class */
 	private static final Logger LOGGER = LoggerFactory.getLogger(GeoServerRESTPublisher.class);
 	
     /**
@@ -1069,7 +1071,7 @@ public class GeoServerRESTPublisher {
     /**
      * Upload an publish a local shapefile.
      * <P>
-     * The defaultCRS will be set to EPSG:4326.
+     * The SRS will be set to EPSG:4326.
      * 
      * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
      * 
@@ -1088,7 +1090,7 @@ public class GeoServerRESTPublisher {
      */
 	public boolean publishShp(String workspace, String storename,
 			String datasetname, File zipFile) throws FileNotFoundException, IllegalArgumentException {
-		return publishShp(workspace, storename, new NameValuePair[0], datasetname,UploadMethod.FILE, zipFile.toURI(), "EPSG:4326", ProjectionPolicy.NONE,null);
+		return publishShp(workspace, storename, new NameValuePair[0], datasetname,UploadMethod.FILE, zipFile.toURI(), DEFAULT_CRS,null);
 	}
 
     /**
@@ -1116,7 +1118,9 @@ public class GeoServerRESTPublisher {
      *            <li>A zip file if 'method' is uri (UNTESTED)</li>
      *            </ul>
      * @param srs
-     *            the native CRS
+     *            the SRS for this shapefile. It must be an ESPG code or GeoServer will choke.
+     * @param nativeCRS
+     * 			  the nativeCRS for this shapefile. It can be an EPSG code (for {@link ProjectionPolicy#NONE} or a WKT for {@link ProjectionPolicy#REPROJECT_TO_DECLARED}.
      * @param policy
      *            {@link ProjectionPolicy}
      * @param defaultStyle
@@ -1130,11 +1134,33 @@ public class GeoServerRESTPublisher {
      */
 	public boolean publishShp(String workspace, String storeName,
 			NameValuePair[] storeParams, String datasetName, UploadMethod method, URI shapefile,
-			String srs, ProjectionPolicy policy, String defaultStyle)
+			String srs, String nativeCRS, ProjectionPolicy policy, String defaultStyle)
 			throws FileNotFoundException, IllegalArgumentException {
 		if (workspace == null || storeName == null || shapefile == null
-				|| datasetName == null || srs == null || policy == null)
+				|| datasetName == null  || policy == null){
 			throw new IllegalArgumentException("Unable to run: null parameter");
+		}
+		
+		//
+		// SRS Policy Management
+		//
+		boolean  srsNull=!(srs!=null&&srs.length()!=0);
+		boolean nativeSrsNull=!(nativeCRS!=null&&nativeCRS.length()!=0);
+		// if we are asking to use the reproject policy we must have the native crs
+		if(policy==ProjectionPolicy.REPROJECT_TO_DECLARED && (nativeSrsNull||srsNull)){
+			throw new IllegalArgumentException("Unable to run: you can't ask GeoServer to reproject while not specifying a native CRS");
+		}
+		
+		// if we are asking to use the NONE policy we must have the native crs.
+		if(policy==ProjectionPolicy.NONE && nativeSrsNull){
+			throw new IllegalArgumentException("Unable to run: you can't ask GeoServer to use a native srs which is null");
+		}
+		
+		// if we are asking to use the reproject policy we must have the native crs
+		if(policy==ProjectionPolicy.FORCE_DECLARED && srsNull){
+			throw new IllegalArgumentException("Unable to run: you can't force GeoServer to use an srs which is null");
+		}
+		
 		//
 		final String mimeType;
 		switch (method){
@@ -1164,7 +1190,17 @@ public class GeoServerRESTPublisher {
 		final GSFeatureTypeEncoder featureTypeEncoder = new GSFeatureTypeEncoder();
 		featureTypeEncoder.setName(datasetName);
 		featureTypeEncoder.setTitle(datasetName);
-		featureTypeEncoder.setSRS(srs);
+		// set destination srs
+		if(!srsNull){
+			featureTypeEncoder.setSRS(srs);
+		} else {
+			// this under the assumption that when the destination srs is null the nativeCRS has an EPSG one so we force them to be the same
+			featureTypeEncoder.setSRS(nativeCRS);
+		}
+		// set native srs
+		if(!nativeSrsNull){
+			featureTypeEncoder.setNativeCRS(nativeCRS);
+		}
 		featureTypeEncoder.setProjectionPolicy(policy);
 
 		if (!createResource(workspace, DataStoreType.DATASTORES, storeName,
@@ -1181,6 +1217,95 @@ public class GeoServerRESTPublisher {
 
 		return configureLayer(workspace, datasetName, layerEncoder);
 	}
+	
+	/**
+     * Publish a shapefile.
+     * 
+     * @param workspace
+     *            the name of the workspace to use
+     * @param storename
+     *            the name of the store to create
+     * @param storeParams
+     *            parameters to append to the url (can be null).<br>
+     *            Accepted parameters are:<br>
+     *            <ul>
+     *            <li><b>charset</b> used to set the charset</li>
+     *            </ul>
+     * @param layername
+     *            the name of the layer to configure
+     * @param method
+     *            {@link UploadMethod}
+     * @param fileUri
+     *            the uri of the file containing the shapefile.It should be:
+     *            <ul>
+     *            <li>A zip file if 'method' is file</li>
+     *            <li>A shp file if 'method' is external</li>
+     *            <li>A zip file if 'method' is uri (UNTESTED)</li>
+     *            </ul>
+     * @param srs
+     *            the SRS for this shapefile. It must be an ESPG code or GeoServer will choke.
+     *            Notice that we can only use {@link ProjectionPolicy#FORCE_DECLARED}.
+     * @param policy
+     *            {@link ProjectionPolicy}
+     * @param defaultStyle
+     *            the default style to set (can be null).
+     * @return true if success false otherwise
+     * 
+     * @throws FileNotFoundException
+     *             if file to upload is not found
+     * @throws IllegalArgumentException
+     *             if any of the mandatory arguments are {@code null}.
+     * @deprecated use {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, String)} instead as the behaviour
+     * of this method is misleading as it allows you to use wrong ProjectionPolicy values.
+     */
+	public boolean publishShp(String workspace, String storeName,
+			NameValuePair[] storeParams, String datasetName, UploadMethod method, URI shapefile,
+			String srs, ProjectionPolicy policy, String defaultStyle)
+			throws FileNotFoundException, IllegalArgumentException {
+		return publishShp(workspace, storeName, storeParams, datasetName, method, shapefile, srs, null, policy, defaultStyle);
+	}
+	
+	/**
+     * Publish a shapefile.
+     * 
+     * @param workspace
+     *            the name of the workspace to use
+     * @param storename
+     *            the name of the store to create
+     * @param storeParams
+     *            parameters to append to the url (can be null).<br>
+     *            Accepted parameters are:<br>
+     *            <ul>
+     *            <li><b>charset</b> used to set the charset</li>
+     *            </ul>
+     * @param layername
+     *            the name of the layer to configure
+     * @param method
+     *            {@link UploadMethod}
+     * @param fileUri
+     *            the uri of the file containing the shapefile.It should be:
+     *            <ul>
+     *            <li>A zip file if 'method' is file</li>
+     *            <li>A shp file if 'method' is external</li>
+     *            <li>A zip file if 'method' is uri (UNTESTED)</li>
+     *            </ul>
+     * @param srs
+     *            the SRS for this shapefile. It must be an ESPG code or GeoServer will choke.
+     * @param defaultStyle
+     *            the default style to set (can be null).
+     * @return true if success false otherwise
+     * 
+     * @throws FileNotFoundException
+     *             if file to upload is not found
+     * @throws IllegalArgumentException
+     *             if any of the mandatory arguments are {@code null}.
+     */
+	public boolean publishShp(String workspace, String storeName,
+			NameValuePair[] storeParams, String datasetName, UploadMethod method, URI shapefile,
+			String srs, String defaultStyle)
+			throws FileNotFoundException, IllegalArgumentException {
+		return publishShp(workspace, storeName, storeParams, datasetName, method, shapefile, srs, null, ProjectionPolicy.FORCE_DECLARED, defaultStyle);
+	}
 
     /**
      * Publish a zipped shapefile.
@@ -1195,8 +1320,8 @@ public class GeoServerRESTPublisher {
      *            the name of the layer to configure
      * @param zipFile
      *            The zipped file to publish
-     * @param nativeCrs
-     *            the native CRS
+     * @param srs
+     *            the srs for this shapefile. It will be forced to use this one in GeoServer using {@link ProjectionPolicy#FORCE_DECLARED}.
      * @param defaultStyle
      *            the default style to set (can be null).
      * 
@@ -1207,16 +1332,15 @@ public class GeoServerRESTPublisher {
      *             if any of the mandatory arguments are {@code null}.
      */
 	public boolean publishShp(String workspace, String storename,
-			String layerName, File zipFile, String nativeCrs,
+			String layerName, File zipFile, String srs,
 			String defaultStyle) throws FileNotFoundException, IllegalArgumentException {
 		
         return publishShp(workspace, storename, (NameValuePair[]) null,
-                layerName, UploadMethod.FILE, zipFile.toURI(), nativeCrs,
-                ProjectionPolicy.FORCE_DECLARED, defaultStyle);
+                layerName, UploadMethod.FILE, zipFile.toURI(), srs, defaultStyle);
 	}
 
-	        /**
-     * Publish a zipped shapefile.
+	 /**
+     * Publish a zipped shapefile forcing the srs to the one provided.
      * 
      * @see {@link #publishShp(String, String, NameValuePair[], String, UploadMethod, URI, String, ProjectionPolicy, String)}
      * 
@@ -1229,7 +1353,7 @@ public class GeoServerRESTPublisher {
      * @param zipFile
      *            The zipped file to publish
      * @param srs
-     *            the native CRS
+     *            the CRS for this shapefile. It must be an EPSG CODE !
      * 
      * @return {@code true} if the operation completed successfully.
      * @throws FileNotFoundException
@@ -1240,21 +1364,7 @@ public class GeoServerRESTPublisher {
 	public boolean publishShp(String workspace, String storename,
 			String layername, File zipFile, String srs)
 			throws FileNotFoundException {
-        /*
-         * These are the equivalent calls with cUrl:
-         * 
-         * {@code curl -u admin:geoserver -XPUT -H 'Content-type:
-         * application/zip' \ --data-binary @$ZIPFILE \
-         * http://$GSIP:$GSPORT/$SERVLET
-         * /rest/workspaces/$WORKSPACE/datastores/$STORENAME/file.shp
-         * 
-         * curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \ -d
-         * "<featureType><name>$BARE</name><nativeCRS>EPSG:4326</nativeCRS><enabled>true</enabled></featureType>"
-         * \
-         * http://$GSIP:$GSPORT/$SERVLET/rest/workspaces/$WORKSPACE/datastores/
-         * $STORENAME/featuretypes/$LAYERNAME }
-         */
-		return publishShp(workspace, storename, (NameValuePair[])null, layername, UploadMethod.FILE, zipFile.toURI(), srs, ProjectionPolicy.NONE,null);
+		return publishShp(workspace, storename, (NameValuePair[])null, layername, UploadMethod.FILE, zipFile.toURI(), srs,null);
 	}
 
 	    /**
@@ -1271,7 +1381,7 @@ public class GeoServerRESTPublisher {
      * @param zipFile
      *            the zip file containing the shapefile
      * @param srs
-     *            the native CRS
+     *            the shapefile srs. This must be an EPSG Codefor this code to work!
      * @param params
      *            parameters to append to the url (can be null).<br>
      *            Accepted parameters are:<br>
@@ -1288,7 +1398,7 @@ public class GeoServerRESTPublisher {
 			String layername, File zipFile, String srs, NameValuePair... params)
 			throws FileNotFoundException, IllegalArgumentException {
 
-		return publishShp(workspace, storename, params, layername, UploadMethod.FILE, zipFile.toURI(), srs, ProjectionPolicy.NONE,null);
+		return publishShp(workspace, storename, params, layername, UploadMethod.FILE, zipFile.toURI(), srs,null);
 	}
 	
 
@@ -1645,7 +1755,7 @@ public class GeoServerRESTPublisher {
 		coverageEncoder.setSRS(srs);
 		coverageEncoder.setProjectionPolicy(policy);
 		if(bbox != null && bbox.length == 4) {
-			coverageEncoder.setLatLonBoundingBox(bbox[0], bbox[1], bbox[2], bbox[3], "EPSG:4326");
+			coverageEncoder.setLatLonBoundingBox(bbox[0], bbox[1], bbox[2], bbox[3], DEFAULT_CRS);
 		}
 
 		if (!createCoverage(workspace, storeName, coverageEncoder)) {

@@ -37,9 +37,6 @@ public class GSBackupEncoderTest extends TestCase
      */
     protected static final Logger LOGGER = Logger.getLogger(GSBackupEncoderTest.class);
 
-    public GSBackupEncoderTest()
-    {
-    }
 
     @Test
     public void testAll()

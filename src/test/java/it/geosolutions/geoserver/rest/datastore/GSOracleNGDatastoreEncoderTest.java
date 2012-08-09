@@ -28,6 +28,7 @@ import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSOracleNGDatastoreEncoder;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +70,7 @@ public class GSOracleNGDatastoreEncoderTest extends GeoserverRESTTest {
     private final String pgUser;
     private final String pgPassword;
 
-    public GSOracleNGDatastoreEncoderTest(String testName) {
-        super(testName);
+    public GSOracleNGDatastoreEncoderTest() {
 
         pgIgnore    = System.getProperty("pgIgnore", "false").equalsIgnoreCase("true");
         pgHost      = System.getProperty("pgHost", "localhost");
@@ -81,6 +81,7 @@ public class GSOracleNGDatastoreEncoderTest extends GeoserverRESTTest {
         pgPassword  = System.getProperty("pgPassword", "ptest");
     }
 
+    @Test
     public void testCreateDeleteOracleNGDatastore() {
         if (!enabled()) {
             return;

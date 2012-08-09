@@ -31,9 +31,6 @@ import org.slf4j.LoggerFactory;
  */
 public class GSWorkspaceEncoderTest extends TestCase {
 
-    public GSWorkspaceEncoderTest() {
-    }
-
     /**
      * Default logger
      */

@@ -35,6 +35,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -53,13 +54,12 @@ public class ConfigTest extends GeoserverRESTTest {
 
     private static final String DEFAULT_WS = "geosolutions";
 
-
-    public ConfigTest(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testEtj() throws FileNotFoundException, IOException {
-        if (!enabled()) return;
+    	if(!enabled()){
+    		LOGGER.info("Skipping test "+"testEtj"+"for class:"+this.getClass().getSimpleName());
+    		return;
+    	}
         deleteAll();
 
         assertTrue(reader.getWorkspaces().isEmpty());
@@ -73,8 +73,12 @@ public class ConfigTest extends GeoserverRESTTest {
 //        assertTrue(ok);
     }
 
+    @Test
     public void insertStyles() throws FileNotFoundException, IOException {
-
+    	if(!enabled()){
+    		LOGGER.info("Skipping test "+"insertStyles"+"for class:"+this.getClass().getSimpleName());
+    		return;
+    	}
         File sldDir = new ClassPathResource("testdata").getFile();
         for(File sldFile : sldDir.listFiles((FilenameFilter)new SuffixFileFilter(".sld"))) {
             LOGGER.info("Existing styles: " + reader.getStyles().getNames());
@@ -84,9 +88,12 @@ public class ConfigTest extends GeoserverRESTTest {
         }
     }
 
-
+    @Test
     public void insertExternalGeotiff() throws FileNotFoundException, IOException {
-
+    	if(!enabled()){
+    		LOGGER.info("Skipping test "+"insertExternalGeotiff"+"for class:"+this.getClass().getSimpleName());
+    		return;
+    	}
         String storeName = "testRESTStoreGeotiff";
         String layerName = "resttestdem";
 
@@ -95,9 +102,12 @@ public class ConfigTest extends GeoserverRESTTest {
         
         assertTrue(pc);
     }
-
+    @Test
     public void insertExternalShape() throws FileNotFoundException, IOException {
-
+    	if(!enabled()){
+    		LOGGER.info("Skipping test "+"insertExternalShape"+"for class:"+this.getClass().getSimpleName());
+    		return;
+    	}
         File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
 
         boolean published = publisher.publishShp(DEFAULT_WS, "anyname", "cities", zipFile, "EPSG:41001", "default_point");

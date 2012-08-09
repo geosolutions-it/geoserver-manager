@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -48,10 +49,7 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTGeoTiffTest.class);
 
-    public GeoserverRESTGeoTiffTest(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testExternalGeotiff() throws FileNotFoundException, IOException {
         if (!enabled()) return;
         deleteAll();
@@ -83,7 +81,8 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         assertFalse("Bad unpublish()",   publisher.unpublishCoverage(DEFAULT_WS, storeName, layerName));
         assertFalse(existsLayer(layerName));
     }
-    
+   
+    @Test
     public void testGeotiff() throws FileNotFoundException, IOException {
         if (!enabled()) return;
         deleteAll();

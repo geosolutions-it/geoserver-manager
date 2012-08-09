@@ -43,9 +43,6 @@ import org.slf4j.LoggerFactory;
  */
 public class GSFeatureEncoderTest extends TestCase {
 	protected final static Logger LOGGER = LoggerFactory.getLogger(GSFeatureEncoderTest.class);
-	
-	public GSFeatureEncoderTest() {
-	}
 
 	@Test
 	public void testAll() {

@@ -19,11 +19,10 @@
  */
 package it.geosolutions.geoserver.rest.encoder.utils;
 
-import java.util.List;
 import junit.framework.TestCase;
+
 import org.jdom.Element;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
