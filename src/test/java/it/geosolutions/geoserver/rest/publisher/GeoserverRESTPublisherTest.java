@@ -105,10 +105,9 @@ public class GeoserverRESTPublisherTest extends GeoserverRESTTest {
         String wsName = "this_ws_does_not_exist";
         String storeName = "this_store_does_not_exist";
 
-        boolean ok = publisher.removeDatastore(wsName, storeName);
+        boolean ok = publisher.removeDatastore(wsName, storeName,true);
         assertFalse("removed not existing datastore", ok);
     }
-
 
     //	public void testDeleteUnexistingFT() throws FileNotFoundException, IOException {
 //		String wsName = "this_ws_does_not_exist";

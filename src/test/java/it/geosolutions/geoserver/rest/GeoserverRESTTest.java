@@ -229,7 +229,7 @@ public abstract class GeoserverRESTTest extends Assert {
         List<String> workspaces = reader.getWorkspaceNames();
         for (String workspace : workspaces) {
                 LOGGER.warn("Deleting Workspace " + workspace );
-                boolean removed = publisher.removeWorkspace(workspace,false);
+                boolean removed = publisher.removeWorkspace(workspace,true);
                 assertTrue("Workspace not removed " + workspace, removed );
 
         }

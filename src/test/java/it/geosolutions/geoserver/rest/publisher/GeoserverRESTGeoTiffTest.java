@@ -26,6 +26,7 @@
 package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.StoreType;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 
@@ -33,6 +34,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,18 +52,19 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTGeoTiffTest.class);
 
+    String storeName = "testRESTStoreGeotiff";
+    String layerName = "resttestdem";
+    
     @Test
     public void testExternalGeotiff() throws FileNotFoundException, IOException {
         if (!enabled()) return;
         deleteAll();
 
-        String storeName = "testRESTStoreGeotiff";
-        String layerName = "resttestdem";
+        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
 
         assertTrue(reader.getWorkspaces().isEmpty());
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
-        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
 
         // known state?
         assertFalse("Cleanup failed", existsLayer(layerName));
@@ -87,13 +91,10 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         if (!enabled()) return;
         deleteAll();
 
-        String storeName = "testRESTStoreGeotiff";
-        String layerName = "resttestdem";
-
+        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
+        
         assertTrue(reader.getWorkspaces().isEmpty());
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
-
-        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
 
         // known state?
         assertFalse("Cleanup failed", existsLayer(layerName));
@@ -114,5 +115,24 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
 
         //delete
         assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName,true));
+    }
+    
+
+    @Test
+    public void testReloadCoverageStore() throws FileNotFoundException, IOException {
+        if (!enabled()) return;
+        deleteAll();
+
+        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
+        
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+        
+        // test insert
+        boolean pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName, geotiff);
+        
+        assertNotNull("publish() failed", pub);
+
+        // test reload
+        assertTrue(publisher.reloadStore(DEFAULT_WS, storeName, StoreType.COVERAGESTORES));   
     }
 }

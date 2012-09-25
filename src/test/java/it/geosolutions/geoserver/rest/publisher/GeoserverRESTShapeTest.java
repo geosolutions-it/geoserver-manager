@@ -25,6 +25,7 @@
 
 package it.geosolutions.geoserver.rest.publisher;
 
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.StoreType;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.UploadMethod;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import org.apache.commons.httpclient.NameValuePair;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,13 +64,34 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         	deleteAllWorkspaces();
         }
     }
+    
+    @Test
+    public void testReloadDataStore() throws FileNotFoundException, IOException {
+        if (!enabled()) 
+            return;
+
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+        String storeName = "resttestshp";
+        String layerName = "cities";
+
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+        
+        
+        // test insert
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
+        assertTrue("publish() failed", published);
+
+        // test reload
+        assertTrue(publisher.reloadStore(DEFAULT_WS, storeName, StoreType.DATASTORES));
+    }
 
     @Test
     public void testPublishDeleteShapeZip() throws FileNotFoundException, IOException {
         if (!enabled()) {
             return;
         }
-//        Assume.assumeTrue(enabled);
+
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
         String storeName = "resttestshp";
