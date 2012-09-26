@@ -60,35 +60,37 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
     	else
     		set("enabled","false");
     }
+        
+    private final static String DESCRIPTION = "description";
+    /**
+     * Add the 'description' node with a text value from 'description'
+     * 
+     */
+    protected void addDescription(final String description) {
+        add(DESCRIPTION, description);
+    }
+    /**
+     * Set or modify the 'description' node with a text value from 'description'
+     */
+    public void setDescription(final String description) {
+        set(DESCRIPTION, description);
+    }
     
-//    /**
-//     * @param name the name of the layer
-//     */
-//    protected void addName(final String name){
-//        add("name",name);
-//    }
-//    
-//    /**
-//     * @return name the name of the layer or null
-//     */
-//    public String getName() {
-//        final Element nameNode = get("name");
-//        if (nameNode != null)
-//                return nameNode.getText();
-//        else
-//                return null;
-//    }
-//    
-//    /**
-//     * @param name the name of the layer
-//     * @throws IllegalArgumentException 
-//     */
-//    public void setName(final String name) throws IllegalArgumentException {
-//        if (name==null || name.isEmpty())
-//            throw new IllegalArgumentException("Unable to set an empty or null parameter"); 
-//        set("name",name);
-//    }
-    
+//    queryable
+    private final static String QUERYABLE = "queryable";
+    /**
+     * Add the 'queryable' node with a text value from 'queryable' (true as default)
+     */
+    protected void addQueryable(final String queryable) {
+        add(QUERYABLE, queryable!=null?queryable.toString():"true");
+    }
+    /**
+     * Set or modify the 'queryable' node with a text value from 'queryable' (true as default)
+     */
+    public void setQueryable(final Boolean queryable) {
+        set(QUERYABLE, queryable!=null?queryable.toString():"true");
+    }
+
     /**
      * @see {@link GSLayerEncoder#setWmsPath(String)}
      * 

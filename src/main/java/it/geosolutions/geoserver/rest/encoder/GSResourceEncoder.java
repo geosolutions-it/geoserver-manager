@@ -194,6 +194,38 @@ public abstract class GSResourceEncoder
 		else
 			return null;
 	}
+	
+    private final static String DESCRIPTION = "description";
+
+    /**
+     * Add the 'description' node with a text value from 'description'
+     * 
+     */
+    protected void addDescription(final String description) {
+        add(DESCRIPTION, description);
+    }
+
+    /**
+     * Set or modify the 'description' node with a text value from 'description'
+     */
+    public void setDescription(final String description) {
+        set(DESCRIPTION, description);
+    }
+    
+    private final static String ABSTRACT = "abstract";
+    /**
+     * Add the 'abstract' node with a text value from 'abstract'
+     * 
+     */
+    protected void addAbstract(final String _abstract) {
+        add(ABSTRACT, _abstract);
+    }
+    /**
+     * Set or modify the 'abstract' node with a text value from 'abstract'
+     */
+    public void setAbstract(final String _abstract) {
+        set(ABSTRACT, _abstract);
+    }
 
 	private final static String TITLE = "title";
 
