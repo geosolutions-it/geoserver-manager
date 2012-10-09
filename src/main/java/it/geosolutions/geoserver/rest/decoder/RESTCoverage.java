@@ -25,6 +25,10 @@
 package it.geosolutions.geoserver.rest.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jdom.Element;
 
 /**
@@ -187,7 +191,20 @@ public class RESTCoverage extends RESTResource {
 	public String getSRS() {
 		return rootElem.getChildText("srs");
 	}
-
+	
+	public RESTMetadataList getMetadataList() {
+            return new RESTMetadataList(rootElem.getChild("metadata"));
+        }
+	
+	public List<RESTDimensionInfo> getDimensionInfo() {
+            List<RESTDimensionInfo> listDim = new ArrayList<RESTDimensionInfo>();
+            for (RESTMetadataList.RESTMetadataElement el : getMetadataList()){
+                if(el.getKey().equals("time") || el.getKey().equals("elevation")){
+                    listDim.add(new RESTDimensionInfo(el.getMetadataElem()));
+                }
+            }
+            return listDim;
+        }
 
 //	public String getStoreName() {
 //		return rootElem.getChild("store").getChildText("name");
