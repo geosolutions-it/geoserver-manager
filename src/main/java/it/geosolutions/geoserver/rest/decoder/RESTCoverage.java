@@ -199,7 +199,7 @@ public class RESTCoverage extends RESTResource {
 	public List<RESTDimensionInfo> getDimensionInfo() {
             List<RESTDimensionInfo> listDim = new ArrayList<RESTDimensionInfo>();
             for (RESTMetadataList.RESTMetadataElement el : getMetadataList()){
-                if(el.getKey().equals("time") || el.getKey().equals("elevation")){
+                if(el.getKey().equals(RESTDimensionInfo.TIME) || el.getKey().equals(RESTDimensionInfo.ELEVATION)){
                     listDim.add(new RESTDimensionInfo(el.getMetadataElem()));
                 }
             }

@@ -33,6 +33,9 @@ public class RESTDimensionInfo extends RESTMetadataList.RESTMetadataElement{
     private String presentation;
     private String resolution;
     
+    public static final String TIME = "time";
+    public static final String ELEVATION = "elevation";
+    
     /**
      * @param elem
      */
