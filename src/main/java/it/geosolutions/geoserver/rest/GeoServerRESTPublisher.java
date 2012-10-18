@@ -36,7 +36,6 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
-import it.geosolutions.geoserver.rest.manager.GeoServerRESTDatastoreManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -371,7 +370,7 @@ public class GeoServerRESTPublisher {
         }
         LOGGER.debug("POSTing new style " + name + " to " + sUrl);
         String result = HTTPUtils
-                .post(sUrl, sldFile, "application/vnd.ogc.sld+xml", gsuser, gspass);
+                .post(sUrl, sldFile, Format.SLD.getContentType(), gsuser, gspass);
         return result != null;
     }
 
@@ -583,13 +582,39 @@ public class GeoServerRESTPublisher {
         }
         
         /**
-         * Get the type name of a DataStoreType.
+         * Get the type name of a StoreType.
          * 
-         * @param type the DataStoreType.
-         * @return "featuretypes.xml" for DATASTORES, "coverages.xml" otherwise.
+         * @param type the StoreType.
+         * @return "dataStore" for DATASTORES, "coverageStore" otherwise.
+         */
+        public static String getType(StoreType type) {
+            switch (type) {
+            case COVERAGESTORES:
+                return "coverageStore"; // Format
+            case DATASTORES:
+                return "dataStore";
+            default:
+                return "coverageStore";
+            }
+        }
+        
+        /**
+         * Get the type name of a StoreType.
+         * 
+         * @return "featuretypes" for DATASTORES, "coverages" otherwise.
          */
         public String getTypeName() {
             return getTypeName(this);
+        }
+        
+        /**
+         * Get the type of a StoreType.
+         * 
+         * @param type the StoreType.
+         * @return "dataStore" for DATASTORES, "coverageStore" otherwise.
+         */
+        public String getType() {
+            return getType(this);
         }
 
         /**
@@ -1340,6 +1365,16 @@ public class GeoServerRESTPublisher {
             default:
                 return null;
             }
+        }
+        
+        /**
+         * Gets the mime type from a format.
+         * 
+         * @param f the format key.
+         * @return The content-type (mime), or {@code null} if not in the enum.
+         */
+        public String getContentType() {
+            return getContentType(this);
         }
         
         /**

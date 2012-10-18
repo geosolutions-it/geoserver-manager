@@ -27,10 +27,13 @@ package it.geosolutions.geoserver.rest.publisher;
 
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
+import it.geosolutions.geoserver.rest.datastore.StoreIntegrationTest;
+import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.datastore.GSPostGISDatastoreEncoder;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
 
-import org.junit.Test;
+import java.net.MalformedURLException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,53 +58,39 @@ import org.slf4j.LoggerFactory;
  *
  * @author etj
  * @author Eric Grosso
+ * @author carlo cancellieri - GeoSolutions
  *
  * @see GeoserverRESTTest
  */
-public class GeoserverRESTPostgisDatastoreTest extends GeoserverRESTTest {
+public class GeoserverRESTPostgisDatastoreTest extends StoreIntegrationTest {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTPostgisDatastoreTest.class);
-    private static final String DEFAULT_WS = "it.geosolutions";
-
-    private final boolean pgIgnore;
-    private final String pgHost;
-    private final int pgPort;
-    private final String pgDatabase;
-    private final String pgSchema;
-    private final String pgUser;
-    private final String pgPassword;
-
-    public GeoserverRESTPostgisDatastoreTest() {
-
-        pgIgnore    = System.getProperty("pgIgnore", "false").equalsIgnoreCase("true");
-        pgHost      = System.getProperty("pgHost", "localhost");
-        pgPort      = Integer.parseInt(System.getProperty("pgPort", "5432"));
-        pgDatabase  = System.getProperty("pgDatabase", "test");
-        pgSchema    = System.getProperty("pgSchema", "public");
-        pgUser      = System.getProperty("pgUser", "utest");
-        pgPassword  = System.getProperty("pgPassword", "ptest");
+    public GeoserverRESTPostgisDatastoreTest()
+            throws IllegalArgumentException, MalformedURLException {
+        super(System.getProperty("pgIgnore", "false").equalsIgnoreCase("true"));
     }
 
-    @Test
-    public void testCreateDeletePostGISDatastore() {
-        if (!enabled()) {
-            return;
-        }
-        deleteAll();
         
-        String wsName = DEFAULT_WS;
-        String datastoreName = "resttestpostgis";
-        String description = "description";
-        String dsNamespace = "http://www.geo-solutions.it";
+    @Override
+    public GSAbstractStoreEncoder getStoreEncoderTest(){
         boolean exposePrimaryKeys = true;
         boolean validateConnections = false;
         String primaryKeyMetadataTable = "test";
 
-        GSPostGISDatastoreEncoder datastoreEncoder = new GSPostGISDatastoreEncoder();
-        datastoreEncoder.defaultInit();
-        datastoreEncoder.setName(datastoreName);
+        String datastoreName = "resttestpostgis";
+        String description = "description";
+        String dsNamespace = "http://www.geo-solutions.it";
+        
+        GSPostGISDatastoreEncoder datastoreEncoder = new GSPostGISDatastoreEncoder(datastoreName);
         datastoreEncoder.setDescription(description);
         datastoreEncoder.setNamespace(dsNamespace);
+        
+        String pgHost      = System.getProperty("pgHost", "localhost");
+        int pgPort      = Integer.parseInt(System.getProperty("pgPort", "5432"));
+        String pgDatabase  = System.getProperty("pgDatabase", "test");
+        String pgSchema    = System.getProperty("pgSchema", "public");
+        String pgUser      = System.getProperty("pgUser", "utest");
+        String pgPassword  = System.getProperty("pgPassword", "ptest");
+        
         datastoreEncoder.setHost(pgHost);
         datastoreEncoder.setPort(pgPort);
         datastoreEncoder.setDatabase(pgDatabase);
@@ -111,29 +100,7 @@ public class GeoserverRESTPostgisDatastoreTest extends GeoserverRESTTest {
         datastoreEncoder.setExposePrimaryKeys(exposePrimaryKeys);
         datastoreEncoder.setValidateConnections(validateConnections);
         datastoreEncoder.setPrimaryKeyMetadataTable(primaryKeyMetadataTable);
-        
-        assertTrue(publisher.createWorkspace(wsName));
-        
-        // creation test
-        boolean created = publisher.createPostGISDatastore(wsName, datastoreEncoder);
-
-        if( ! pgIgnore )
-            assertTrue("PostGIS datastore not created", created);
-        else if( ! created)
-            LOGGER.error("*** Datastore " + datastoreName + " has not been created.");
-
-
-        RESTDataStore datastore = reader.getDatastore(wsName, datastoreName);
-        LOGGER.info("The type of the created datastore is: " + datastore.getType());
-
-        // removing test
-        boolean removed = publisher.removeDatastore(wsName, datastoreName);
-        if( ! pgIgnore )
-            assertTrue("PostGIS datastore not removed", removed);
-        else if( ! removed )
-            LOGGER.error("*** Datastore " + datastoreName + " has not been removed.");
-        
-        assertTrue(publisher.removeWorkspace(wsName));
+        return datastoreEncoder;
     }
-
+    
 }
