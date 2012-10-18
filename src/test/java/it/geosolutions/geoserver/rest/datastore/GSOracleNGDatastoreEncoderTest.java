@@ -24,8 +24,11 @@
  */
 package it.geosolutions.geoserver.rest.datastore;
 
+import java.net.MalformedURLException;
+
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSOracleNGDatastoreEncoder;
 
 import org.junit.Test;
@@ -54,82 +57,37 @@ import org.slf4j.LoggerFactory;
  * @author etj
  * @author Eric Grosso
  * @author Gianni Barrotta
+ * @author carlo cancellieri - GeoSolutions
  *
  * @see GeoserverRESTTest
  */
-public class GSOracleNGDatastoreEncoderTest extends GeoserverRESTTest {
+public class GSOracleNGDatastoreEncoderTest extends StoreIntegrationTest {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(GSOracleNGDatastoreEncoderTest.class);
-    private static final String DEFAULT_WS = "it.geosolutions";
-
-    private final boolean pgIgnore;
-    private final String pgHost;
-    private final int pgPort;
-    private final String pgDatabase;
-    private final String pgSchema;
-    private final String pgUser;
-    private final String pgPassword;
-
-    public GSOracleNGDatastoreEncoderTest() {
-
-        pgIgnore    = System.getProperty("pgIgnore", "false").equalsIgnoreCase("true");
-        pgHost      = System.getProperty("pgHost", "localhost");
-        pgPort      = Integer.parseInt(System.getProperty("pgPort", "5432"));
-        pgDatabase  = System.getProperty("pgDatabase", "test");
-        pgSchema    = System.getProperty("pgSchema", "public");
-        pgUser      = System.getProperty("pgUser", "utest");
-        pgPassword  = System.getProperty("pgPassword", "ptest");
+//    private final static Logger LOGGER = LoggerFactory.getLogger(GSOracleNGDatastoreEncoderTest.class);
+    
+    public GSOracleNGDatastoreEncoderTest() throws IllegalArgumentException, MalformedURLException {
+        super(System.getProperty("pgIgnore", "false").equalsIgnoreCase("true"));
+         
     }
 
-    @Test
-    public void testCreateDeleteOracleNGDatastore() {
-        if (!enabled()) {
-            return;
-        }
-        deleteAll();
-        
-        String wsName = DEFAULT_WS;
-        String datastoreName = "resttestOracleNG";
-        String description = "description";
-        String dsNamespace = "http://www.geo-solutions.it";
+    @Override
+    public GSAbstractStoreEncoder getStoreEncoderTest() {
+        GSOracleNGDatastoreEncoder datastoreEncoder = new GSOracleNGDatastoreEncoder(System.getProperty("oDataStoreName", "test"), System.getProperty("pgDatabase", "test"));
+        datastoreEncoder.setNamespace(DEFAULT_WS);
+        datastoreEncoder.setHost(System.getProperty("pgHost", "localhost"));
+        datastoreEncoder.setPort(Integer.parseInt(System.getProperty("pgPort", "5432")));
+        datastoreEncoder.setSchema(System.getProperty("pgUser", "postgres"));
+        datastoreEncoder.setUser(System.getProperty("pgSchema", "public"));
+        datastoreEncoder.setPassword(System.getProperty("pgPassword", "postgres"));
+
         boolean exposePrimaryKeys = true;
         boolean validateConnections = false;
         String primaryKeyMetadataTable = "test";
-
-        GSOracleNGDatastoreEncoder datastoreEncoder = new GSOracleNGDatastoreEncoder(datastoreName, pgDatabase);
-        datastoreEncoder.setDescription(description);
-        datastoreEncoder.setNamespace(dsNamespace);
-        datastoreEncoder.setHost(pgHost);
-        datastoreEncoder.setPort(pgPort);
-        datastoreEncoder.setSchema(pgSchema);
-        datastoreEncoder.setUser(pgUser);
-        datastoreEncoder.setPassword(pgPassword);
         datastoreEncoder.setExposePrimaryKeys(exposePrimaryKeys);
         datastoreEncoder.setValidateConnections(validateConnections);
         datastoreEncoder.setPrimaryKeyMetadataTable(primaryKeyMetadataTable);
-              
-        assertTrue(publisher.createWorkspace(wsName));
-        
-        // creation test
-        
-        boolean created = manager.getDatastoreManager().create(wsName, datastoreEncoder);
 
-        if( ! pgIgnore )
-            assertTrue("OracleNG datastore not created", created);
-        else if( ! created)
-            LOGGER.error("*** Datastore " + datastoreName + " has not been created.");
-
-
-        RESTDataStore datastore = reader.getDatastore(wsName, datastoreName);
-        LOGGER.info("The type of the created datastore is: " + datastore.getStoreType());
-
-        // removing test
-        boolean removed = publisher.removeDatastore(wsName, datastoreName, true);
-        if( ! pgIgnore )
-            assertTrue("OracleNG datastore not removed", removed);
-        else if( ! removed )
-            LOGGER.error("*** Datastore " + datastoreName + " has not been removed.");
-        
-        assertTrue(publisher.removeWorkspace(wsName, false));
+        return datastoreEncoder;
     }
+
 }

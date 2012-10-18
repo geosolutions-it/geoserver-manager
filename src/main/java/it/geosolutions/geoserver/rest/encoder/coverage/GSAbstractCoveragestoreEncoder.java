@@ -22,46 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package it.geosolutions.geoserver.rest.encoder.datastore;
+package it.geosolutions.geoserver.rest.encoder.coverage;
 
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-
-import java.net.URL;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.StoreType;
+import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
 
 /**
- * Encoder for a {@value #TYPE} datastore.
+ * Generic CoverageStore encoder.
  * 
- * @author Oscar Fonts
+ * Provides getters and setters for parameters common to all CoverageStore.
+ * 
+ * @author Carlo Cancellieri - GeoSolutions
+ * 
+ * @deprecated TODO complete specialization
  */
-public class GSDirectoryOfShapefilesDatastoreEncoder extends GSShapefileDatastoreEncoder {
+public abstract class GSAbstractCoveragestoreEncoder extends GSAbstractStoreEncoder {
 
-    static final String TYPE = "Directory of spatial files (shapefiles)";
+    protected GSAbstractCoveragestoreEncoder(String storeName) {
+        super(StoreType.COVERAGESTORES,storeName);
+        // Add mandatory parameter
+        ensureValidName(storeName);
+        setName(storeName);
 
-    /**
-     * Create a {@value #TYPE} datastore with default connection parameters, given a store name and a url (the store location).
-     * 
-     * @param name New datastore name
-     * @param url The shapefile location in the server, relative to $GEOSERVER_DATA_DIR.
-     */
-    public GSDirectoryOfShapefilesDatastoreEncoder(String name, URL url) {
-        super(name, url);
-        setType(TYPE);
     }
 
-    /**
-     * Create a {@value #TYPE} datastore encoder from an existing store read from server.
-     * 
-     * @param store The existing store.
-     * @throws IllegalArgumentException if store type or mandatory parameters are not valid
-     */
-    public GSDirectoryOfShapefilesDatastoreEncoder(RESTDataStore store) {
-        super(store);
-    }
-
-    /**
-     * @return {@value #TYPE}
-     */
-    protected String getValidType() {
-        return TYPE;
-    }
 }

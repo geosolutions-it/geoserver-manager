@@ -24,25 +24,24 @@
  */
 package it.geosolutions.geoserver.rest.datastore;
 
-import it.geosolutions.geoserver.rest.GeoserverRESTTest;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.encoder.datastore.GSArcSDEDatastoreEncoder;
+import java.net.MalformedURLException;
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.datastore.GSArcSDEDatastoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.datastore.GSOracleNGDatastoreEncoder;
 
 /**
  * Testcase for creating arcsde-based resources on geoserver.
  * <P>
  * Since these tests require a running arcsde instance, this is more like integration tests.<br/>
  * You may skip them by defining<tt> <pre>
- *        -DpgIgnore=true </pre></tt>
- * When <tt>pgIgnore</tt> is defined that way, failing tests will not break
- * the build: they will be logged as errors instead.
- *
+ *        -DpgIgnore=true </pre></tt> When <tt>pgIgnore</tt> is defined that way, failing tests will not break the build: they will be logged as
+ * errors instead.
+ * 
  * <P>
- * The target arcsde instance can be customized by defining the following env vars: <ul>
+ * The target arcsde instance can be customized by defining the following env vars:
+ * <ul>
  * <LI><TT>pgHost</TT> (default <TT>localhost</TT>)</LI>
  * <LI><TT>pgPort</TT> (default: <TT>5432</TT>)</LI>
  * <LI><TT>pgDatabase</TT> (default: <TT>test</TT>)</LI>
@@ -50,76 +49,30 @@ import org.slf4j.LoggerFactory;
  * <LI><TT>pgUser</TT> (default: <TT>utest</TT>)</LI>
  * <LI><TT>pgPassword</TT> (default: <TT>ptest</TT>)</LI>
  * </ul>
- *
+ * 
  * @author etj
  * @author Eric Grosso
  * @author Gianni Barrotta
- *
+ * @author carlo cancellieri - GeoSolutions
+ * 
  * @see GeoserverRESTTest
  */
-public class GSArcSDEDatastoreEncoderTest extends GeoserverRESTTest {
+public class GSArcSDEDatastoreEncoderTest extends StoreIntegrationTest {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(GSArcSDEDatastoreEncoderTest.class);
-    private static final String DEFAULT_WS = "it.geosolutions";
+    public GSArcSDEDatastoreEncoderTest() throws IllegalArgumentException, MalformedURLException {
 
-    private final boolean pgIgnore;
-    private final String pgServer;
-    private final int pgPort;
-    private final String pgInstance;
-    private final String pgUser;
-    private final String pgPassword;
-
-    public GSArcSDEDatastoreEncoderTest() {
-
-        pgIgnore    = System.getProperty("pgIgnore", "false").equalsIgnoreCase("true");
-        pgServer      = System.getProperty("pgServer", "localhost");
-        pgPort      = Integer.parseInt(System.getProperty("pgPort", "5151"));
-        pgInstance  = System.getProperty("pgInstance", "test");       
-        pgUser      = System.getProperty("pgUser", "utest");
-        pgPassword  = System.getProperty("pgPassword", "ptest");
+        super(System.getProperty("Ignore", "false").equalsIgnoreCase("true"));
     }
 
-    @Test
-    public void testCreateDeleteArcSDEDatastore() {
-        if (!enabled()) {
-            return;
-        }
-        deleteAll();
-        
-        String wsName = DEFAULT_WS;
-        String datastoreName = "resttestarcsde";
-        String description = "description";
-        String dsNamespace = "http://www.geo-solutions.it";
+    @Override
+    public GSAbstractStoreEncoder getStoreEncoderTest() {
+        GSArcSDEDatastoreEncoder datastoreEncoder = new GSArcSDEDatastoreEncoder(
+                System.getProperty("arcsdeHost", "localhost"),
+                System.getProperty("arcsdeSchema", "public"), System.getProperty("arcsdePassword", "ptest"));
+        datastoreEncoder.setNamespace(DEFAULT_WS);
+        datastoreEncoder.setPort(Integer.parseInt(System.getProperty("arcsdePort", "5432")));
 
-        GSArcSDEDatastoreEncoder datastoreEncoder = new GSArcSDEDatastoreEncoder(datastoreName, pgServer, pgUser);
-        datastoreEncoder.setDescription(description);
-        datastoreEncoder.setNamespace(dsNamespace);
-        datastoreEncoder.setPort(pgPort);
-        datastoreEncoder.setInstance(pgInstance);
-        datastoreEncoder.setPassword(pgPassword);
-              
-        assertTrue(publisher.createWorkspace(wsName));
-        
-        // creation test
-        boolean created = manager.getDatastoreManager().create(wsName, datastoreEncoder);
-
-        if( ! pgIgnore )
-            assertTrue("arcsde datastore not created", created);
-        else if( ! created)
-            LOGGER.error("*** Datastore " + datastoreName + " has not been created.");
-
-
-        RESTDataStore datastore = reader.getDatastore(wsName, datastoreName);
-        LOGGER.info("The type of the created datastore is: " + datastore.getStoreType());
-
-        // removing test
-        boolean removed = publisher.removeDatastore(wsName, datastoreName, true);
-        if( ! pgIgnore )
-            assertTrue("arcsde datastore not removed", removed);
-        else if( ! removed )
-            LOGGER.error("*** Datastore " + datastoreName + " has not been removed.");
-        
-        assertTrue(publisher.removeWorkspace(wsName, false));
+        return datastoreEncoder;
     }
 
 }

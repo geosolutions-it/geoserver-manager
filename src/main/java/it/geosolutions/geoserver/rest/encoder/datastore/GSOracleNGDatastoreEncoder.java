@@ -181,7 +181,7 @@ public class GSOracleNGDatastoreEncoder extends GSAbstractDatastoreEncoder {
     /**
      * @return {@value #TYPE}
      */
-    String getValidType() {
+    protected String getValidType() {
     	return TYPE;
     }
 }
