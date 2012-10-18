@@ -29,6 +29,7 @@ import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
@@ -188,7 +189,7 @@ public abstract class GSResourceEncoder
 	}
 
 	public String getName() {
-		final Element nameNode = get(NAME);
+		final Element nameNode = ElementUtils.contains(getRoot(), NAME, 1);
 		if (nameNode != null)
 			return nameNode.getText();
 		else

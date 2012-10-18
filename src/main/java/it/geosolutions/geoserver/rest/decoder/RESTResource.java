@@ -26,80 +26,171 @@
 package it.geosolutions.geoserver.rest.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+import it.geosolutions.geoserver.rest.encoder.feature.FeatureTypeAttribute;
+import it.geosolutions.geoserver.rest.encoder.feature.GSAttributeEncoder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.jdom.Element;
 import org.jdom.Namespace;
 
 /**
  * Parse a resource (FeatureType or Coverage) returned as XML REST objects.
- *
+ * 
  * @author etj
  */
 public class RESTResource {
-	protected final Element rootElem;
+    protected final Element rootElem;
 
     public static RESTResource build(String response) {
         Element elem = JDOMBuilder.buildElement(response);
-        return elem == null? null : new RESTCoverage(elem);
-	}
+        return elem == null ? null : new RESTCoverage(elem);
+    }
 
-	public RESTResource(Element resource) {
-		this.rootElem = resource;
-	}
+    public RESTResource(Element resource) {
+        this.rootElem = resource;
+    }
 
-	public String getName() {
-		return rootElem.getChildText("name");
-	}
+    public String getName() {
+        return rootElem.getChildText("name");
+    }
 
     public String getTitle() {
-		return rootElem.getChildText("title");
-	}
+        return rootElem.getChildText("title");
+    }
 
-	public String getNativeName() {
-		return rootElem.getChildText("nativeName");
-	}
+    public String getNativeName() {
+        return rootElem.getChildText("nativeName");
+    }
 
-	public String getAbstract() {
-		return rootElem.getChildText("abstract");
-	}
+    public String getAbstract() {
+        return rootElem.getChildText("abstract");
+    }
 
-	public String getNameSpace() {
-		return rootElem.getChild("namespace").getChildText("name");
-	}
+    public String getNameSpace() {
+        return rootElem.getChild("namespace").getChildText("name");
+    }
 
-	public String getStoreName() {
-		return rootElem.getChild("store").getChildText("name");
-	}
+    public String getStoreName() {
+        return rootElem.getChild("store").getChildText("name");
+    }
 
-	public String getStoreType() {
-		return rootElem.getChild("store").getAttributeValue("class");
-	}
+    public String getStoreType() {
+        return rootElem.getChild("store").getAttributeValue("class");
+    }
 
     public String getStoreUrl() {
-		Element store = rootElem.getChild("store");
-        Element atom = store.getChild("link", Namespace.getNamespace("atom", "http://www.w3.org/2005/Atom"));
+        Element store = rootElem.getChild("store");
+        Element atom = store.getChild("link",
+                Namespace.getNamespace("atom", "http://www.w3.org/2005/Atom"));
         return atom.getAttributeValue("href");
     }
 
-	public String getCRS() {
-		Element elBBox = rootElem.getChild("latLonBoundingBox");
-		return elBBox.getChildText("crs");
-	}
+    public String getCRS() {
+        Element elBBox = rootElem.getChild("latLonBoundingBox");
+        return elBBox.getChildText("crs");
+    }
 
-	protected double getLatLonEdge(String edge) {
-		Element elBBox = rootElem.getChild("latLonBoundingBox");
-		return Double.parseDouble(elBBox.getChildText(edge));
-	}
+    protected double getLatLonEdge(String edge) {
+        Element elBBox = rootElem.getChild("latLonBoundingBox");
+        return Double.parseDouble(elBBox.getChildText(edge));
+    }
 
-	public double getMinX() {
-		return getLatLonEdge("minx");
-	}
-	public double getMaxX() {
-		return getLatLonEdge("maxx");
-	}
-	public double getMinY() {
-		return getLatLonEdge("miny");
-	}
-	public double getMaxY() {
-		return getLatLonEdge("maxy");
-	}
+    public double getMinX() {
+        return getLatLonEdge("minx");
+    }
+
+    public double getMaxX() {
+        return getLatLonEdge("maxx");
+    }
+
+    public double getMinY() {
+        return getLatLonEdge("miny");
+    }
+
+    public double getMaxY() {
+        return getLatLonEdge("maxy");
+    }
+
+    public List<Map<FeatureTypeAttribute, String>> getAttributeList() {
+        List<Map<FeatureTypeAttribute, String>> attrsList = null;
+
+        final Element attrsRoot = rootElem.getChild("attributes");
+        final List<Element> attrs = attrsRoot.getChildren();
+        if (attrs != null) {
+            attrsList = new ArrayList<Map<FeatureTypeAttribute, String>>(attrs.size());
+            for (Element attr : attrs) {
+                Map<FeatureTypeAttribute, String> attrsMap = new HashMap<FeatureTypeAttribute, String>();
+                attrsList.add(attrsMap);
+                for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
+                    String key = at.toString();
+                    attrsMap.put(at, attr.getChildText(key));
+                }
+            }
+        }
+        return attrsList;
+    }
+
+    public List<GSAttributeEncoder> getEncodedAttributeList() {
+        List<GSAttributeEncoder> attrsList = null;
+
+        final Element attrsRoot = rootElem.getChild("attributes");
+        final List<Element> attrs = attrsRoot.getChildren();
+        if (attrs != null) {
+            attrsList = new ArrayList<GSAttributeEncoder>(attrs.size());
+            for (Element attr : attrs) {
+                final GSAttributeEncoder attrEnc = new GSAttributeEncoder();
+                for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
+                    String key = at.toString();
+                    attrEnc.setAttribute(at, attr.getChildText(key));
+                }
+                attrsList.add(attrEnc);
+            }
+
+        }
+        return attrsList;
+    }
+
+    // /**
+    // * @return the list of available attribute names
+    // */
+    // public List<String> getAttributeNames() {
+    // return getAttributes("name");
+    // }
+    //
+    // /**
+    // * @return a list of object which are String representation of Classes
+    // */
+    // public List<String> getAttributeBinding() {
+    // return getAttributes("binding");
+    // }
+
+    // /**
+    // * <attribute><br>
+    // * <name>NATION</name><br>
+    // * <minOccurs>0</minOccurs><br>
+    // * <maxOccurs>1</maxOccurs><br>
+    // * <nillable>true</nillable><br>
+    // * <binding>java.lang.Integer</binding><br>
+    // * <length>3</length><br>
+    // * </attribute><br>
+    // *
+    // * @param name
+    // * @return
+    // */
+    // private List<String> getAttributes(String name) {
+    // final Element attrsRoot = rootElem.getChild("attributes");
+    // final List<Element> attrs = attrsRoot.getChildren();
+    // List<String> attrNames = null;
+    // if (attrs != null) {
+    // attrNames = new ArrayList<String>(attrs.size());
+    // for (Element attr : attrs) {
+    // attrNames.add(attr.getChildText(name));
+    // }
+    // }
+    // return attrNames;
+    // }
 }

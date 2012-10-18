@@ -61,20 +61,20 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
     		set("enabled","false");
     }
         
-    private final static String DESCRIPTION = "description";
-    /**
-     * Add the 'description' node with a text value from 'description'
-     * 
-     */
-    protected void addDescription(final String description) {
-        add(DESCRIPTION, description);
-    }
-    /**
-     * Set or modify the 'description' node with a text value from 'description'
-     */
-    public void setDescription(final String description) {
-        set(DESCRIPTION, description);
-    }
+//    private final static String DESCRIPTION = "description";
+//    /**
+//     * Add the 'description' node with a text value from 'description'
+//     * 
+//     */
+//    protected void addDescription(final String description) {
+//        add(DESCRIPTION, description);
+//    }
+//    /**
+//     * Set or modify the 'description' node with a text value from 'description'
+//     */
+//    public void setDescription(final String description) {
+//        set(DESCRIPTION, description);
+//    }
     
 //    queryable
     private final static String QUERYABLE = "queryable";

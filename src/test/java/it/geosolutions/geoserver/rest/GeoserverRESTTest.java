@@ -37,8 +37,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -47,76 +45,84 @@ import org.slf4j.LoggerFactory;
 /**
  * Initializes REST params.
  * <P>
- * <B>These tests are destructive, so you have to explicitly enable them</B>
- * by setting the env var <TT>resttest</TT> to <TT>true</TT>.
+ * <B>These tests are destructive, so you have to explicitly enable them</B> by setting the env var <TT>resttest</TT> to <TT>true</TT>.
  * <P>
- * The target geoserver instance can be customized by defining the following env vars: <ul>
+ * The target geoserver instance can be customized by defining the following env vars:
+ * <ul>
  * <LI><TT>resturl</TT> (default <TT>http://localhost:8080/geoserver</TT>)</LI>
  * <LI><TT>restuser</TT> (default: <TT>admin</TT>)</LI>
  * <LI><TT>restpw</TT> (default: <TT>geoserver</TT>)</LI>
  * </ul>
- *
+ * 
  * @author etj
+ * @author carlo cancellieri - GeoSolutions
  */
 public abstract class GeoserverRESTTest extends Assert {
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTTest.class);
 
-    protected static final String DEFAULT_WS = "geosolutions";
+    public static final String DEFAULT_WS = "geosolutions";
 
-	public static final String RESTURL;
-	public static final String RESTUSER;
-	public static final String RESTPW;
+    public static final String RESTURL;
 
-	public static URL URL;
-	public static GeoServerRESTManager manager;
-	public static GeoServerRESTReader reader;
-	public static GeoServerRESTPublisher publisher;
+    public static final String RESTUSER;
+
+    public static final String RESTPW;
+
+    public static URL URL;
+
+    public static GeoServerRESTManager manager;
+
+    public static GeoServerRESTReader reader;
+
+    public static GeoServerRESTPublisher publisher;
 
     private static boolean enabled = false;
+
     private static Boolean existgs = null;
-    
-	static {
-        RESTURL  = getenv("gsmgr_resturl",  "http://localhost:8080/geoserver");
+
+    static {
+        RESTURL = getenv("gsmgr_resturl", "http://localhost:8080/geoserver");
         RESTUSER = getenv("gsmgr_restuser", "admin");
-        RESTPW   = getenv("gsmgr_restpw",   "geoserver");
-        
+        RESTPW = getenv("gsmgr_restpw", "geoserver");
+
         // These tests will destroy data, so let's make sure we do want to run them
-        enabled  = getenv("gsmgr_resttest", "false").equalsIgnoreCase("true");
-        if( ! enabled )
+        enabled = getenv("gsmgr_resttest", "false").equalsIgnoreCase("true");
+        if (!enabled)
             LOGGER.warn("Tests are disabled. Please read the documentation to enable them.");
 
         try {
-        	URL = new URL(RESTURL);
-			manager = new GeoServerRESTManager(URL, RESTUSER, RESTPW);
-			reader = manager.getReader();
-			publisher = manager.getPublisher();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-	}
+            URL = new URL(RESTURL);
+            manager = new GeoServerRESTManager(URL, RESTUSER, RESTPW);
+            reader = manager.getReader();
+            publisher = manager.getPublisher();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
 
     private static String getenv(String envName, String envDefault) {
         String env = System.getenv(envName);
         String ret = System.getProperty(envName, env);
         LOGGER.debug("env var " + envName + " is " + ret);
-        return ret != null? ret : envDefault;
+        return ret != null ? ret : envDefault;
     }
 
     @BeforeClass
     public static void setUp() throws Exception {
 
-
-        if(enabled) {
-            if(existgs == null) {
+        if (enabled) {
+            if (existgs == null) {
                 existgs = reader.existGeoserver();
-                if ( ! existgs ) {
-                    LOGGER.error("TESTS WILL FAIL BECAUSE NO GEOSERVER WAS FOUND AT " + RESTURL + " ("+ RESTUSER+":"+RESTPW+")");
+                if (!existgs) {
+                    LOGGER.error("TESTS WILL FAIL BECAUSE NO GEOSERVER WAS FOUND AT " + RESTURL
+                            + " (" + RESTUSER + ":" + RESTPW + ")");
                 } else {
-                    LOGGER.info("Using geoserver instance " + RESTUSER+":"+RESTPW+ " @ " + RESTURL);
+                    LOGGER.info("Using geoserver instance " + RESTUSER + ":" + RESTPW + " @ "
+                            + RESTURL);
                 }
             }
 
-            if ( ! existgs ) {
+            if (!existgs) {
                 System.out.println("Failing tests  : geoserver not found");
                 fail("GeoServer not found");
             }
@@ -141,7 +147,7 @@ public abstract class GeoserverRESTTest extends Assert {
         deleteAllDataStores();
 
         deleteAllWorkspaces();
-//        assertTrue("Some workspaces were not removed", reader.getWorkspaces().isEmpty());
+        // assertTrue("Some workspaces were not removed", reader.getWorkspaces().isEmpty());
 
         deleteAllStyles();
         assertTrue("Some styles were not removed", reader.getStyles().isEmpty());
@@ -160,7 +166,7 @@ public abstract class GeoserverRESTTest extends Assert {
             }
 
             boolean removed = publisher.removeLayerGroup(groupName);
-            LOGGER.info(sb.toString()+ ": removed: " + removed);
+            LOGGER.info(sb.toString() + ": removed: " + removed);
             assertTrue("LayerGroup not removed: " + groupName, removed);
         }
 
@@ -170,9 +176,9 @@ public abstract class GeoserverRESTTest extends Assert {
         List<String> layers = reader.getLayers().getNames();
         for (String layerName : layers) {
             RESTLayer layer = reader.getLayer(layerName);
-            if(layer.getType() == RESTLayer.Type.VECTOR)
+            if (layer.getType() == RESTLayer.Type.VECTOR)
                 deleteFeatureType(layer);
-            else if(layer.getType() == RESTLayer.Type.RASTER)
+            else if (layer.getType() == RESTLayer.Type.RASTER)
                 deleteCoverage(layer);
             else
                 LOGGER.error("Unknown layer type " + layer.getType());
@@ -186,7 +192,7 @@ public abstract class GeoserverRESTTest extends Assert {
             List<String> stores = reader.getCoverageStores(workspace).getNames();
 
             for (String storename : stores) {
-//                RESTCoverageStore store = reader.getCoverageStore(workspace, storename);
+                // RESTCoverageStore store = reader.getCoverageStore(workspace, storename);
 
                 LOGGER.warn("Deleting CoverageStore " + workspace + " : " + storename);
                 boolean removed = publisher.removeCoverageStore(workspace, storename, false);
@@ -201,12 +207,12 @@ public abstract class GeoserverRESTTest extends Assert {
             List<String> stores = reader.getDatastores(workspace).getNames();
 
             for (String storename : stores) {
-//                RESTDataStore store = reader.getDatastore(workspace, storename);
+                // RESTDataStore store = reader.getDatastore(workspace, storename);
 
-//                if(store.getType() == RESTDataStore.DBType.POSTGIS) {
-//                    LOGGER.info("Skipping PG datastore " + store.getWorkspaceName()+":"+store.getName());
-//                    continue;
-//                }
+                // if(store.getType() == RESTDataStore.DBType.POSTGIS) {
+                // LOGGER.info("Skipping PG datastore " + store.getWorkspaceName()+":"+store.getName());
+                // continue;
+                // }
 
                 LOGGER.warn("Deleting DataStore " + workspace + " : " + storename);
                 boolean removed = publisher.removeDatastore(workspace, storename, false);
@@ -214,13 +220,13 @@ public abstract class GeoserverRESTTest extends Assert {
             }
         }
     }
-    
+
     protected void deleteAllWorkspacesRecursively() {
         List<String> workspaces = reader.getWorkspaceNames();
         for (String workspace : workspaces) {
-                LOGGER.warn("Deleting Workspace " + workspace );
-                boolean removed = publisher.removeWorkspace(workspace,true);
-                assertTrue("Workspace not removed " + workspace, removed );
+            LOGGER.warn("Deleting Workspace " + workspace);
+            boolean removed = publisher.removeWorkspace(workspace, true);
+            assertTrue("Workspace not removed " + workspace, removed);
 
         }
     }
@@ -228,19 +234,19 @@ public abstract class GeoserverRESTTest extends Assert {
     protected void deleteAllWorkspaces() {
         List<String> workspaces = reader.getWorkspaceNames();
         for (String workspace : workspaces) {
-                LOGGER.warn("Deleting Workspace " + workspace );
-                boolean removed = publisher.removeWorkspace(workspace,true);
-                assertTrue("Workspace not removed " + workspace, removed );
+            LOGGER.warn("Deleting Workspace " + workspace);
+            boolean removed = publisher.removeWorkspace(workspace, true);
+            assertTrue("Workspace not removed " + workspace, removed);
 
         }
     }
 
-    private void deleteAllStyles() {
+    protected void deleteAllStyles() {
         List<String> styles = reader.getStyles().getNames();
         for (String style : styles) {
-                LOGGER.warn("Deleting Style " + style );
-                boolean removed = publisher.removeStyle(style);
-                assertTrue("Style not removed " + style, removed );
+            LOGGER.warn("Deleting Style " + style);
+            boolean removed = publisher.removeStyle(style,true);
+            assertTrue("Style not removed " + style, removed);
 
         }
     }
@@ -249,18 +255,14 @@ public abstract class GeoserverRESTTest extends Assert {
         RESTFeatureType featureType = reader.getFeatureType(layer);
         RESTDataStore datastore = reader.getDatastore(featureType);
 
-        LOGGER.warn("Deleting FeatureType"
-                + datastore.getWorkspaceName() + " : "
-                + datastore.getName() + " / "
-                + featureType.getName()
-                );
+        LOGGER.warn("Deleting FeatureType" + datastore.getWorkspaceName() + " : "
+                + datastore.getName() + " / " + featureType.getName());
 
-        boolean removed = publisher.unpublishFeatureType(datastore.getWorkspaceName(), datastore.getName(), layer.getName());
-        assertTrue("FeatureType not removed:"
-                + datastore.getWorkspaceName() + " : "
-                + datastore.getName() + " / "
-                + featureType.getName(),
-                removed);
+        boolean removed = publisher.unpublishFeatureType(datastore.getWorkspaceName(),
+                datastore.getName(), layer.getName());
+        assertTrue(
+                "FeatureType not removed:" + datastore.getWorkspaceName() + " : "
+                        + datastore.getName() + " / " + featureType.getName(), removed);
 
     }
 
@@ -268,21 +270,15 @@ public abstract class GeoserverRESTTest extends Assert {
         RESTCoverage coverage = reader.getCoverage(layer);
         RESTCoverageStore coverageStore = reader.getCoverageStore(coverage);
 
-        LOGGER.warn("Deleting Coverage "
-                + coverageStore.getWorkspaceName() + " : "
-                + coverageStore.getName() + " / "
-                + coverage.getName());
+        LOGGER.warn("Deleting Coverage " + coverageStore.getWorkspaceName() + " : "
+                + coverageStore.getName() + " / " + coverage.getName());
 
         boolean removed = publisher.unpublishCoverage(coverageStore.getWorkspaceName(),
-                                                        coverageStore.getName(),
-                                                        coverage.getName());
-        assertTrue("Coverage not deleted "
-                + coverageStore.getWorkspaceName() + " : "
-                + coverageStore.getName() + " / "
-                + coverage.getName(),
-                removed);
+                coverageStore.getName(), coverage.getName());
+        assertTrue("Coverage not deleted " + coverageStore.getWorkspaceName() + " : "
+                + coverageStore.getName() + " / " + coverage.getName(), removed);
     }
-    
+
     protected boolean existsLayer(String layername) {
         return reader.getLayer(layername) != null;
     }

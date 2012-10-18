@@ -28,28 +28,64 @@ package it.geosolutions.geoserver.rest.encoder.feature;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
 
+import org.jdom.Element;
+
 /**
- *
- * Encode a GeoServer resource as FeatureType 
- *
+ * 
+ * Encode a GeoServer resource as FeatureType
+ * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GSFeatureTypeEncoder extends GSResourceEncoder {
 
+    public final static String ATTRIBUTES = "attributes";
+
+    final private Element attributes = new Element(ATTRIBUTES);
+
     public GSFeatureTypeEncoder() {
         super("featureType");
+        addContent(attributes);
+    }
+
+    /**
+     * @param key
+     * @param dimensionInfo
+     */
+    protected void addMetadata(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
+        super.addMetadata(key, dimensionInfo);
+    }
+
+    public void setMetadata(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
+        super.setMetadata(key, dimensionInfo);
+    }
+
+    /**
+     * delete a keyword from the list
+     * 
+     * @param keyword
+     * @return true if something is removed, false otherwise
+     */
+    public boolean delAttribute(final String keyword) {
+        final Element el = new Element("string");
+        el.setText(keyword);
+        return (attributes.removeContent(GSAttributeEncoder.getFilterByName(keyword))).size() == 0 ? false
+                : true;
+    }
+
+    /**
+     * @param attribute the attribute to add
+     */
+    protected void addAttribute(GSAttributeEncoder attribute) {
+        attributes.addContent(attribute.getRoot());
+    }
+
+    /**
+     * @param attribute the attribute to set (overriding an attribute with the same name if present)
+     */
+    public void setAttribute(GSAttributeEncoder attribute) {
+        delAttribute(attribute.getAttribute(FeatureTypeAttribute.name));
+        addAttribute(attribute);
     }
     
-    /**
-	 * @param key
-	 * @param dimensionInfo
-	 */
-	protected void addMetadata(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
-		super.addMetadata(key, dimensionInfo);
-	}
-
-	public void setMetadata(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
-		super.setMetadata(key, dimensionInfo);
-	}
 }

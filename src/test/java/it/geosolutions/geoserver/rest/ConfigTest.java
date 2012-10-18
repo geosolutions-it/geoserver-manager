@@ -54,24 +54,24 @@ public class ConfigTest extends GeoserverRESTTest {
 
     private static final String DEFAULT_WS = "geosolutions";
 
-    @Test
-    public void testEtj() throws FileNotFoundException, IOException {
-    	if(!enabled()){
-    		LOGGER.info("Skipping test "+"testEtj"+"for class:"+this.getClass().getSimpleName());
-    		return;
-    	}
-        deleteAll();
-
-        assertTrue(reader.getWorkspaces().isEmpty());
-        assertTrue(publisher.createWorkspace(DEFAULT_WS));
-
-        insertStyles();
-        insertExternalGeotiff();
-        insertExternalShape();
-
-        boolean ok = publisher.publishDBLayer(DEFAULT_WS, "pg_kids", "easia_gaul_0_aggr", "EPSG:4326", "default_polygon");
-//        assertTrue(ok);
-    }
+//    @Test
+//    public void testEtj() throws FileNotFoundException, IOException {
+//    	if(!enabled()){
+//    		LOGGER.info("Skipping test "+"testEtj"+"for class:"+this.getClass().getSimpleName());
+//    		return;
+//    	}
+//        deleteAll();
+//
+//        assertTrue(reader.getWorkspaces().isEmpty());
+//        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+//
+//        insertStyles();
+//        insertExternalGeotiff();
+//        insertExternalShape();
+//
+//        boolean ok = publisher.publishDBLayer(DEFAULT_WS, "pg_kids", "easia_gaul_0_aggr", "EPSG:4326", "default_polygon");
+////        assertTrue(ok);
+//    }
 
     @Test
     public void insertStyles() throws FileNotFoundException, IOException {
@@ -79,6 +79,8 @@ public class ConfigTest extends GeoserverRESTTest {
     		LOGGER.info("Skipping test "+"insertStyles"+"for class:"+this.getClass().getSimpleName());
     		return;
     	}
+    	deleteAllStyles();
+    	
         File sldDir = new ClassPathResource("testdata").getFile();
         for(File sldFile : sldDir.listFiles((FilenameFilter)new SuffixFileFilter(".sld"))) {
             LOGGER.info("Existing styles: " + reader.getStyles().getNames());
@@ -94,20 +96,31 @@ public class ConfigTest extends GeoserverRESTTest {
     		LOGGER.info("Skipping test "+"insertExternalGeotiff"+"for class:"+this.getClass().getSimpleName());
     		return;
     	}
+    	deleteAll();
+    	
         String storeName = "testRESTStoreGeotiff";
         String layerName = "resttestdem";
 
+        publisher.createWorkspace(DEFAULT_WS);
+        publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),"raster.sld"));
+        
         File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
         boolean pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, layerName,"EPSG:4326",ProjectionPolicy.FORCE_DECLARED,"raster");
         
         assertTrue(pc);
     }
+    
     @Test
     public void insertExternalShape() throws FileNotFoundException, IOException {
     	if(!enabled()){
     		LOGGER.info("Skipping test "+"insertExternalShape"+"for class:"+this.getClass().getSimpleName());
     		return;
     	}
+    	deleteAll();
+    	
+    	publisher.createWorkspace(DEFAULT_WS);
+    	publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),"default_point.sld"));
+    	
         File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
 
         boolean published = publisher.publishShp(DEFAULT_WS, "anyname", "cities", zipFile, "EPSG:41001", "default_point");
