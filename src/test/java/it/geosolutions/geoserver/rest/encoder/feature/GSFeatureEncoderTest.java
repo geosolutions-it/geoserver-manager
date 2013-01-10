@@ -19,123 +19,199 @@
  */
 package it.geosolutions.geoserver.rest.encoder.feature;
 
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import it.geosolutions.geoserver.rest.decoder.RESTResource;
+import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
+import it.geosolutions.geoserver.rest.publisher.GeoserverRESTPublisherTest;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
-
-import junit.framework.TestCase;
+import java.util.List;
 
 import org.jdom.Element;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
-public class GSFeatureEncoderTest extends TestCase {
-	protected final static Logger LOGGER = LoggerFactory.getLogger(GSFeatureEncoderTest.class);
+public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
+    protected final static Logger LOGGER = LoggerFactory.getLogger(GSFeatureEncoderTest.class);
 
-	@Test
-	public void testAll() {
-		
-		GSFeatureTypeEncoder encoder = new GSFeatureTypeEncoder();
-		encoder.addKeyword("KEYWORD_1");
-		encoder.addKeyword("KEYWORD_2");
-		encoder.addKeyword("...");
-		encoder.addKeyword("KEYWORD_N");
-		
-		GSFeatureDimensionInfoEncoder dim2 = new GSFeatureDimensionInfoEncoder("ELE");
+    @Test
+    public void testIntegration() throws IOException {
 
-    	if (LOGGER.isInfoEnabled())
-    		LOGGER.info(encoder.toString());
+        if (!enabled())
+            return;
+        deleteAll();
 
-		encoder.addMetadata("elevation", dim2);
-    	
-		dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
-				BigDecimal.valueOf(10));
-		
-		Element el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.PRESENTATION);
-    	Assert.assertNotNull(el);
-    	
-    	
-    	LOGGER.info("contains_key:"+el.toString());
-    	
-		dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
-				BigDecimal.valueOf(12));
-		
-		el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.RESOLUTION);
-    	Assert.assertNotNull(el);
-    	Assert.assertEquals("12", el.getText());
-    	
-		dim2.setPresentation(Presentation.CONTINUOUS_INTERVAL);
-		
-		
-		
-		encoder.setMetadata("time", new GSFeatureDimensionInfoEncoder("time"));
-		
-		el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.PRESENTATION);
-    	Assert.assertNotNull(el);
-    	el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.RESOLUTION);
-    	Assert.assertNull(el);
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
 
-    	el=ElementUtils.contains(encoder.getRoot(),GSResourceEncoder.METADATA);
-    	Assert.assertNotNull(el);
-    	LOGGER.info("contains_key:"+el.toString());
-    	
-    	final boolean removed=ElementUtils.remove(encoder.getRoot(),el);
-    	LOGGER.info("remove:"+removed);
-    	Assert.assertTrue(removed);
-    	
-    	el=ElementUtils.contains(encoder.getRoot(),"metadata");
-    	Assert.assertNull(el);
-    	if (el==null)
-    		LOGGER.info("REMOVED");
+        String storeName = "resttestshp";
+        String layerName = "cities";
 
-	}
-	
-	@Test
-	public void testModifyFeature() {
-		GSFeatureTypeEncoder encoder = new GSFeatureTypeEncoder();
-		encoder.addKeyword("KEYWORD_1");
-		encoder.addKeyword("KEYWORD_2");
-		encoder.addKeyword("...");
-		encoder.addKeyword("KEYWORD_N");
-		
-		Assert.assertTrue(encoder.delKeyword("KEYWORD_2"));
-		Assert.assertFalse(encoder.delKeyword("KEYWORD_M"));
-		
-		final GSFeatureDimensionInfoEncoder elevationDimension = new GSFeatureDimensionInfoEncoder("elevation_field");
+        GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+        fte.setName(layerName + "_NEW");
+        fte.setTitle("title");
+        // fte.addKeyword("TODO");
+        fte.setNativeCRS("EPSG:4326");
+        fte.setDescription("desc");
+        fte.setEnabled(true);
 
-//    	if (LOGGER.isInfoEnabled())
-//    		LOGGER.info(encoder.toString());
+        GSLayerEncoder layerEncoder = new GSLayerEncoder();
+        layerEncoder.setEnabled(true);
+        layerEncoder.setQueryable(true);
 
-		final String metadata="elevation";
-		encoder.setMetadata(metadata, elevationDimension);
-    	
-		elevationDimension.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
-				BigDecimal.valueOf(10));
-		
-		if (LOGGER.isInfoEnabled())
-    		LOGGER.info(encoder.toString());
-		
-		Assert.assertTrue(encoder.delMetadata(metadata));
-		
-		if (LOGGER.isInfoEnabled())
-    		LOGGER.info(encoder.toString());
-		
-    	final Element el=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.DIMENSIONINFO);
-    	Assert.assertNull(el);
-    	if (el==null)
-    		LOGGER.info("REMOVED");
+        layerEncoder.setDefaultStyle("point");
 
-	}
+        publisher.createWorkspace(DEFAULT_WS);
+
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+
+        // test insert
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
+        assertTrue("publish() failed", published);
+        assertTrue(existsLayer(layerName));
+
+        publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),
+                "default_point.sld"));
+
+        // optionally select the attributes to publish
+        RESTLayer layer = reader.getLayer(layerName);
+        RESTResource resource = reader.getResource(layer);
+        List<GSAttributeEncoder> attrs = resource.getEncodedAttributeList();
+        assertNotNull(attrs);
+        for (GSAttributeEncoder enc : attrs) {
+            fte.setAttribute(enc);
+        }
+
+        assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
+    }
+
+    @Test
+    public void testFeatureTypeEncoder() {
+
+        GSFeatureTypeEncoder encoder = new GSFeatureTypeEncoder();
+        encoder.addKeyword("KEYWORD_1");
+        encoder.addKeyword("KEYWORD_2");
+        encoder.addKeyword("...");
+        encoder.addKeyword("KEYWORD_N");
+        
+        encoder.setName("Layername");
+        
+        encoder.setTitle("title");
+        encoder.addKeyword("TODO");
+        encoder.setNativeCRS("EPSG:4326");
+        encoder.setDescription("desc");
+        encoder.setEnabled(true);
+
+        GSAttributeEncoder attribute = new GSAttributeEncoder();
+        attribute.setAttribute(FeatureTypeAttribute.name, "NAME");
+        attribute.setAttribute(FeatureTypeAttribute.binding, "java.lang.String");
+        attribute.setAttribute(FeatureTypeAttribute.maxOccurs, "1");
+        attribute.setAttribute(FeatureTypeAttribute.minOccurs, "0");
+        attribute.setAttribute(FeatureTypeAttribute.nillable, "true");
+        
+        encoder.setAttribute(attribute);
+        
+        encoder.delAttribute("NAME");
+        
+        attribute.setAttribute(FeatureTypeAttribute.name, "NEW_NAME");
+        
+        encoder.setAttribute(attribute);
+        
+        // TODO encoder.getAttribute("NAME");
+        
+        GSFeatureDimensionInfoEncoder dim2 = new GSFeatureDimensionInfoEncoder("ELE");
+        
+        encoder.addMetadata("elevation", dim2);
+        dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
+        Element el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
+        Assert.assertNotNull(el);
+        
+        LOGGER.info("contains_key:" + el.toString());
+
+        dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL, BigDecimal.valueOf(12));
+        el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.RESOLUTION);
+        Assert.assertNotNull(el);
+        Assert.assertEquals("12", el.getText());
+
+        dim2.setPresentation(Presentation.CONTINUOUS_INTERVAL);
+        
+        encoder.setMetadata("time", new GSFeatureDimensionInfoEncoder("time"));
+        el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
+        Assert.assertNotNull(el);
+        el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.RESOLUTION);
+        Assert.assertNull(el);
+
+        el = ElementUtils.contains(encoder.getRoot(), GSResourceEncoder.METADATA);
+        Assert.assertNotNull(el);
+        LOGGER.info("contains_key:" + el.toString());
+
+        final boolean removed = ElementUtils.remove(encoder.getRoot(), el);
+        LOGGER.info("remove:" + removed);
+        Assert.assertTrue(removed);
+
+        el = ElementUtils.contains(encoder.getRoot(), "metadata");
+        Assert.assertNull(el);
+        if (el == null)
+            LOGGER.info("REMOVED");
+        
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info(encoder.toString());
+
+        assertEquals(encoder.getName(),"Layername");
+    }
+
+    @Test
+    public void testModifyFeature() {
+        GSFeatureTypeEncoder encoder = new GSFeatureTypeEncoder();
+        encoder.addKeyword("KEYWORD_1");
+        encoder.addKeyword("KEYWORD_2");
+        encoder.addKeyword("...");
+        encoder.addKeyword("KEYWORD_N");
+
+        Assert.assertTrue(encoder.delKeyword("KEYWORD_2"));
+        Assert.assertFalse(encoder.delKeyword("KEYWORD_M"));
+
+        final GSFeatureDimensionInfoEncoder elevationDimension = new GSFeatureDimensionInfoEncoder(
+                "elevation_field");
+
+        // if (LOGGER.isInfoEnabled())
+        // LOGGER.info(encoder.toString());
+
+        final String metadata = "elevation";
+        encoder.setMetadata(metadata, elevationDimension);
+
+        elevationDimension.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
+                BigDecimal.valueOf(10));
+
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info(encoder.toString());
+
+        Assert.assertTrue(encoder.delMetadata(metadata));
+
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info(encoder.toString());
+
+        final Element el = ElementUtils.contains(encoder.getRoot(),
+                GSDimensionInfoEncoder.DIMENSIONINFO);
+        Assert.assertNull(el);
+        if (el == null)
+            LOGGER.info("REMOVED");
+
+    }
 }

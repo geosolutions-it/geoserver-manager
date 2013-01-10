@@ -93,7 +93,7 @@ public abstract class ElementUtils {
 			final Filter filter, final int depth)
 			throws IllegalArgumentException {
 
-		if (root == null || filter == null || depth < 0) {
+		if (root == null || filter == null) {
 			throw new IllegalArgumentException("Bad arguments: root=" + root
 					+ " filter=" + filter + " depth=" + depth);
 		}
@@ -106,7 +106,7 @@ public abstract class ElementUtils {
 			ret.add(root);
 		}
 		// check my children
-		if (depth > 1) {
+		if (depth != 0) {
 			final List<?> childrenList = root.getContent();
 			final Iterator<?> it = childrenList.iterator();
 			while (it.hasNext()) {
@@ -201,6 +201,18 @@ public abstract class ElementUtils {
 			return null;
 	}
 
+	
+	/**
+         * return the FIRST element with name equals to the passed key
+         * 
+         * @param root
+         * @param name
+         * @return
+         */
+        public static Element contains(final Element root, final String name){
+            return contains(root, name, -1);
+        }
+	
 	/**
 	 * return the FIRST element with name equals to the passed key
 	 * 
@@ -208,7 +220,7 @@ public abstract class ElementUtils {
 	 * @param name
 	 * @return
 	 */
-	public static Element contains(final Element root, final String name)
+	public static Element contains(final Element root, final String name, final int deep)
 			throws IllegalArgumentException {
 		if (root == null || name == null) {
 			throw new IllegalArgumentException("Bad arguments: root=" + root
@@ -228,7 +240,7 @@ public abstract class ElementUtils {
 				return false;
 			}
 		};
-		final Iterator<Element> it = search(root, filter).iterator();
+		final Iterator<Element> it = search(root, filter, deep).iterator();
 		if (it.hasNext())
 			return it.next();
 		else

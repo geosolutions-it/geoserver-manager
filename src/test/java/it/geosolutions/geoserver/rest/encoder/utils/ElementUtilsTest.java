@@ -63,7 +63,7 @@ public class ElementUtilsTest {
 	public void containsFilterDepthTest(){
 		LOGGER.info("STARTING-> containsFilterDepthTest");
 		
-		final List<Element> list=ElementUtils.search(this.root, filter, 1);
+		final List<Element> list=ElementUtils.search(this.root, filter, 0);
 		Assert.assertEquals(1,list.size());
 		
 		final List<Element> list2=ElementUtils.search(this.root, filter, 6);
