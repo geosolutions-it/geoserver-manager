@@ -25,6 +25,7 @@
 package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTAbstractManager;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTDataStoreManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
 
 import java.net.MalformedURLException;
@@ -82,6 +83,14 @@ public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
 
     public GeoServerRESTStoreManager getStoreManager() {
         return store;
+    }
+
+    /**
+     *
+     * @Deprecated use {GeoServerRESTManager#getStoreManager()}
+     */
+    public GeoServerRESTDataStoreManager getDatastoreManager() {
+        return (GeoServerRESTDataStoreManager) store;
     }
 
 }
