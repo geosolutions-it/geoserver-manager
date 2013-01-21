@@ -44,6 +44,10 @@ public class GSPostGISDatastoreEncoder extends GSAbstractDatastoreEncoder {
 	static final boolean DEFAULT_PREPARED_STATEMENTS = false;
 	static final int DEFAULT_MAX_OPEN_PREPARED_STATEMENTS = 50;
 	
+	/**
+	 * 
+	 * @param name DataStore name
+	 */
     public GSPostGISDatastoreEncoder(String name) {
         super(name);
 
@@ -141,7 +145,7 @@ public class GSPostGISDatastoreEncoder extends GSAbstractDatastoreEncoder {
     /**
      * @return {@value #TYPE}
      */
-    String getValidType() {
+    protected String getValidType() {
     	return TYPE;
     }
 }
