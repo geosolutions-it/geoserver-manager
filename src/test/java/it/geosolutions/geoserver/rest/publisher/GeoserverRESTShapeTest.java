@@ -60,16 +60,14 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
     
     @After
     public void cleanUp(){
-        if(enabled()){
-        	deleteAllWorkspaces();
-        }
     }
     
     @Test
     public void testReloadDataStore() throws FileNotFoundException, IOException {
         if (!enabled()) 
             return;
-
+        deleteAllWorkspacesRecursively();
+        
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
         String storeName = "resttestshp";
@@ -91,7 +89,8 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         if (!enabled()) {
             return;
         }
-
+        deleteAllWorkspacesRecursively();
+        
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
         String storeName = "resttestshp";
@@ -126,6 +125,7 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         if (!enabled()) {
             return;
         }
+        deleteAllWorkspacesRecursively();
 //        Assume.assumeTrue(enabled);
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
@@ -159,6 +159,7 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         if (!enabled()) {
             return;
         }
+        deleteAllWorkspacesRecursively();
 //        Assume.assumeTrue(enabled);
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
@@ -192,6 +193,7 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         if (!enabled()) {
             return;
         }
+        deleteAllWorkspacesRecursively();
 //        Assume.assumeTrue(enabled);
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
@@ -236,6 +238,7 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         if (!enabled()) {
             return;
         }
+        deleteAllWorkspacesRecursively();
 //        Assume.assumeTrue(enabled);
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
 
@@ -278,7 +281,8 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
     public void testPublishShpUsingDeclaredNativeCRS() throws Exception {
         if (!enabled())
             return;
-
+        deleteAllWorkspacesRecursively();
+        
         // layer publication params
         String workspace = DEFAULT_WS;
         String storename = "resttestshp";
@@ -315,7 +319,8 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
     public void testPublishShpUsingWKTNativeCRS() throws Exception {
         if (!enabled())
             return;
-
+        deleteAllWorkspacesRecursively();
+        
         // layer publication params
         String workspace = DEFAULT_WS;
         String storename = "resttestshp";
