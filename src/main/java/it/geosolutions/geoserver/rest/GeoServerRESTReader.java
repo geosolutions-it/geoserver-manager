@@ -395,17 +395,41 @@ public class GeoServerRESTReader {
     //=== LAYERGROUPS
     //==========================================================================
 
+    public RESTLayerGroupList getLayerGroups(String workspace) {
+        String url;
+        if (workspace == null) {
+            url = "/rest/layergroups.xml";
+        } else {
+            url = "/rest/workspaces/" + workspace + "/layergroups.xml";
+        }
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving layergroups from " + url);
+        }
+        return RESTLayerGroupList.build(load(url));
+    }
+
+    public RESTLayerGroup getLayerGroup(String workspace, String name) {
+        String url;
+        if (workspace == null) {
+            url = "/rest/layergroups/" + name + ".xml";
+        } else {
+            url = "/rest/workspaces/" + workspace + "/layergroups/" + name + ".xml";
+        }        
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving layergroup from " + url);
+        }
+        return RESTLayerGroup.build(load(url));
+    }
+    
     /**
      * Get summary info about all LayerGroups.
      *
      * @return summary info about LayerGroups as a {@link RESTLayerGroupList}
      */
     public RESTLayerGroupList getLayerGroups() {
-        String url = "/rest/layergroups.xml";
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("### Retrieving layergroups from " + url);
-        }
-        return RESTLayerGroupList.build(load(url));
+        return getLayerGroups(null);
     }
 
     /**
@@ -415,13 +439,11 @@ public class GeoServerRESTReader {
      * @return LayerGroup details as a {@link RESTLayerGroup}
      */
     public RESTLayerGroup getLayerGroup(String name) {
-        String url = "/rest/layergroups/" + name + ".xml";
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("### Retrieving layergroup from " + url);
-        }
-        return RESTLayerGroup.build(load(url));
+        return getLayerGroup(null, name);
     }
 
+    
+    
     //==========================================================================
     //=== LAYERS
     //==========================================================================
