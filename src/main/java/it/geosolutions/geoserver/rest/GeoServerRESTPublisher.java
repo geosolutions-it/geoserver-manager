@@ -36,6 +36,7 @@ import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -874,7 +875,7 @@ public class GeoServerRESTPublisher {
     /**
      * Create a PostGIS datastore.
      * 
-     * @deprecated Will be deleted in next version 1.5.x, use {@link GeoServerRESTDatastoreManager} instead.
+     * @deprecated Will be deleted in next version 1.6.x, use {@link GeoServerRESTStoreManager} instead.
      * 
      * @param workspace Name of the workspace to contain the database. This will also be the prefix of any layer names created from tables in the
      *        database.
@@ -883,7 +884,7 @@ public class GeoServerRESTPublisher {
      * @return <TT>true</TT> if the PostGIS datastore has been successfully created, <TT>false</TT> otherwise
      */
     public boolean createPostGISDatastore(String workspace,
-            GSPostGISDatastoreEncoder datastoreEncoder) {
+            it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder datastoreEncoder) {
         String sUrl = restURL + "/rest/workspaces/" + workspace + "/datastores/";
         String xml = datastoreEncoder.toString();
         String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);

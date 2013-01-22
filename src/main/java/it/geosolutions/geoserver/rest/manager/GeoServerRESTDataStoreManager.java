@@ -40,7 +40,7 @@ import java.net.URL;
  * 
  * @deprecated currently this is only a {@link GeoServerRESTStoreManager} wrapper for datastore
  */
-public class GeoServerRESTDataStoreManager extends GeoServerRESTStoreManager {
+public class GeoServerRESTDatastoreManager extends GeoServerRESTStoreManager {
 
     /**
      * Default constructor.
@@ -51,7 +51,7 @@ public class GeoServerRESTDataStoreManager extends GeoServerRESTStoreManager {
      * @throws MalformedURLException
      * @throws IllegalArgumentException
      */
-    public GeoServerRESTDataStoreManager(URL restURL, String username, String password)
+    public GeoServerRESTDatastoreManager(URL restURL, String username, String password)
             throws IllegalArgumentException, MalformedURLException {
         super(restURL, username, password);
     }
