@@ -66,7 +66,6 @@ public class GSArcSDEDatastoreEncoder extends GSAbstractDatastoreEncoder {
         super(name);
         
         // Set mandatory parameters
-        setType(TYPE);
         setServer(server);
         setUser(user);
         
@@ -212,7 +211,7 @@ public class GSArcSDEDatastoreEncoder extends GSAbstractDatastoreEncoder {
     /**
      * @return {@value #TYPE}
      */
-    String getValidType() {
+    protected String getValidType() {
     	return TYPE;
     }
 }

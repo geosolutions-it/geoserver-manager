@@ -30,13 +30,13 @@ import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import it.geosolutions.geoserver.rest.encoder.GSBackupEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSNamespaceEncoder;
-import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
+import it.geosolutions.geoserver.rest.encoder.datastore.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
-import it.geosolutions.geoserver.rest.manager.GeoServerRESTDatastoreManager;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -371,7 +371,7 @@ public class GeoServerRESTPublisher {
         }
         LOGGER.debug("POSTing new style " + name + " to " + sUrl);
         String result = HTTPUtils
-                .post(sUrl, sldFile, "application/vnd.ogc.sld+xml", gsuser, gspass);
+                .post(sUrl, sldFile, Format.SLD.getContentType(), gsuser, gspass);
         return result != null;
     }
 
@@ -583,13 +583,39 @@ public class GeoServerRESTPublisher {
         }
         
         /**
-         * Get the type name of a DataStoreType.
+         * Get the type name of a StoreType.
          * 
-         * @param type the DataStoreType.
-         * @return "featuretypes.xml" for DATASTORES, "coverages.xml" otherwise.
+         * @param type the StoreType.
+         * @return "dataStore" for DATASTORES, "coverageStore" otherwise.
+         */
+        public static String getType(StoreType type) {
+            switch (type) {
+            case COVERAGESTORES:
+                return "coverageStore"; // Format
+            case DATASTORES:
+                return "dataStore";
+            default:
+                return "coverageStore";
+            }
+        }
+        
+        /**
+         * Get the type name of a StoreType.
+         * 
+         * @return "featuretypes" for DATASTORES, "coverages" otherwise.
          */
         public String getTypeName() {
             return getTypeName(this);
+        }
+        
+        /**
+         * Get the type of a StoreType.
+         * 
+         * @param type the StoreType.
+         * @return "dataStore" for DATASTORES, "coverageStore" otherwise.
+         */
+        public String getType() {
+            return getType(this);
         }
 
         /**
@@ -849,7 +875,7 @@ public class GeoServerRESTPublisher {
     /**
      * Create a PostGIS datastore.
      * 
-     * @deprecated Will be deleted in next version 1.5.x, use {@link GeoServerRESTDatastoreManager} instead.
+     * @deprecated Will be deleted in next version 1.6.x, use {@link GeoServerRESTStoreManager} instead.
      * 
      * @param workspace Name of the workspace to contain the database. This will also be the prefix of any layer names created from tables in the
      *        database.
@@ -858,7 +884,7 @@ public class GeoServerRESTPublisher {
      * @return <TT>true</TT> if the PostGIS datastore has been successfully created, <TT>false</TT> otherwise
      */
     public boolean createPostGISDatastore(String workspace,
-            GSPostGISDatastoreEncoder datastoreEncoder) {
+            it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder datastoreEncoder) {
         String sUrl = restURL + "/rest/workspaces/" + workspace + "/datastores/";
         String xml = datastoreEncoder.toString();
         String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
@@ -1340,6 +1366,16 @@ public class GeoServerRESTPublisher {
             default:
                 return null;
             }
+        }
+        
+        /**
+         * Gets the mime type from a format.
+         * 
+         * @param f the format key.
+         * @return The content-type (mime), or {@code null} if not in the enum.
+         */
+        public String getContentType() {
+            return getContentType(this);
         }
         
         /**

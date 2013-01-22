@@ -26,6 +26,7 @@ package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTAbstractManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTDatastoreManager;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,48 +40,57 @@ import java.net.URL;
  * <li>getPublisher() simple, high-level pubhish methods.
  * <li>get<i>Foo</i>Manager, full-fledged management of catalog objects.
  * </ul>
+ * 
  * @author Oscar Fonts
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
-	
-	private final GeoServerRESTPublisher publisher;
-	private final GeoServerRESTReader reader;
-	
-	private final GeoServerRESTDatastoreManager datastoreManager;
-	
-	/**
-	 * Default constructor.
-	 * 
-	 * Indicates connection parameters to remote GeoServer instance.
-	 * 
-	 * @param restURL  GeoServer REST API endpoint
-	 * @param username GeoServer REST API authorized username
-	 * @param password GeoServer REST API password for the former username
-	 * @throws MalformedURLException {@link GeoServerRESTAbstractManager#GeoServerRESTAbstractManager(URL, String, String)}
-	 * @throws IllegalArgumentException {@link GeoServerRESTAbstractManager#GeoServerRESTAbstractManager(URL, String, String)}
-	 */
-	public GeoServerRESTManager(URL restURL, String username, String password) throws IllegalArgumentException, MalformedURLException {
-		super(restURL, username, password);
-		
-		// Internal publisher and reader, provide simple access methods.
-		publisher = new GeoServerRESTPublisher(restURL.toString(), username, password);
-		reader = new GeoServerRESTReader(restURL, username, password);
-		
-		// Classes for fine-grained management of catalog components.
-		datastoreManager = new GeoServerRESTDatastoreManager(restURL, username, password);
-	}
-	
-	public GeoServerRESTPublisher getPublisher() {
-		return publisher;
-	}
-	
-	public GeoServerRESTReader getReader() {
-		return reader;
-	}
-	
-	public GeoServerRESTDatastoreManager getDatastoreManager() {
-		return datastoreManager;
-	}
-	
+
+    private final GeoServerRESTPublisher publisher;
+
+    private final GeoServerRESTReader reader;
+
+    private final GeoServerRESTStoreManager store;
+
+    /**
+     * Default constructor.
+     * 
+     * Indicates connection parameters to remote GeoServer instance.
+     * 
+     * @param restURL GeoServer REST API endpoint
+     * @param username GeoServer REST API authorized username
+     * @param password GeoServer REST API password for the former username
+     * @throws MalformedURLException {@link GeoServerRESTAbstractManager#GeoServerRESTAbstractManager(URL, String, String)}
+     * @throws IllegalArgumentException {@link GeoServerRESTAbstractManager#GeoServerRESTAbstractManager(URL, String, String)}
+     */
+    public GeoServerRESTManager(URL restURL, String username, String password)
+            throws IllegalArgumentException, MalformedURLException {
+        super(restURL, username, password);
+
+        // Internal publisher and reader, provide simple access methods.
+        publisher = new GeoServerRESTPublisher(restURL.toString(), username, password);
+        reader = new GeoServerRESTReader(restURL, username, password);
+        store = new GeoServerRESTStoreManager(restURL, gsuser, gspass);
+    }
+
+    public GeoServerRESTPublisher getPublisher() {
+        return publisher;
+    }
+
+    public GeoServerRESTReader getReader() {
+        return reader;
+    }
+
+    public GeoServerRESTStoreManager getStoreManager() {
+        return store;
+    }
+
+    /**
+     *
+     * @Deprecated use {GeoServerRESTManager#getStoreManager()}
+     */
+    public GeoServerRESTDatastoreManager getDatastoreManager() {
+        return (GeoServerRESTDatastoreManager) store;
+    }
+
 }
