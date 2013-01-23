@@ -91,10 +91,52 @@ public class RESTLayerGroup {
 		return rootElem.getChildText("name");
 	}
 
+	public String getWorkspace() {
+            Element rootLayer = rootElem.getChild("workspace");
+            if (rootLayer != null) {
+                return rootLayer.getChildText("name");
+            } else {
+                return null;
+            }	    	    
+	}
+	
+	public String getMode() {
+	    return rootElem.getChildText("mode");
+	}
+	
+	public String getTitle() {
+	    return rootElem.getChildText("title");
+	}
+	
+	public String getAbstract() {
+	    return rootElem.getChildText("abstractTxt");
+	}
+	
+	public String getRootLayer() {
+	    Element rootLayer = rootElem.getChild("rootLayer");
+	    if (rootLayer != null) {
+	        return rootLayer.getChildText("name");
+	    } else {
+	        return null;
+	    }
+	}
+	
 	public RESTLayerList getLayerList() {
-        return new RESTLayerList(rootElem.getChild("layers"));
+	    if (rootElem.getChild("layers") != null) {
+                return new RESTLayerList(rootElem.getChild("layers"));
+	    } else {
+	        return null;
+	    }
 	}
 
+        public RESTPublishedList getPublishedList() {
+            if (rootElem.getChild("publishables") != null) {
+                return new RESTPublishedList(rootElem.getChild("publishables"));
+            } else {
+                return null;
+            }
+        }	
+	
 	public String getCRS() {
 		Element bounds = rootElem.getChild("bounds");
 		return bounds.getChildText("crs");
