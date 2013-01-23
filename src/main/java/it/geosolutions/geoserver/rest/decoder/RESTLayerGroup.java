@@ -104,6 +104,14 @@ public class RESTLayerGroup {
 	    return rootElem.getChildText("mode");
 	}
 	
+	public String getTitle() {
+	    return rootElem.getChildText("title");
+	}
+	
+	public String getAbstract() {
+	    return rootElem.getChildText("abstractTxt");
+	}
+	
 	public String getRootLayer() {
 	    Element rootLayer = rootElem.getChild("rootLayer");
 	    if (rootLayer != null) {
