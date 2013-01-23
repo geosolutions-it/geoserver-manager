@@ -396,12 +396,19 @@ public class GeoServerRESTReader {
     //==========================================================================
 
     /**
-     * Get summary info about all LayerGroups.
+     * Get summary info about all LayerGroups in the given workspace.
      *
+     * @param workspace name of the workspace
      * @return summary info about LayerGroups as a {@link RESTLayerGroupList}
      */
-    public RESTLayerGroupList getLayerGroups() {
-        String url = "/rest/layergroups.xml";
+    public RESTLayerGroupList getLayerGroups(String workspace) {
+        String url;
+        if (workspace == null) {
+            url = "/rest/layergroups.xml";
+        } else {
+            url = "/rest/workspaces/" + workspace + "/layergroups.xml";
+        }
+        
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("### Retrieving layergroups from " + url);
         }
@@ -411,17 +418,45 @@ public class GeoServerRESTReader {
     /**
      * Get detailed info about a given LayerGroup.
      *
-     * @param name The name of the LayerGroup
+     * @param workspace name of the workspace
+     * @param name the name of the LayerGroup
      * @return LayerGroup details as a {@link RESTLayerGroup}
      */
-    public RESTLayerGroup getLayerGroup(String name) {
-        String url = "/rest/layergroups/" + name + ".xml";
+    public RESTLayerGroup getLayerGroup(String workspace, String name) {
+        String url;
+        if (workspace == null) {
+            url = "/rest/layergroups/" + name + ".xml";
+        } else {
+            url = "/rest/workspaces/" + workspace + "/layergroups/" + name + ".xml";
+        }        
+        
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("### Retrieving layergroup from " + url);
         }
         return RESTLayerGroup.build(load(url));
     }
+    
+    /**
+     * Get summary info about all LayerGroups.
+     *
+     * @return summary info about LayerGroups as a {@link RESTLayerGroupList}
+     */
+    public RESTLayerGroupList getLayerGroups() {
+        return getLayerGroups(null);
+    }
 
+    /**
+     * Get detailed info about a given LayerGroup.
+     *
+     * @param name The name of the LayerGroup
+     * @return LayerGroup details as a {@link RESTLayerGroup}
+     */
+    public RESTLayerGroup getLayerGroup(String name) {
+        return getLayerGroup(null, name);
+    }
+
+    
+    
     //==========================================================================
     //=== LAYERS
     //==========================================================================

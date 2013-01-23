@@ -29,6 +29,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import it.geosolutions.geoserver.rest.encoder.GSBackupEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSLayerGroupEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSNamespaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
@@ -2149,12 +2150,20 @@ public class GeoServerRESTPublisher {
     /**
      * Remove a layer group.
      * 
+     * @param workspace the layer group workspace.
      * @param name the layer group name.
      * @return true if succeeded.
-     */
-    public boolean removeLayerGroup(String name) {
+     */    
+    public boolean removeLayerGroup(String workspace, String name) {
+        String url = restURL + "/rest";
+        if (workspace == null) {
+            url += "/layergroups/" + name;
+        } else {
+            url += "/workspaces/" + workspace + "/layergroups/" + name;
+        }  
+    
         try {
-            URL deleteUrl = new URL(restURL + "/rest/layergroups/" + name);
+            URL deleteUrl = new URL(url);
             boolean deleted = HTTPUtils.delete(deleteUrl.toExternalForm(), gsuser, gspass);
             if (!deleted) {
                 if (LOGGER.isWarnEnabled())
@@ -2169,7 +2178,17 @@ public class GeoServerRESTPublisher {
             if (LOGGER.isErrorEnabled())
                 LOGGER.error(ex.getLocalizedMessage(), ex);
             return false;
-        }
+        }        
+    }
+    
+    /**
+     * Remove a layer group.
+     * 
+     * @param name the layer group name.
+     * @return true if succeeded.
+     */
+    public boolean removeLayerGroup(String name) {
+        return removeLayerGroup(null, name);
     }
 
     /**
@@ -2333,6 +2352,89 @@ public class GeoServerRESTPublisher {
         return sendResult != null;
     }
 
+    /**
+     * Create a new LayerGroup using the specified encoder
+     * 
+     * @param name name of the layer group
+     * @param group group encoder
+     * @return true if operation was successful
+     */
+    public boolean createLayerGroup(String name, GSLayerGroupEncoder group) {
+        return createLayerGroup(null, name, group);
+    }
+    
+    /**
+     * Create a new LayerGroup using the specified encoder
+     * 
+     * @param workspace name of the workspace
+     * @param name name of the layer group
+     * @param group group encoder
+     * @return true if operation was successful
+     */
+    public boolean createLayerGroup(String workspace, String name, GSLayerGroupEncoder group) {
+        String url = restURL + "/rest";
+        if (workspace == null) {            
+            url += "/layergroups/";
+        } else {
+            group.setWorkspace(workspace);
+            url += "/workspaces/" + workspace + "/layergroups/";
+        }  
+    
+        group.setName(name);
+        
+        String sendResult = HTTPUtils.postXml(url, group.toString(), gsuser, gspass);
+        if (sendResult != null) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("LayerGroup successfully configured: " + name);
+            }
+        } else {
+            if (LOGGER.isWarnEnabled())
+                LOGGER.warn("Error configuring LayerGroup " + name + " (" + sendResult + ")");
+        }
+
+        return sendResult != null;  
+    }
+    
+    /**
+     * Update a LayerGroup using the specified encoder
+     * 
+     * @param name name of the layer group
+     * @param group group encoder
+     * @return true if operation was successful
+     */
+    public boolean configureLayerGroup(String name, GSLayerGroupEncoder group) {
+        return configureLayerGroup(null, name, group);
+    }
+    
+    /**
+     * Update a LayerGroup using the specified encoder
+     * 
+     * @param workspace name of the workspace
+     * @param name name of the layer group
+     * @param group group encoder
+     * @return true if operation was successful
+     */    
+    public boolean configureLayerGroup(String workspace, String name, GSLayerGroupEncoder group) {
+        String url = restURL + "/rest";
+        if (workspace == null) {
+            url += "/layergroups/" + name;
+        } else {
+            url += "/workspaces/" + workspace + "/layergroups/" + name;
+        }  
+        
+        String sendResult = HTTPUtils.putXml(url, group.toString(), gsuser, gspass);
+        if (sendResult != null) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("LayerGroup successfully configured: " + name);
+            }
+        } else {
+            if (LOGGER.isWarnEnabled())
+                LOGGER.warn("Error configuring LayerGroup " + name + " (" + sendResult + ")");
+        }
+
+        return sendResult != null;         
+    }
+    
     /**
      * Configure an existent coverage in a given workspace and coverage store
      * 
