@@ -395,6 +395,12 @@ public class GeoServerRESTReader {
     //=== LAYERGROUPS
     //==========================================================================
 
+    /**
+     * Get summary info about all LayerGroups in the given workspace.
+     *
+     * @param workspace name of the workspace
+     * @return summary info about LayerGroups as a {@link RESTLayerGroupList}
+     */
     public RESTLayerGroupList getLayerGroups(String workspace) {
         String url;
         if (workspace == null) {
@@ -409,6 +415,13 @@ public class GeoServerRESTReader {
         return RESTLayerGroupList.build(load(url));
     }
 
+    /**
+     * Get detailed info about a given LayerGroup.
+     *
+     * @param workspace name of the workspace
+     * @param name the name of the LayerGroup
+     * @return LayerGroup details as a {@link RESTLayerGroup}
+     */
     public RESTLayerGroup getLayerGroup(String workspace, String name) {
         String url;
         if (workspace == null) {
