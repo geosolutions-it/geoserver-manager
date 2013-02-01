@@ -2,6 +2,15 @@ REST client library to interact with GeoServer (http://www.geoserver.org)
 
 The purpose of this project is to hold a REST client library to interact with GeoServer; a requirement for this library is to depend as less as possible on external libraries. This library aims at being lean and mean.
 
+For general questions about this project feel free to use the mailing lists.
+
+Mailing Lists
+
+USERS
+            https://groups.google.com/forum/?fromgroups#!forum/geoserver-manager-users
+DEVELOPERS
+            https://groups.google.com/forum/?fromgroups#!forum/geoserver-manager-devs
+
 For more information see this page:
 
 https://github.com/geosolutions-it/geoserver-manager
