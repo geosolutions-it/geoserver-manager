@@ -773,7 +773,7 @@ public class GeoServerRESTPublisher {
             ParameterConfigure configure, NameValuePair... params) throws FileNotFoundException,
             IllegalArgumentException {
         if (workspace == null || dsType == null || storeName == null || method == null
-                | extension == null || mimeType == null || uri == null) {
+                || extension == null || mimeType == null || uri == null) {
             throw new IllegalArgumentException("Null argument");
         }
         StringBuilder sbUrl = new StringBuilder(restURL).append("/rest/workspaces/")
