@@ -25,12 +25,18 @@
 
 package it.geosolutions.geoserver.rest.encoder.utils;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.jdom.filter.Filter;
+import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +50,21 @@ public abstract class ElementUtils {
 	 * Default logger
 	 */
 	private final static Logger LOGGER = LoggerFactory.getLogger(ElementUtils.class);
+        private final static SAXBuilder builder = new SAXBuilder();
+	
+    public static Document parseDocument(final String xml) throws JDOMException, IOException, IllegalArgumentException {
+        if (xml==null){
+            throw new IllegalArgumentException("Unable to parse a null xml string");
+        }
+        return (Document) builder.build(new StringReader(xml));
+    }
+    
+    public static Document parseDocument(final Reader xmlReader) throws JDOMException, IOException, IllegalArgumentException {
+        if (xmlReader==null){
+            throw new IllegalArgumentException("Unable to parse a null xml string");
+        }
+        return (Document) builder.build(xmlReader);
+    }
 
 	/**
 	 * 

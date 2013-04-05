@@ -41,11 +41,12 @@ import it.geosolutions.geoserver.rest.decoder.RESTNamespaceList;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
 import it.geosolutions.geoserver.rest.decoder.RESTWorkspaceList;
+import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -338,13 +339,24 @@ public class GeoServerRESTReader {
      * @param csName The name of the CoverageStore
      * @return Coverages list as a {@link RESTCoverageList}
      */
-    public RESTCoverageList getCoverages(String workspace, String csName) {
-            // restURL + "/rest/workspaces/" + workspace + "/coveragestores/" + coverageStore + "/coverages.xml";
-        String url = "/rest/workspaces/" + workspace + "/coveragestores/" + csName + "/coverages.xml";
+    public XmlElement getCoverages(String workspace, String csName) {
+        // restURL + "/rest/workspaces/" + workspace + "/coveragestores/" + coverageStore + "/coverages.xml";
+        String url = "/rest/workspaces/" + workspace + "/coveragestores/" + csName
+                + "/coverages.xml";
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("### Retrieving Covs from " + url);
         }
-        return RESTCoverageList.build(load(url));
+        String response = load(url);
+        try {
+            return new XmlElement(
+                    it.geosolutions.geoserver.rest.encoder.utils.ElementUtils
+                            .parseDocument(response));
+        } catch (Exception e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Error parsing reponse from " + url + " Response: " + response);
+            }
+        }
+        return null;
     }
     
     /**
@@ -355,12 +367,23 @@ public class GeoServerRESTReader {
      * @param name The name of the Coverage
      * @return Coverage details as a {@link RESTCoverage}
      */
-    public RESTCoverage getCoverage(String workspace, String store, String name) {
+    public GSCoverageEncoder getCoverage(String workspace, String store, String name) {
         String url = "/rest/workspaces/" + workspace + "/coveragestores/" + store + "/coverages/"+name+".xml";
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("### Retrieving Coverage from " + url);
         }
-        return RESTCoverage.build(load(url));
+        String response = load(url);
+        try {
+            GSCoverageEncoder ce=new GSCoverageEncoder();
+            ce.build(it.geosolutions.geoserver.rest.encoder.utils.ElementUtils
+                            .parseDocument(response));
+            return ce;
+        } catch (Exception e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Error parsing reponse from " + url + " Response: " + response);
+            }
+        }
+        return null;
     }
 
     /**

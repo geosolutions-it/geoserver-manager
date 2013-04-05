@@ -27,6 +27,7 @@ package it.geosolutions.geoserver.rest.encoder.utils;
 
 
 import org.jdom.Content;
+import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Text;
 import org.jdom.output.Format;
@@ -39,7 +40,7 @@ import org.jdom.output.XMLOutputter;
  */
 public class XmlElement{
 	
-	private final Element root;
+    private Element root;
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -55,6 +56,18 @@ public class XmlElement{
 	
 	@SuppressWarnings("unused")
 	private XmlElement(){root=null;};
+	
+    public XmlElement(final Element root) {
+        this.root = root;
+    }
+
+    public XmlElement(final Document doc) {
+        root = doc.getRootElement();
+    }
+    
+    public void build(final Document doc) {
+        root = doc.getRootElement();
+    }
 	
 	protected void add(final String nodename, final String nodetext) {
     	add(nodename,new Text(nodetext));
