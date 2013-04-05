@@ -109,7 +109,7 @@
 		</repository>
 		<site>
 			<id>demo.geosolutions</id>
-			<url>scp://demo.geo-solutions.it/var/www/share/javadoc/gsman</url>
+			<url>scp://demo.geo-solutions.it/var/www/share/github/gsman</url>
 		</site>
 	</distributionManagement>
 
