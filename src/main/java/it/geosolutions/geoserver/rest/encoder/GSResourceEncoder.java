@@ -29,6 +29,7 @@ import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
@@ -46,15 +47,18 @@ import org.jdom.filter.Filter;
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com | emmanuel.blondel@fao.org
  */
 public abstract class GSResourceEncoder
 		extends PropertyXMLEncoder {
 	public final static String NAME = "name";
 	public final static String METADATA="metadata";
 	public final static String KEYWORDS="keywords";
+	public final static String METADATALINKS="metadataLinks";
 
 	final private GSMetadataEncoder metadata = new GSMetadataEncoder();
 	final private Element keywordsListEncoder = new Element(KEYWORDS);
+	final private Element metadataLinksListEncoder = new Element(METADATALINKS);
 	
 	private class GSMetadataEncoder extends NestedElementEncoder{
 		public GSMetadataEncoder() {
@@ -75,6 +79,7 @@ public abstract class GSResourceEncoder
 		// Link members to the parent
 		addContent(metadata.getRoot());
 		addContent(keywordsListEncoder);
+		addContent(metadataLinksListEncoder);
 	}
 
 	public void setEnabled(boolean enabled) {
@@ -136,6 +141,45 @@ public abstract class GSResourceEncoder
 		})).size() == 0 ? false : true;
 	}
 
+	/**
+     * @param MetadataLink the metadataLink to add
+     * 
+     * @author Emmanuel Blondel
+     */
+    public void addMetadataLinkInfo(GSMetadataLinkInfoEncoder metadataLinkInfo) {
+    	metadataLinksListEncoder.addContent(metadataLinkInfo.getRoot());
+    }
+    
+    
+    /** Quick MetadataLinkInfo set-up
+     * 
+     * @author Emmanuel Blondel
+     * 
+     * @param type
+     * @param metadataType
+     * @param content
+     */
+    public void addMetadataLinkInfo(String type, String metadataType, String content){
+    	final GSMetadataLinkInfoEncoder mde = new GSMetadataLinkInfoEncoder();
+    	mde.setup(type, metadataType, content);
+    	metadataLinksListEncoder.addContent(mde.getRoot());
+    }
+
+
+    /**
+	 * delete a metadataLinkInfo from the list using the metadataURL (MetadataLinkInfo content)
+	 * 
+	 * @author Emmanuel Blondel
+	 * 
+	 * @param metadataURL
+	 * @return true if something is removed, false otherwise
+	 */
+	public boolean delMetadataLinkInfo(final String metadataURL) {
+		return (metadataLinksListEncoder.removeContent(GSMetadataLinkInfoEncoder.getFilterByContent(metadataURL))).size() == 0 ? false
+                : true;
+	}
+	
+	
     /**
      * Reprojection policy for a published layer. One of:
      * <ul>

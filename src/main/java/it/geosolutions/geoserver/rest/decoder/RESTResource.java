@@ -28,6 +28,8 @@ package it.geosolutions.geoserver.rest.decoder;
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
 import it.geosolutions.geoserver.rest.encoder.feature.FeatureTypeAttribute;
 import it.geosolutions.geoserver.rest.encoder.feature.GSAttributeEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadatalink.ResourceMetadataLinkInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +43,7 @@ import org.jdom.Namespace;
  * Parse a resource (FeatureType or Coverage) returned as XML REST objects.
  * 
  * @author etj
+ * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com | emmanuel.blondel@fao.org
  */
 public class RESTResource {
     protected final Element rootElem;
@@ -154,6 +157,59 @@ public class RESTResource {
         return attrsList;
     }
 
+    /** 
+     * 
+     * @author Emmanuel Blondel
+     * 
+     * @return the list of metadataLinkInfo
+     */
+    public List<Map<ResourceMetadataLinkInfo, String>> getMetadataLinkInfoList() {
+        List<Map<ResourceMetadataLinkInfo, String>> metaLinksList = null;
+
+        final Element metaLinksRoot = rootElem.getChild("metadataLinks");
+        final List<Element> metaLinks = metaLinksRoot.getChildren();
+        if (metaLinks != null) {
+            metaLinksList = new ArrayList<Map<ResourceMetadataLinkInfo, String>>(metaLinks.size());
+            for (Element metaLink : metaLinks) {
+                Map<ResourceMetadataLinkInfo, String> metaLinkMap = new HashMap<ResourceMetadataLinkInfo, String>();
+                metaLinksList.add(metaLinkMap);
+                for (ResourceMetadataLinkInfo rmd : ResourceMetadataLinkInfo.values()) {
+                    String key = rmd.toString();
+                    metaLinkMap.put(rmd, metaLink.getChildText(key));
+                }
+            }
+        }
+        return metaLinksList;
+    }
+
+    
+    /** 
+     * 
+     * @author Emmanuel Blondel
+     * 
+     * @return the list of GSMetadataLinkEncoder
+     */    
+    public List<GSMetadataLinkInfoEncoder> getEncodedMetadataLinkInfoList() {
+        List<GSMetadataLinkInfoEncoder> metaLinksList = null;
+
+        final Element metaLinksRoot = rootElem.getChild("metadataLinks");
+        final List<Element> metaLinks = metaLinksRoot.getChildren();
+        if (metaLinks != null) {
+            metaLinksList = new ArrayList<GSMetadataLinkInfoEncoder>(metaLinks.size());
+            for (Element metaLink : metaLinks) {
+                final GSMetadataLinkInfoEncoder metaLinkEnc = new GSMetadataLinkInfoEncoder();
+                for (ResourceMetadataLinkInfo rmd : ResourceMetadataLinkInfo.values()) {
+                    String key = rmd.toString();
+                    metaLinkEnc.setMetadataLinkInfoMember(rmd, metaLink.getChildText(key)); //change
+                }
+                metaLinksList.add(metaLinkEnc);
+            }
+
+        }
+        return metaLinksList;
+    }
+    
+    
     // /**
     // * @return the list of available attribute names
     // */
