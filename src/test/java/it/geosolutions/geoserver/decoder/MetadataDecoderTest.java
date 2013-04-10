@@ -23,6 +23,8 @@ package it.geosolutions.geoserver.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
 import it.geosolutions.geoserver.rest.decoder.RESTDimensionInfo;
+import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadatalink.ResourceMetadataLinkInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +37,7 @@ import org.springframework.core.io.ClassPathResource;
 
 /**
  * @author DamianoG
+ * @author eblondel
  *
  */
 public class MetadataDecoderTest {
@@ -64,11 +67,26 @@ public class MetadataDecoderTest {
                 Assert.assertEquals(el.getKey(),"elevation");
                 Assert.assertEquals(el.isEnabled(),true);
             }
-        }
-            
-        
-        
-        
-        
+        } 
     }
+    
+    @Test
+    public void testMetadataLinkInfo() throws IOException{
+    	File coverageFile = new ClassPathResource("testdata/coverageExample.xml").getFile();
+        String coverageString = FileUtils.readFileToString(coverageFile);
+        RESTCoverage coverage = RESTCoverage.build(coverageString);
+            
+        List<GSMetadataLinkInfoEncoder> list = coverage.getEncodedMetadataLinkInfoList();
+            
+        GSMetadataLinkInfoEncoder metadataLinkInfo1 = list.get(0);
+        Assert.assertEquals(metadataLinkInfo1.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.type),"text/xml");
+        Assert.assertEquals(metadataLinkInfo1.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.metadataType),"ISO19115:2003");
+        Assert.assertEquals(metadataLinkInfo1.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.content),"http://www.organization.org/metadata1");
+    
+        GSMetadataLinkInfoEncoder metadataLinkInfo2 = list.get(1);
+        Assert.assertEquals(metadataLinkInfo2.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.type),"text/html");
+        Assert.assertEquals(metadataLinkInfo2.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.metadataType),"ISO19115:2003");
+        Assert.assertEquals(metadataLinkInfo2.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.content),"http://www.organization.org/metadata2");
+            
+   } 
 }
