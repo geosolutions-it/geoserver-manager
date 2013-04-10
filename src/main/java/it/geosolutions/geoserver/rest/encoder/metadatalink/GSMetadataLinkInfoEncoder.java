@@ -33,75 +33,132 @@ import org.jdom.filter.Filter;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
-/** GSMetadataLinkEncoder
+/**
+ * GSMetadataLinkEncoder - encodes a metadataLink for a given GeoServer Resource
+ * (feature type /coverage), as follows:
+ * <pre>
+ * {@code
+ * final GSMetadataLinkInfoEncoder mde = new GSMetadataLinkInfoEncoder();
+ * mde.setup("text/xml", "ISO19115:2003","http://www.organization.org/metadata");
+ * }
+ * </pre>
+ * For this example, the XML output is:
+ * <pre>
+ * {@code
+ * <metadataLink>
+ * 	<type>text/xml</type>
+ * 	<metadataType>ISO19115:2003</metadataType>
+ * 	<content>http://www.organization.org/metadata</content>
+ * </metadataLink>
+ * }
+ * </pre>
  * 
- * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com | emmanuel.blondel@fao.org
- *
+ * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com |
+ *         emmanuel.blondel@fao.org
+ * 
  */
 public class GSMetadataLinkInfoEncoder extends PropertyXMLEncoder {
-	
-	public static class filterByContent implements Filter {
-        
-        final private String key;
-        
-        public filterByContent(String content){
-            this.key=content;
-        }
-        
-        private static final long serialVersionUID = 1L;
 
-        public boolean matches(Object obj) {
-                Element el=((Element) obj).getChild(ResourceMetadataLinkInfo.content.toString());
-                if (el!=null && el.getTextTrim().equals(key)) {
-                        return true;
-                }
-                return false;
-        }
-    }
-    
-    public static Filter getFilterByContent(String content){
-        return new filterByContent(content);
-    }
-	
-	
-	public GSMetadataLinkInfoEncoder() {
-		super("metadataLink");	
+	/** A class to filter the MetadataLinkInfo by content
+	 * 
+	 *
+	 */
+	public static class filterByContent implements Filter {
+
+		final private String key;
+
+		public filterByContent(String content) {
+			this.key = content;
+		}
+
+		private static final long serialVersionUID = 1L;
+
+		public boolean matches(Object obj) {
+			Element el = ((Element) obj)
+					.getChild(ResourceMetadataLinkInfo.content.toString());
+			if (el != null && el.getTextTrim().equals(key)) {
+				return true;
+			}
+			return false;
+		}
 	}
 
-	/** quick MetadataLinkInfo set-up
+	/** 
+	 * Get a Filter using the MetadataLinkInfo content (metadataURL)
+	 * 
+	 * @param content
+	 * @return the filter
+	 */
+	public static Filter getFilterByContent(String content) {
+		return new filterByContent(content);
+	}
+
+	/** 
+	 * Constructs a new GSMetadataLinkInfoEncoder
+	 * 
+	 */
+	public GSMetadataLinkInfoEncoder() {
+		super("metadataLink");
+	}
+
+	/** 
+	 * Set-up quickly a metadataLinkInfo
 	 * 
 	 * @param type
 	 * @param metadataType
 	 * @param content
 	 */
-	public void setup(String type, String metadataType, String content){
+	public void setup(String type, String metadataType, String content) {
 		set(ResourceMetadataLinkInfo.type.name(), type);
 		set(ResourceMetadataLinkInfo.metadataType.name(), metadataType);
 		set(ResourceMetadataLinkInfo.content.name(), content);
 	}
-    
-	public void setup(Map<ResourceMetadataLinkInfo, String> metadataLinkInfos){
-	    for (Entry<ResourceMetadataLinkInfo,String> mdLinkInfo:metadataLinkInfos.entrySet()){
-	    	set(mdLinkInfo.getKey().toString(),mdLinkInfo.getValue());
-	    }
+
+	/** 
+	 * Set-up a metadataLinkInfo
+	 * 
+	 * @param metadataLinkInfos
+	 */
+	public void setup(Map<ResourceMetadataLinkInfo, String> metadataLinkInfos) {
+		for (Entry<ResourceMetadataLinkInfo, String> mdLinkInfo : metadataLinkInfos
+				.entrySet()) {
+			set(mdLinkInfo.getKey().toString(), mdLinkInfo.getValue());
+		}
 	}
 	
-    public void setMetadataLinkInfoMember(ResourceMetadataLinkInfo type, String value){
-        set(type.toString(),value);
-    }
-    
+	/** 
+	 * Set a MetadataLinkInfo member (type, metadataType or content)
+	 * 
+	 * @param type
+	 * @param value
+	 */
+	public void setMetadataLinkInfoMember(ResourceMetadataLinkInfo type,
+			String value) {
+		set(type.toString(), value);
+	}
 
-    public boolean delMetadataLinkInfoMember(ResourceMetadataLinkInfo type){
-        return ElementUtils.remove(this.getRoot(), get(type.toString()));
-    }  
-    
+	/** 
+	 * Deletes a MetadataLinkInfo member
+	 * 
+	 * @param type
+	 * @return true if the metadataLinkInfo member is removed
+	 */
+	public boolean delMetadataLinkInfoMember(ResourceMetadataLinkInfo type) {
+		return ElementUtils.remove(this.getRoot(), get(type.toString()));
+	}
 
-    public String getMetadataLinkInfoMember(ResourceMetadataLinkInfo type){
-        Element el = get(type.toString());
-        if (el!=null)
-            return el.getTextTrim();
-        else
-            return null;
-    }
-  
+	/** 
+	 * Get the value of the MetadataLinkInfo member
+	 * 
+	 * @param type
+	 * @return the value of the MetadataLinkInfo member
+	 */
+	public String getMetadataLinkInfoMember(ResourceMetadataLinkInfo type) {
+		Element el = get(type.toString());
+		if (el != null)
+			return el.getTextTrim();
+		else
+			return null;
+	}
+
 }

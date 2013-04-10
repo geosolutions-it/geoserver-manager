@@ -47,7 +47,8 @@ import org.jdom.filter.Filter;
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
- * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com | emmanuel.blondel@fao.org
+ * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com |
+ *         emmanuel.blondel@fao.org
  */
 public abstract class GSResourceEncoder
 		extends PropertyXMLEncoder {
@@ -86,10 +87,6 @@ public abstract class GSResourceEncoder
 		set("enabled", (enabled) ? "true" : "false");
 	}
 
-	// TODO MetadataLink
-//	public void setMetadata(String key, String url){
-//		metadata.set(key, url);
-//	}
 	
 	/**
 	 * @param key
@@ -141,34 +138,36 @@ public abstract class GSResourceEncoder
 		})).size() == 0 ? false : true;
 	}
 
-	
 	/**
-     * @param MetadataLink the metadataLink to add
-     * 
-     * @author Emmanuel Blondel
-     */
-    public void addMetadataLinkInfo(GSMetadataLinkInfoEncoder metadataLinkInfo) {
-    	metadataLinksListEncoder.addContent(metadataLinkInfo.getRoot());
-    }
-    
-    
-    /** Quick MetadataLinkInfo set-up
-     * 
-     * @author Emmanuel Blondel
-     * 
-     * @param type
-     * @param metadataType
-     * @param content
-     */
-    public void addMetadataLinkInfo(String type, String metadataType, String content){
-    	final GSMetadataLinkInfoEncoder mde = new GSMetadataLinkInfoEncoder();
-    	mde.setup(type, metadataType, content);
-    	metadataLinksListEncoder.addContent(mde.getRoot());
-    }
+	 * Adds a MetadataLinkInfo to the GeoServer Resource
+	 * 
+	 * @param MetadataLink
+	 * 
+	 * @author Emmanuel Blondel
+	 */
+	public void addMetadataLinkInfo(GSMetadataLinkInfoEncoder metadataLinkInfo) {
+		metadataLinksListEncoder.addContent(metadataLinkInfo.getRoot());
+	}
 
+	/**
+	 * Adds quickly a MetadataLinkInfo to the GeoServer Resource
+	 * 
+	 * @author Emmanuel Blondel
+	 * 
+	 * @param type
+	 * @param metadataType
+	 * @param content
+	 */
+	public void addMetadataLinkInfo(String type, String metadataType,
+			String content) {
+		final GSMetadataLinkInfoEncoder mde = new GSMetadataLinkInfoEncoder();
+		mde.setup(type, metadataType, content);
+		metadataLinksListEncoder.addContent(mde.getRoot());
+	}
 
-    /**
-	 * delete a metadataLinkInfo from the list using the metadataURL (MetadataLinkInfo content)
+	/**
+	 * Deletes a metadataLinkInfo from the list using the metadataURL
+	 * (MetadataLinkInfo content)
 	 * 
 	 * @author Emmanuel Blondel
 	 * 
@@ -176,8 +175,10 @@ public abstract class GSResourceEncoder
 	 * @return true if something is removed, false otherwise
 	 */
 	public boolean delMetadataLinkInfo(final String metadataURL) {
-		return (metadataLinksListEncoder.removeContent(GSMetadataLinkInfoEncoder.getFilterByContent(metadataURL))).size() == 0 ? false
-                : true;
+		return (metadataLinksListEncoder
+				.removeContent(GSMetadataLinkInfoEncoder
+						.getFilterByContent(metadataURL))).size() == 0 ? false
+				: true;
 	}
 	
 	
