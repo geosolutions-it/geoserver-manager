@@ -1,3 +1,27 @@
+/*
+ *  GeoServer-Manager - Simple Manager Library for GeoServer
+ *  
+ *  Copyright (C) 2007,2012 GeoSolutions S.A.S.
+ *  http://www.geo-solutions.it
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package it.geosolutions.geoserver.rest.encoder;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
@@ -7,6 +31,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTPublished;
 import it.geosolutions.geoserver.rest.decoder.RESTPublishedList;
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -14,10 +39,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 
+/**
+ * @todo applied patch for https://github.com/geosolutions-it/geoserver-manager/issues/61
+ * still need to split test encoder from integration
+ */
 public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
 
     @Before
     public void setup() throws Exception {
+        if (enabled()){
+            init();
+        }
+    }
+    
+    private void init() throws IOException{
         String ws = "topp";
         String storeName = "testshpcollection";    
         
@@ -41,10 +76,14 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
         
         // Publish style
         publisher.publishStyle(new ClassPathResource("testdata/default_line.sld").getFile(), "default_line");
+
     }
     
     @Test
     public void testCreateLayerGroup() throws Exception {
+        
+        if (!enabled()) return;
+        
         String groupName = "my-tasmania";
                 
         GSLayerGroupEncoder groupWriter = new GSLayerGroupEncoder();
@@ -79,6 +118,9 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
     
     @Test
     public void testCreateLayerGroupInWorkspace() throws Exception {
+        
+        if (!enabled()) return;
+        
         String groupName = "my-tasmania-in-ws";
         
         GSLayerGroupEncoder groupWriter = new GSLayerGroupEncoder();
@@ -112,6 +154,9 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
     }
 
     private void createTestLayerGroup(String workspace, String groupName) {
+        
+        if (!enabled()) return;
+        
         GSLayerGroupEncoder groupWriter = new GSLayerGroupEncoder();
         groupWriter.setBounds("EPSG:26713", 589425.93423656, 609518.6719560538, 4913959.224611808, 4928082.949945881);
         groupWriter.addLayer("topp:boundaries");
@@ -121,6 +166,9 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
     
     @Test
     public void testConfigureLayerGroup() throws Exception {
+        
+        if (!enabled()) return;
+        
         String groupName = "my-tasmania";
                 
         createTestLayerGroup(null, groupName);
@@ -156,6 +204,9 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
     
     @Test
     public void testConfigureLayerGroupInWorkspace() throws Exception {
+        
+        if (!enabled()) return;
+        
         String groupName = "my-tasmania-in-ws";
         
         createTestLayerGroup("topp", groupName);
@@ -191,6 +242,9 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
     
     @Test
     public void testConfigureLayerGroup23() throws Exception {
+        
+        if (!enabled()) return;
+        
         String groupName = "my-tasmania-23";
         
         createTestLayerGroup(null, groupName);
@@ -226,6 +280,9 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
      */
     @Test
     public void testCreateNestedLayerGroup23() throws Exception {
+        
+        if (!enabled()) return;
+        
         String groupName = "my-tasmania-eo";
         
         createTestLayerGroup(null, "tasmania");
