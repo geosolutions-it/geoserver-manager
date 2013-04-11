@@ -28,6 +28,7 @@ import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.publisher.GeoserverRESTPublisherTest;
 
@@ -71,6 +72,11 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         fte.setDescription("desc");
         fte.setEnabled(true);
 
+        //metadataLink
+        GSMetadataLinkInfoEncoder metadatalink = new GSMetadataLinkInfoEncoder();
+        metadatalink.setup("text/xml", "ISO19115:2003","http://www.organization.org/metadata1");
+        fte.addMetadataLinkInfo(metadatalink);
+        
         GSLayerEncoder layerEncoder = new GSLayerEncoder();
         layerEncoder.setEnabled(true);
         layerEncoder.setQueryable(true);
@@ -187,6 +193,14 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         Assert.assertTrue(encoder.delKeyword("KEYWORD_2"));
         Assert.assertFalse(encoder.delKeyword("KEYWORD_M"));
 
+        //metadataLinkInfo
+        encoder.addMetadataLinkInfo("text/xml", "ISO19115:2003","http://www.organization.org/metadata1");
+        encoder.addMetadataLinkInfo("text/html", "ISO19115:2003","http://www.organization.org/metadata2");
+        
+        Assert.assertTrue(encoder.delMetadataLinkInfo("http://www.organization.org/metadata2"));
+        Assert.assertFalse(encoder.delMetadataLinkInfo("http://www.organization.org/metadata3"));
+        
+        //dimensions
         final GSFeatureDimensionInfoEncoder elevationDimension = new GSFeatureDimensionInfoEncoder(
                 "elevation_field");
 
