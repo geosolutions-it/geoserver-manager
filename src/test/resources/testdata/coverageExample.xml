@@ -7,6 +7,18 @@
     <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/namespaces/topp.xml" type="application/xml"/>
   </namespace>
   <title>granuleTestMosaic</title>
+  <metadataLinks>
+  	<metadataLink>
+  		<type>text/xml</type>
+  		<metadataType>ISO19115:2003</metadataType>
+  		<content>http://www.organization.org/metadata1</content>
+  	</metadataLink>
+  	<metadataLink>
+  		<type>text/html</type>
+  		<metadataType>ISO19115:2003</metadataType>
+  		<content>http://www.organization.org/metadata2</content>
+  	</metadataLink>
+  </metadataLinks>
   <nativeCRS>GEOGCS[&quot;WGS 84&quot;, &#xd;
   DATUM[&quot;World Geodetic System 1984&quot;, &#xd;
     SPHEROID[&quot;WGS 84&quot;, 6378137.0, 298.257223563, AUTHORITY[&quot;EPSG&quot;,&quot;7030&quot;]], &#xd;
