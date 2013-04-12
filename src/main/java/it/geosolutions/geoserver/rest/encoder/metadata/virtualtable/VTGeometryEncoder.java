@@ -22,15 +22,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package it.geosolutions.geoserver.rest.encoder.metadata;
+package it.geosolutions.geoserver.rest.encoder.metadata.virtualtable;
 
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
-import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jdom.Element;
+import org.jdom.filter.Filter;
 
 /**
  * GSVirtualTableGeomEncoder - Encodes a metadata VirtualTable geometry for a
@@ -40,7 +41,9 @@ import org.jdom.Element;
  * {
  * 	@code
  * 	final GSVirtualTableGeomEncoder vtGeom = new GSVirtualTableGeomEncoder();
- * 	vtGeom.setup("the_geom", "MultiPolygon", "4326");
+ * 	vtGeom.setVirtualTableGeometryMember(VTGeometry.name, "the_geom");
+ * 	vtGeom.setVirtualTableGeometryMember(VTGeometry.type, "MultiPolygon");
+ * 	vtGeom.setVirtualTableGeometryMember(VTGeometry.srid, "4326");
  * }
  * </pre>
  * 
@@ -60,16 +63,62 @@ import org.jdom.Element;
  *         emmanuel.blondel@fao.org
  * 
  */
-public class GSVirtualTableGeomEncoder extends PropertyXMLEncoder {
+public class VTGeometryEncoder extends XmlElement {
 
+	/** 
+	 * A class to filter the VirtualTable geometries by name
+	 *
+	 */
+	public static class filterByName implements Filter {
+
+		final private String key;
+
+		public filterByName(String name) {
+			this.key = name;
+		}
+
+		private static final long serialVersionUID = 1L;
+
+		public boolean matches(Object obj) {
+			Element el = ((Element) obj)
+					.getChild(VTGeometry.name.toString());
+			if (el != null && el.getTextTrim().equals(key)) {
+				return true;
+			}
+			return false;
+		}
+	}
+
+	/** 
+	 * Get a Filter using the VTGeometry name
+	 * 
+	 * @param name
+	 * @return the filter
+	 */
+	public static Filter getFilterByName(String name) {
+		return new filterByName(name);
+	}
+	
 	/**
 	 * Constructs a GSVirtualTableGeomEncoder
 	 * 
 	 */
-	public GSVirtualTableGeomEncoder() {
+	public VTGeometryEncoder() {
 		super("geometry");
 	}
 
+	/**
+	 * Constructs quickly a VTGeometryEncoder
+	 * 
+	 * @param name
+	 * @param geometryType
+	 * @param srid
+	 */
+	public VTGeometryEncoder(String name, String geometryType, String srid) {
+		super("geometry");
+		this.setup(name, geometryType, srid);
+	}
+	
 	/**
 	 * Set-up quickly a GSVirtualTableGeomEncoder
 	 * 
@@ -77,10 +126,10 @@ public class GSVirtualTableGeomEncoder extends PropertyXMLEncoder {
 	 * @param geometryType
 	 * @param srid
 	 */
-	public void setup(String name, String geometryType, String srid) {
-		set(VirtualTableGeometry.name.name(), name);
-		set(VirtualTableGeometry.type.name(), geometryType);
-		set(VirtualTableGeometry.srid.name(), srid);
+	protected void setup(String name, String geometryType, String srid) {
+		set(VTGeometry.name.name(), name);
+		set(VTGeometry.type.name(), geometryType);
+		set(VTGeometry.srid.name(), srid);
 	}
 
 	/**
@@ -88,8 +137,8 @@ public class GSVirtualTableGeomEncoder extends PropertyXMLEncoder {
 	 * 
 	 * @param vtGeometryMembers
 	 */
-	public void setup(Map<VirtualTableGeometry, String> vtGeometryMembers) {
-		for (Entry<VirtualTableGeometry, String> vtGeomMember : vtGeometryMembers
+	public void setup(Map<VTGeometry, String> vtGeometryMembers) {
+		for (Entry<VTGeometry, String> vtGeomMember : vtGeometryMembers
 				.entrySet()) {
 			set(vtGeomMember.getKey().toString(), vtGeomMember.getValue());
 		}
@@ -101,7 +150,7 @@ public class GSVirtualTableGeomEncoder extends PropertyXMLEncoder {
 	 * @param type
 	 * @param value
 	 */
-	public void setVirtualTableGeometryMember(VirtualTableGeometry type,
+	public void setVirtualTableGeometryMember(VTGeometry type,
 			String value) {
 		set(type.toString(), value);
 	}
@@ -112,8 +161,8 @@ public class GSVirtualTableGeomEncoder extends PropertyXMLEncoder {
 	 * @param type
 	 * @return
 	 */
-	public boolean delVirtualTableGeometryMember(VirtualTableGeometry type) {
-		return ElementUtils.remove(this.getRoot(), get(type.toString()));
+	public boolean delVirtualTableGeometryMember(VTGeometry type) {
+		return ElementUtils.remove(this.getRoot(), this.getRoot().getChild(type.toString()));
 	}
 
 	/**
@@ -122,8 +171,8 @@ public class GSVirtualTableGeomEncoder extends PropertyXMLEncoder {
 	 * @param type
 	 * @return
 	 */
-	public String getVirtualTableGeometryMember(VirtualTableGeometry type) {
-		Element el = get(type.toString());
+	public String getVirtualTableGeometryMember(VTGeometry type) {
+		Element el = this.getRoot().getChild(type.toString());
 		if (el != null)
 			return el.getTextTrim();
 		else

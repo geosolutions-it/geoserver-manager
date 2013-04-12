@@ -27,10 +27,10 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
+import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.GSVirtualTableEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTGeometryEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTParameterEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSVirtualTableEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSVirtualTableGeomEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSVirtualTableParamEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.publisher.GeoserverRESTPublisherTest;
@@ -38,7 +38,6 @@ import it.geosolutions.geoserver.rest.publisher.GeoserverRESTPublisherTest;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 
 import org.jdom.Element;
@@ -149,7 +148,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         
         GSFeatureDimensionInfoEncoder dim2 = new GSFeatureDimensionInfoEncoder("ELE");
         
-        encoder.addMetadata("elevation", dim2);
+        encoder.addMetadataDimension("elevation", dim2);
         dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
         Element el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
         Assert.assertNotNull(el);
@@ -163,7 +162,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
 
         dim2.setPresentation(Presentation.CONTINUOUS_INTERVAL);
         
-        encoder.setMetadata("time", new GSFeatureDimensionInfoEncoder("time"));
+        encoder.setMetadataDimension("time", new GSFeatureDimensionInfoEncoder("time"));
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
         Assert.assertNotNull(el);
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.RESOLUTION);
@@ -214,7 +213,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         // LOGGER.info(encoder.toString());
 
         final String metadata = "elevation";
-        encoder.setMetadata(metadata, elevationDimension);
+        encoder.setMetadataDimension(metadata, elevationDimension);
 
         elevationDimension.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
                 BigDecimal.valueOf(10));
@@ -261,22 +260,31 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         //virtual table
         //-------------
         // Set-up the vtGeom
-        final GSVirtualTableGeomEncoder vtGeom = new GSVirtualTableGeomEncoder();
-        vtGeom.setup("the_geom", "MultiPolygon", "4326");
+        final VTGeometryEncoder vtGeom = new VTGeometryEncoder("the_geom", "Point", "4326");
          
         // Set-up 2 virtual table parameters
-        final GSVirtualTableParamEncoder vtParam1 = new GSVirtualTableParamEncoder();
-        vtParam1.setup("high", "100000000", "^[\\d]+$");
-        final GSVirtualTableParamEncoder vtParam2 = new GSVirtualTableParamEncoder();
-        vtParam2.setup("low", "0", "^[\\d]+$");
+        final VTParameterEncoder vtParam1 = new VTParameterEncoder("high", "100000000", "^[\\d]+$");
+        final VTParameterEncoder vtParam2 = new VTParameterEncoder("low", "0", "^[\\d]+$");
          
         // sql
-        String sql = "select gid, state_name, the_geom from pgstates where persons between %low% and %high%";
+        String sql = "select gid, state_name, the_geom from pgstates where persons between %low% and %high% and state_abbr = '%state%'";
         
         //set-up the virtual table
         final GSVirtualTableEncoder vte = new GSVirtualTableEncoder();
-        vte.setup(nativeName, sql, null, Arrays.asList(vtGeom), Arrays.asList(vtParam1, vtParam2));
-        fte.setMetadataVirtualTable(vte);
+        vte.setName(nativeName);
+        vte.setSql(sql);
+        vte.addVirtualTableGeometry(vtGeom);
+        vte.addVirtualTableParameter(vtParam1);
+        vte.addVirtualTableParameter(vtParam2);
+        fte.setMetadataVirtualTable(vte); //Set the virtual table 
+        
+        //modif the vte
+        vte.delVirtualTableGeometry("the_geom");
+        vte.addVirtualTableGeometry("the_geom", "MultiPolygon", "4326");
+        
+        final VTParameterEncoder vtParam3 = new VTParameterEncoder("state", "FL", "^[\\w\\d\\s]+$");
+        vte.addVirtualTableParameter(vtParam3);
+        vte.addKeyColumn("gid");
         
         //Layer encoder
         //-------------

@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package it.geosolutions.geoserver.rest.encoder.metadata;
+package it.geosolutions.geoserver.rest.encoder.metadata.virtualtable;
 
 /**
  * Enumeration of Virtual Table geometry members
@@ -31,6 +31,6 @@ package it.geosolutions.geoserver.rest.encoder.metadata;
  *         emmanuel.blondel@fao.org
  * 
  */
-public enum VirtualTableGeometry {
+public enum VTGeometry {
 	name, type, srid
 }

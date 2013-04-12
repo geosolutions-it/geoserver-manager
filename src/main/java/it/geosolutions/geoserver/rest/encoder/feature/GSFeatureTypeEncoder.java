@@ -27,7 +27,7 @@ package it.geosolutions.geoserver.rest.encoder.feature;
 
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSVirtualTableEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.GSVirtualTableEncoder;
 
 import org.jdom.Element;
 
@@ -112,6 +112,14 @@ public class GSFeatureTypeEncoder extends GSResourceEncoder {
     	super.setMetadata("JDBC_VIRTUAL_TABLE", virtualtable);
     } 
     
+    /**
+     * Deletes the VirtualTable metadata
+     * 
+     * @return true if deleted, false otherwise
+     */
+    public boolean delMetadataVirtualTable(){
+    	return super.delMetadata("JDB_VIRTUAL_TABLE");
+    }    
     
     /**
      * delete a keyword from the list

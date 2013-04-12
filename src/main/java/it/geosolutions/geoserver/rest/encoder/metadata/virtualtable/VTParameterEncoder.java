@@ -22,32 +22,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package it.geosolutions.geoserver.rest.encoder.metadata;
+package it.geosolutions.geoserver.rest.encoder.metadata.virtualtable;
 
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
-import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jdom.Element;
+import org.jdom.filter.Filter;
 
 /**
  * GSVirtualTableParamEncoder - Encodes a metadata VirtualTable parameter for a
  * GeoServer featureType, as follows:
  * 
  * <pre>
- * {
- * 	@code
- * 	final GSVirtualTableParamEncoder vtParam = new GSVirtualTableParamEncoder();
- * 	vtParam.setup("fieldname", "default_value", "^[\\w\\d\\s]+$");
+ * { @code
+ * 	final VTParameterEncoder vtParam = new VTParameterEncoder();
+ * 	vtParam.setVirtualTableParamMember(VTParameter.name, "fieldname");
+ * 	vtParam.setVirtualTableParamMember(VTParameter.defaultValue,
+ * 			"default_value");
+ * 	vtParam.setVirtualTableParamMember(VTParameter.regexpValidator,
+ * 			"^[\\w\\d\\s]+$");
  * }
  * </pre>
  * 
  * For this example, the XML output is:
  * 
  * <pre>
- * {@code
+ * { @code
  * <parameter>
  * 	<name>fieldname</name>
  * 	<defaultValue>default_value</defaultValue>
@@ -60,15 +64,61 @@ import org.jdom.Element;
  *         emmanuel.blondel@fao.org
  * 
  */
-public class GSVirtualTableParamEncoder extends PropertyXMLEncoder {
+public class VTParameterEncoder extends XmlElement {
 
+	/** 
+	 * A class to filter the VirtualTable parameters by name
+	 *
+	 */
+	public static class filterByName implements Filter {
+
+		final private String key;
+
+		public filterByName(String name) {
+			this.key = name;
+		}
+
+		private static final long serialVersionUID = 1L;
+
+		public boolean matches(Object obj) {
+			Element el = ((Element) obj)
+					.getChild(VTParameter.name.toString());
+			if (el != null && el.getTextTrim().equals(key)) {
+				return true;
+			}
+			return false;
+		}
+	}
+
+	/** 
+	 * Get a Filter using the VTParameter name
+	 * 
+	 * @param name
+	 * @return the filter
+	 */
+	public static Filter getFilterByName(String name) {
+		return new filterByName(name);
+	}
+	
 	/**
 	 * Constructs a GSVirtualTableParamEncoder
 	 */
-	public GSVirtualTableParamEncoder() {
+	public VTParameterEncoder() {
 		super("parameter");
 	}
 
+	/**
+	 * Constructs quickly a VTParameterEncoder
+	 * 
+	 * @param name
+	 * @param defaultValue
+	 * @param regexpValidator
+	 */
+	public VTParameterEncoder(String name, String defaultValue, String regexpValidator){
+		super("parameter");
+		this.setup(name, defaultValue, regexpValidator);
+	}
+	
 	/**
 	 * Set-up quickly a VirtualTable parameter
 	 * 
@@ -76,10 +126,10 @@ public class GSVirtualTableParamEncoder extends PropertyXMLEncoder {
 	 * @param defaultValue
 	 * @param regexpValidator
 	 */
-	public void setup(String name, String defaultValue, String regexpValidator) {
-		set(VirtualTableParameter.name.name(), name);
-		set(VirtualTableParameter.defaultValue.name(), defaultValue);
-		set(VirtualTableParameter.regexpValidator.name(), regexpValidator);
+	protected void setup(String name, String defaultValue, String regexpValidator) {
+		set(VTParameter.name.name(), name);
+		set(VTParameter.defaultValue.name(), defaultValue);
+		set(VTParameter.regexpValidator.name(), regexpValidator);
 	}
 
 	/**
@@ -87,8 +137,8 @@ public class GSVirtualTableParamEncoder extends PropertyXMLEncoder {
 	 * 
 	 * @param vtParamMembers
 	 */
-	public void setup(Map<VirtualTableParameter, String> vtParamMembers) {
-		for (Entry<VirtualTableParameter, String> vtParamMember : vtParamMembers
+	public void setup(Map<VTParameter, String> vtParamMembers) {
+		for (Entry<VTParameter, String> vtParamMember : vtParamMembers
 				.entrySet()) {
 			set(vtParamMember.getKey().toString(), vtParamMember.getValue());
 		}
@@ -100,7 +150,7 @@ public class GSVirtualTableParamEncoder extends PropertyXMLEncoder {
 	 * @param type
 	 * @param value
 	 */
-	public void setVirtualTableParamMember(VirtualTableParameter type,
+	public void setVirtualTableParamMember(VTParameter type,
 			String value) {
 		set(type.toString(), value);
 	}
@@ -111,8 +161,8 @@ public class GSVirtualTableParamEncoder extends PropertyXMLEncoder {
 	 * @param type
 	 * @return
 	 */
-	public boolean delVirtualTableParamMember(VirtualTableParameter type) {
-		return ElementUtils.remove(this.getRoot(), get(type.toString()));
+	public boolean delVirtualTableParamMember(VTParameter type) {
+		return ElementUtils.remove(this.getRoot(), this.getRoot().getChild(type.toString()));
 	}
 
 	/**
@@ -121,8 +171,8 @@ public class GSVirtualTableParamEncoder extends PropertyXMLEncoder {
 	 * @param type
 	 * @return
 	 */
-	public String getVirtualTableParamMember(VirtualTableParameter type) {
-		Element el = get(type.toString());
+	public String getVirtualTableParamMember(VTParameter type) {
+		Element el = getRoot().getChild(type.toString());
 		if (el != null)
 			return el.getTextTrim();
 		else
