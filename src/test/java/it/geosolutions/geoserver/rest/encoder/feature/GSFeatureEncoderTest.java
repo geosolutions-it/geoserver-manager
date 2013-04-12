@@ -28,6 +28,9 @@ import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSVirtualTableEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSVirtualTableGeomEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSVirtualTableParamEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.publisher.GeoserverRESTPublisherTest;
@@ -35,6 +38,7 @@ import it.geosolutions.geoserver.rest.publisher.GeoserverRESTPublisherTest;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import org.jdom.Element;
@@ -48,6 +52,8 @@ import org.springframework.core.io.ClassPathResource;
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com |
+ *         emmanuel.blondel@fao.org
  */
 public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
     protected final static Logger LOGGER = LoggerFactory.getLogger(GSFeatureEncoderTest.class);
@@ -226,6 +232,65 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         Assert.assertNull(el);
         if (el == null)
             LOGGER.info("REMOVED");
+
+    }
+    
+    @Test
+    public void testSQLViewIntegration(){
+    	
+    	if (!enabled())
+            return;
+        deleteAll();
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
+
+        String storeName = "statesdb"; //name of the datastore setup for tests
+        String layerName = "my_sqlviewlayer";
+        String nativeName = "popstates";
+
+        GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+        fte.setName(layerName);
+        fte.setNativeName(nativeName);
+        fte.setTitle("title");
+        
+        fte.addKeyword("keyword1");
+        fte.addKeyword("keyword2");
+        fte.setNativeCRS("EPSG:4326");
+        fte.setDescription("desc");
+        fte.setEnabled(true);
+
+        //virtual table
+        //-------------
+        // Set-up the vtGeom
+        final GSVirtualTableGeomEncoder vtGeom = new GSVirtualTableGeomEncoder();
+        vtGeom.setup("the_geom", "MultiPolygon", "4326");
+         
+        // Set-up 2 virtual table parameters
+        final GSVirtualTableParamEncoder vtParam1 = new GSVirtualTableParamEncoder();
+        vtParam1.setup("high", "100000000", "^[\\d]+$");
+        final GSVirtualTableParamEncoder vtParam2 = new GSVirtualTableParamEncoder();
+        vtParam2.setup("low", "0", "^[\\d]+$");
+         
+        // sql
+        String sql = "select gid, state_name, the_geom from pgstates where persons between %low% and %high%";
+        
+        //set-up the virtual table
+        final GSVirtualTableEncoder vte = new GSVirtualTableEncoder();
+        vte.setup(nativeName, sql, null, Arrays.asList(vtGeom), Arrays.asList(vtParam1, vtParam2));
+        fte.setMetadataVirtualTable(vte);
+        
+        //Layer encoder
+        //-------------
+        GSLayerEncoder layerEncoder = new GSLayerEncoder();
+        layerEncoder.setEnabled(true);
+        layerEncoder.setQueryable(true);
+        layerEncoder.setDefaultStyle("polygon");
+
+        // test insert
+        //------------
+        publisher.createWorkspace(DEFAULT_WS);
+        boolean published = publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder);
+        assertTrue("Successfull publication", published);
+        assertTrue(existsLayer(layerName));
 
     }
 }

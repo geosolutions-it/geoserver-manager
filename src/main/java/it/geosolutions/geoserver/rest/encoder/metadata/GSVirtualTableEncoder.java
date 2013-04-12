@@ -31,7 +31,11 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
 /**
  * GSVirtualTableEncoder - Encodes a metadata VirtualTable for a GeoServer
- * featureType, as follows:
+ * featureType.
+ * 
+ * Example (based on the example provided in the Geoserver documentation - see
+ * {@link http://docs.geoserver.org/latest/en/user/data/database/sqlview.html#
+ * parameterizing-sql-views}):
  * 
  * <pre>
  * {
@@ -42,16 +46,16 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  * 
  * 	// Set-up 2 virtual table parameters
  * 	final GSVirtualTableParamEncoder vtParam1 = new GSVirtualTableParamEncoder();
- * 	vtParam1.setup("fieldname1", "default_value1", "^[\\w\\d\\s]+$");
+ * 	vtParam1.setup("high", "100000000", "^[\\d]+$");
  * 	final GSVirtualTableParamEncoder vtParam2 = new GSVirtualTableParamEncoder();
- * 	vtParam2.setup("fieldname2", "default_value2", "^[\\w\\d\\s]+$");
+ * 	vtParam2.setup("low", "0", "^[\\d]+$");
  * 
  * 	// sql
- * 	String sql = "select the_geom, id, field1, field2 from mytable where field1 = '%fieldname1%' and field2 = '%fieldname2%'";
+ * 	String sql = "select gid, state_name, the_geom from pgstates where persons between %low% and %high%";
  * 
  * 	// Set-up the virtual table
  * 	final GSVirtualTableEncoder vte = new GSVirtualTableEncoder();
- * 	vte.setup("mysqlview", sql, Arrays.asList("id"), Arrays.asList(vtGeom),
+ * 	vte.setup("popstates", sql, null, Arrays.asList(vtGeom),
  * 			Arrays.asList(vtParam1, vtParam2));
  * }
  * </pre>
@@ -61,23 +65,22 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  * <pre>
  * {@code
  * <virtualTable>
- * 	<name>mysqlview</name>
- * 	<sql>select the_geom, id, field1, field2 from mytable where field1 = '%fieldname1%' and field2 = '%fieldname2%'</sql>
- * 	<keyColumn>id</keyColumn>
+ * 	<name>popstates</name>
+ * 	<sql>select gid, state_name, the_geom from pgstates where persons between %low% and %high%</sql>
  * 	<geometry>
  * 		<name>the_geom</name>
  * 		<type>MultiPolygon</type>
  * 		<srid>4326</srid>
  * 	</geometry>
  * 	<parameter>
- * 		<name>fieldname1</name>
- * 		<defaultValue>default_value1</defaultValue>
- * 		<regexpValidator>^[\w\d\s]+$</regexpValidator>
+ * 		<name>high</name>
+ * 		<defaultValue>100000000</defaultValue>
+ * 		<regexpValidator>^[\d]+$</regexpValidator>
  * 	</parameter>
  * 	<parameter>
- * 		<name>fieldname2</name>
- * 		<defaultValue>default_value2</defaultValue>
- * 		<regexpValidator>^[\w\d\s]+$</regexpValidator>
+ * 		<name>low</name>
+ * 		<defaultValue>0</defaultValue>
+ * 		<regexpValidator>^[\d]+$</regexpValidator>
  * 	</parameter>
  * </virtualTable>
  * }
@@ -107,8 +110,7 @@ public class GSVirtualTableEncoder extends PropertyXMLEncoder {
 	 * is aimed to ensure that the order of metadata elements is well
 	 * maintained, and avoid errors at publication time in Geoserver.
 	 * 
-	 * @param name
-	 *            (must be the same as the featureType name)
+	 * @param name (must be the same as the featureType nativeName)
 	 * @param sql
 	 * @param keyColumns
 	 * @param geomEncList
@@ -119,6 +121,9 @@ public class GSVirtualTableEncoder extends PropertyXMLEncoder {
 			List<GSVirtualTableParamEncoder> paramEncList) {
 
 		this.getRoot().removeContent();
+		this.keyColumns = null;
+		this.geomEncList = null;
+		this.paramEncList = null;
 
 		this.name = name;
 		this.sql = sql;
@@ -171,6 +176,16 @@ public class GSVirtualTableEncoder extends PropertyXMLEncoder {
 		return this.sql;
 	}
 
+	/**
+	 * Get the list of key columns
+	 * 
+	 * @return
+	 */
+	public List<String> getKeyColumnList(){
+		return this.keyColumns;
+	}
+	
+	
 	/**
 	 * get the list of GSVirtualTableGeomEncoder
 	 * 
