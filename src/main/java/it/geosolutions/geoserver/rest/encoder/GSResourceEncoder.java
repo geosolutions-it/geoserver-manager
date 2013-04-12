@@ -29,6 +29,7 @@ import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
@@ -52,9 +53,11 @@ public abstract class GSResourceEncoder
 	public final static String NAME = "name";
 	public final static String METADATA="metadata";
 	public final static String KEYWORDS="keywords";
+	public final static String METADATALINKS="metadataLinks";
 
 	final private GSMetadataEncoder metadata = new GSMetadataEncoder();
 	final private Element keywordsListEncoder = new Element(KEYWORDS);
+	final private Element metadataLinksListEncoder = new Element(METADATALINKS);
 	
 	private class GSMetadataEncoder extends NestedElementEncoder{
 		public GSMetadataEncoder() {
@@ -75,16 +78,13 @@ public abstract class GSResourceEncoder
 		// Link members to the parent
 		addContent(metadata.getRoot());
 		addContent(keywordsListEncoder);
+		addContent(metadataLinksListEncoder);
 	}
 
 	public void setEnabled(boolean enabled) {
 		set("enabled", (enabled) ? "true" : "false");
 	}
 
-	// TODO MetadataLink
-//	public void setMetadata(String key, String url){
-//		metadata.set(key, url);
-//	}
 	
 	/**
 	 * @param key
@@ -136,6 +136,46 @@ public abstract class GSResourceEncoder
 		})).size() == 0 ? false : true;
 	}
 
+	
+	/**
+	 * Adds a MetadataLinkInfo to the GeoServer Resource
+	 * 
+	 * @param MetadataLink
+	 */
+	public void addMetadataLinkInfo(GSMetadataLinkInfoEncoder metadataLinkInfo) {
+		metadataLinksListEncoder.addContent(metadataLinkInfo.getRoot());
+	}
+
+	/**
+	 * Adds quickly a MetadataLinkInfo to the GeoServer Resource
+	 * 
+	 * @param type
+	 * @param metadataType
+	 * @param content
+	 */
+	public void addMetadataLinkInfo(String type, String metadataType,
+			String content) {
+		final GSMetadataLinkInfoEncoder mde = new GSMetadataLinkInfoEncoder();
+		mde.setup(type, metadataType, content);
+		metadataLinksListEncoder.addContent(mde.getRoot());
+	}
+
+	
+	/**
+	 * Deletes a metadataLinkInfo from the list using the metadataURL
+	 * (MetadataLinkInfo content)
+	 * 
+	 * @param metadataURL
+	 * @return true if something is removed, false otherwise
+	 */
+	public boolean delMetadataLinkInfo(final String metadataURL) {
+		return (metadataLinksListEncoder
+				.removeContent(GSMetadataLinkInfoEncoder
+						.getFilterByContent(metadataURL))).size() == 0 ? false
+				: true;
+	}
+	
+	
     /**
      * Reprojection policy for a published layer. One of:
      * <ul>
