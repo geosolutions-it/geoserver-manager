@@ -45,13 +45,15 @@ import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
  * 	@code
  * 	// Set-up the vtGeom
  * 	final VTGeometryEncoder vtGeom = new VTGeometryEncoder();
- * 	vtGeom.setup("the_geom", "MultiPolygon", "4326");
+ * 	vtGeom.setVirtualTableGeometryMember(VTGeometry.name, "the_geom");
+ * 	vtGeom.setVirtualTableGeometryMember(VTGeometry.type, "MultiPolygon");
+ * 	vtGeom.setVirtualTableGeometryMember(VTGeometry.srid, "4326");
  * 
  * 	// Set-up 2 virtual table parameters
- * 	final VTParameterEncoder vtParam1 = new VTParameterEncoder();
- * 	vtParam1.setup("high", "100000000", "^[\\d]+$");
- * 	final VTParameterEncoder vtParam2 = new VTParameterEncoder();
- * 	vtParam2.setup("low", "0", "^[\\d]+$");
+ * 	final VTParameterEncoder vtParam1 = new VTParameterEncoder("high",
+ * 			"100000000", "^[\\d]+$");
+ * 	final VTParameterEncoder vtParam2 = new VTParameterEncoder("low", "0",
+ * 			"^[\\d]+$");
  * 
  * 	// sql
  * 	String sql = "select gid, state_name, the_geom from pgstates where persons between %low% and %high%";
@@ -60,10 +62,10 @@ import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
  * 	final GSVirtualTableEncoder vte = new GSVirtualTableEncoder();
  * 	vte.setName("popstates");
  * 	vte.setSql("select gid, state_name, the_geom from pgstates where persons between %low% and %high%");
- *  vte.addKeyColumn("gid");
- *  vte.addVirtualTableGeometry(vtGeom);
- *  vte.addVirtualTableParameter(vtParam1);
- *  vte.addVirtualTableParameter(vtParam2);
+ * 	vte.addKeyColumn("gid");
+ * 	vte.addVirtualTableGeometry(vtGeom);
+ * 	vte.addVirtualTableParameter(vtParam1);
+ * 	vte.addVirtualTableParameter(vtParam2);
  * }
  * </pre>
  * 
