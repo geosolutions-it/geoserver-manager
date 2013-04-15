@@ -53,45 +53,21 @@ public class GSFeatureTypeEncoder extends GSResourceEncoder {
      * @param key
      * @param dimensionInfo
      * 
-     * @deprecated Replaced by
-     *             {@link #addMetadataDimension(String, GSFeatureDimensionInfoEncoder)}
      */
-    @Deprecated
     protected void addMetadata(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
         super.addMetadata(key, dimensionInfo);
     }
-    
-    /**
-     * 
-     * @param key
-     * @param dimensionInfo
-     */
-    protected void addMetadataDimension(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
-        super.addMetadata(key, dimensionInfo);
-    }   
+   
     
     /**
      * 
      * @param key
      * @param dimensionInfo
      * 
-     * @deprecated Replaced by
-     *             {@link #setMetadataDimension(String, GSFeatureDimensionInfoEncoder)}
      */
-    @Deprecated
     public void setMetadata(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
         super.setMetadata(key, dimensionInfo);
     }
-    
-    /**
-     * 
-     * @param key
-     * @param dimensionInfo
-     */
-    public void setMetadataDimension(String key, GSFeatureDimensionInfoEncoder dimensionInfo) {
-        super.setMetadata(key, dimensionInfo);
-    }
-
     
     /**
     * Add a VirtualTable (SQL View feature type)

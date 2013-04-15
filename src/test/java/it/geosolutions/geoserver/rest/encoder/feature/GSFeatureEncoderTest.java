@@ -148,7 +148,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         
         GSFeatureDimensionInfoEncoder dim2 = new GSFeatureDimensionInfoEncoder("ELE");
         
-        encoder.addMetadataDimension("elevation", dim2);
+        encoder.addMetadata("elevation", dim2);
         dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
         Element el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
         Assert.assertNotNull(el);
@@ -162,7 +162,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
 
         dim2.setPresentation(Presentation.CONTINUOUS_INTERVAL);
         
-        encoder.setMetadataDimension("time", new GSFeatureDimensionInfoEncoder("time"));
+        encoder.setMetadata("time", new GSFeatureDimensionInfoEncoder("time"));
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
         Assert.assertNotNull(el);
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.RESOLUTION);
@@ -213,7 +213,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         // LOGGER.info(encoder.toString());
 
         final String metadata = "elevation";
-        encoder.setMetadataDimension(metadata, elevationDimension);
+        encoder.setMetadata(metadata, elevationDimension);
 
         elevationDimension.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
                 BigDecimal.valueOf(10));
@@ -234,6 +234,17 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
 
     }
     
+    /**
+     * Test method for virtual table encoding / SQL view layer integration
+     * 
+     * Settings information for integration tests
+     * - test is based on the data used in http://docs.geoserver.org/latest/en/user/data/database/sqlview.html#parameterizing-sql-views
+     *   (states shapefile - available in testdata/states.zip)
+     * - create a postgis db
+     * - import the states shapefile (using shp2pgsql or Postgis shapefile uploader)
+     * - In Geoserver, create a postgis datastore for this DB, with the name "statesdb" 
+     * 
+     */
     @Test
     public void testSQLViewIntegration(){
     	
@@ -241,7 +252,8 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
             return;
         deleteAll();
         GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
-
+        
+        
         String storeName = "statesdb"; //name of the datastore setup for tests
         String layerName = "my_sqlviewlayer";
         String nativeName = "popstates";
