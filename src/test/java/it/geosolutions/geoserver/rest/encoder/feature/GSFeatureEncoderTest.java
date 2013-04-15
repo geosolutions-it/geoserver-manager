@@ -78,8 +78,9 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         fte.setEnabled(true);
 
         //metadataLink
-        GSMetadataLinkInfoEncoder metadatalink = new GSMetadataLinkInfoEncoder();
-        metadatalink.setup("text/xml", "ISO19115:2003","http://www.organization.org/metadata1");
+		GSMetadataLinkInfoEncoder metadatalink = new GSMetadataLinkInfoEncoder(
+				"text/xml", "ISO19115:2003",
+				"http://www.organization.org/metadata1");
         fte.addMetadataLinkInfo(metadatalink);
         
         GSLayerEncoder layerEncoder = new GSLayerEncoder();
