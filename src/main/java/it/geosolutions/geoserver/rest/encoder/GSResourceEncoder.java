@@ -51,6 +51,7 @@ import org.jdom.filter.Filter;
 public abstract class GSResourceEncoder
 		extends PropertyXMLEncoder {
 	public final static String NAME = "name";
+	public final static String NATIVENAME = "nativeName";
 	public final static String METADATA="metadata";
 	public final static String KEYWORDS="keywords";
 	public final static String METADATALINKS="metadataLinks";
@@ -230,6 +231,42 @@ public abstract class GSResourceEncoder
 
 	public String getName() {
 		final Element nameNode = ElementUtils.contains(getRoot(), NAME, 1);
+		if (nameNode != null)
+			return nameNode.getText();
+		else
+			return null;
+	}
+	
+
+	/**
+	 * Add the 'nativename' node with a text value from 'name'
+	 * 
+	 * 
+	 */
+	protected void addNativeName(final String nativename) {
+		add(NATIVENAME, nativename);
+	}
+
+	
+	/**
+	 * Set or modify the 'nativename' node with a text value from 'name'
+	 * 
+	 * @note if not specified, the nativeName will be set with the value of the
+	 *       'name' node.
+	 * 
+	 */
+	public void setNativeName(final String nativename) {
+		set(NATIVENAME, nativename);
+	}
+
+	
+	/**
+	 * Get the nativeName
+	 * 
+	 * @return
+	 */
+	public String getNativeName() {
+		final Element nameNode = ElementUtils.contains(getRoot(), NATIVENAME, 1);
 		if (nameNode != null)
 			return nameNode.getText();
 		else
