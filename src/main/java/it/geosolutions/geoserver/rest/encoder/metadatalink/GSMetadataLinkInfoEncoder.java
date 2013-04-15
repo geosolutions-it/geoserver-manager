@@ -31,7 +31,7 @@ import org.jdom.Element;
 import org.jdom.filter.Filter;
 
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
-import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 /**
  * GSMetadataLinkEncoder - encodes a metadataLink for a given GeoServer Resource
@@ -39,7 +39,9 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  * <pre>
  * {@code
  * final GSMetadataLinkInfoEncoder mde = new GSMetadataLinkInfoEncoder();
- * mde.setup("text/xml", "ISO19115:2003","http://www.organization.org/metadata");
+ * mde.setType("text/xml");
+ * mde.setMetadataType("ISO19115:2003");
+ * mde.setContent("http://www.organization.org/metadata");
  * }
  * </pre>
  * For this example, the XML output is:
@@ -57,13 +59,13 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  *         emmanuel.blondel@fao.org
  * 
  */
-public class GSMetadataLinkInfoEncoder extends PropertyXMLEncoder {
+public class GSMetadataLinkInfoEncoder extends XmlElement {
 
 	/** A class to filter the MetadataLinkInfo by content
 	 * 
 	 *
 	 */
-	public static class filterByContent implements Filter {
+	private static class filterByContent implements Filter {
 
 		final private String key;
 
@@ -101,6 +103,18 @@ public class GSMetadataLinkInfoEncoder extends PropertyXMLEncoder {
 		super("metadataLink");
 	}
 
+	/**
+	 * Constructs quickly a MetadataLink info
+	 * 
+	 * @param type (required)
+	 * @param metadataType (required)
+	 * @param content (required)
+	 */
+	public GSMetadataLinkInfoEncoder(String type, String metadataType, String content){
+		super("metadataLink");
+		this.setup(type, metadataType, content);
+	}
+	
 	/** 
 	 * Set-up quickly a metadataLinkInfo
 	 * 
@@ -108,22 +122,10 @@ public class GSMetadataLinkInfoEncoder extends PropertyXMLEncoder {
 	 * @param metadataType
 	 * @param content
 	 */
-	public void setup(String type, String metadataType, String content) {
+	protected void setup(String type, String metadataType, String content) {
 		set(ResourceMetadataLinkInfo.type.name(), type);
 		set(ResourceMetadataLinkInfo.metadataType.name(), metadataType);
 		set(ResourceMetadataLinkInfo.content.name(), content);
-	}
-
-	/** 
-	 * Set-up a metadataLinkInfo
-	 * 
-	 * @param metadataLinkInfos
-	 */
-	public void setup(Map<ResourceMetadataLinkInfo, String> metadataLinkInfos) {
-		for (Entry<ResourceMetadataLinkInfo, String> mdLinkInfo : metadataLinkInfos
-				.entrySet()) {
-			set(mdLinkInfo.getKey().toString(), mdLinkInfo.getValue());
-		}
 	}
 	
 	/** 
@@ -132,19 +134,76 @@ public class GSMetadataLinkInfoEncoder extends PropertyXMLEncoder {
 	 * @param type
 	 * @param value
 	 */
-	public void setMetadataLinkInfoMember(ResourceMetadataLinkInfo type,
+	protected void setMember(ResourceMetadataLinkInfo type,
 			String value) {
 		set(type.toString(), value);
 	}
 
+	/**
+	 * Set the mime type
+	 * 
+	 * @param type
+	 */
+	public void setType(String type){
+		this.setMember(ResourceMetadataLinkInfo.type, type);
+	}
+	
+	/**
+	 * Set the metadata type
+	 * 
+	 * @param metadataType
+	 */
+	public void setMetadataType(String metadataType){
+		this.setMember(ResourceMetadataLinkInfo.metadataType, metadataType);
+	}
+	
+	/**
+	 * Set the content
+	 * 
+	 * @param content
+	 */
+	public void setContent(String content){
+		this.setMember(ResourceMetadataLinkInfo.content, content);
+	}
+	
 	/** 
 	 * Deletes a MetadataLinkInfo member
 	 * 
 	 * @param type
 	 * @return true if the metadataLinkInfo member is removed
 	 */
-	public boolean delMetadataLinkInfoMember(ResourceMetadataLinkInfo type) {
-		return ElementUtils.remove(this.getRoot(), get(type.toString()));
+	protected boolean delMember(ResourceMetadataLinkInfo type) {
+		return ElementUtils.remove(this.getRoot(), this.getRoot().getChild(type.toString()));
+	}
+	
+	/**
+	 * Deletes the type
+	 * 
+	 * @param type
+	 * @return true if removed
+	 */
+	public boolean delType(){
+		return this.delMember(ResourceMetadataLinkInfo.type);
+	}
+	
+	/**
+	 * Deletes the metadata type
+	 * 
+	 * @param metadata type
+	 * @return true if removed
+	 */
+	public boolean delMetadataType(){
+		return this.delMember(ResourceMetadataLinkInfo.metadataType);
+	}
+	
+	/**
+	 * Deletes the content
+	 * 
+	 * @param content
+	 * @return true if removed
+	 */
+	public boolean delContent(){
+		return this.delMember(ResourceMetadataLinkInfo.content);
 	}
 
 	/** 
@@ -153,12 +212,40 @@ public class GSMetadataLinkInfoEncoder extends PropertyXMLEncoder {
 	 * @param type
 	 * @return the value of the MetadataLinkInfo member
 	 */
-	public String getMetadataLinkInfoMember(ResourceMetadataLinkInfo type) {
-		Element el = get(type.toString());
+	protected String getMember(ResourceMetadataLinkInfo type) {
+		Element el = this.getRoot().getChild(type.toString());
 		if (el != null)
 			return el.getTextTrim();
 		else
 			return null;
 	}
+	
+	/**
+	 * Get the mime type
+	 * 
+	 * @return
+	 */
+	public String getType(){
+		return this.getMember(ResourceMetadataLinkInfo.type);		
+	}
+	
+	/**
+	 * Get the metadata type
+	 * 
+	 * @return
+	 */
+	public String getMetadataType(){
+		return this.getMember(ResourceMetadataLinkInfo.metadataType);
+	}
+	
+	/**
+	 * Get the content
+	 * 
+	 * @return
+	 */
+	public String getContent(){
+		return this.getMember(ResourceMetadataLinkInfo.content);
+	}
+
 
 }

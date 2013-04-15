@@ -78,14 +78,14 @@ public class MetadataDecoderTest {
         List<GSMetadataLinkInfoEncoder> list = coverage.getEncodedMetadataLinkInfoList();
             
         GSMetadataLinkInfoEncoder metadataLinkInfo1 = list.get(0);
-        Assert.assertEquals(metadataLinkInfo1.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.type),"text/xml");
-        Assert.assertEquals(metadataLinkInfo1.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.metadataType),"ISO19115:2003");
-        Assert.assertEquals(metadataLinkInfo1.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.content),"http://www.organization.org/metadata1");
+        Assert.assertEquals("text/xml", metadataLinkInfo1.getType());
+        Assert.assertEquals("ISO19115:2003", metadataLinkInfo1.getMetadataType());
+        Assert.assertEquals("http://www.organization.org/metadata1", metadataLinkInfo1.getContent());
     
         GSMetadataLinkInfoEncoder metadataLinkInfo2 = list.get(1);
-        Assert.assertEquals(metadataLinkInfo2.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.type),"text/html");
-        Assert.assertEquals(metadataLinkInfo2.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.metadataType),"ISO19115:2003");
-        Assert.assertEquals(metadataLinkInfo2.getMetadataLinkInfoMember(ResourceMetadataLinkInfo.content),"http://www.organization.org/metadata2");
+        Assert.assertEquals("text/html",metadataLinkInfo2.getType());
+        Assert.assertEquals("ISO19115:2003",metadataLinkInfo2.getMetadataType());
+        Assert.assertEquals("http://www.organization.org/metadata2",metadataLinkInfo2.getContent());
             
    } 
 }
