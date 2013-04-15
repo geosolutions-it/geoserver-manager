@@ -43,13 +43,19 @@ public class GSCoverageEncoder extends GSResourceEncoder {
 	}
 	
     /**
-	 * @param key
-	 * @param dimensionInfo
-	 */
+     * @param key
+     * @param dimensionInfo
+     * @deprecated Use {@link GSResourceEncoder#addMetadataDimension(String, GSDimensionInfoEncoder)} this method will be removed soon
+     */
 	protected void addMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
 		super.addMetadata(key, dimensionInfo);
 	}
 
+    /**
+     * @deprecated Use {@link GSResourceEncoder#setMetadataDimension(String, GSDimensionInfoEncoder)} this method will be removed soon
+     * @param key
+     * @param dimensionInfo
+     */
 	public void setMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
 		super.setMetadata(key, dimensionInfo);
 	}
