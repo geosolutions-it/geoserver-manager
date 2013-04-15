@@ -158,36 +158,6 @@ public class RESTResource {
         return attrsList;
     }
 
-    
-
-	/**
-	 * Decodes the list of MetadataLinkInfo from the GeoServer Resource
-	 * 
-	 * @author Emmanuel Blondel
-	 * 
-	 * @return the list of Map<ResourceMetadataLinkInfo,String>
-	 */
-	public List<Map<ResourceMetadataLinkInfo, String>> getMetadataLinkInfoList() {
-		List<Map<ResourceMetadataLinkInfo, String>> metaLinksList = null;
-
-		final Element metaLinksRoot = rootElem.getChild("metadataLinks");
-		final List<Element> metaLinks = metaLinksRoot.getChildren();
-		if (metaLinks != null) {
-			metaLinksList = new ArrayList<Map<ResourceMetadataLinkInfo, String>>(
-					metaLinks.size());
-			for (Element metaLink : metaLinks) {
-				Map<ResourceMetadataLinkInfo, String> metaLinkMap = new HashMap<ResourceMetadataLinkInfo, String>();
-				metaLinksList.add(metaLinkMap);
-				for (ResourceMetadataLinkInfo rmd : ResourceMetadataLinkInfo
-						.values()) {
-					String key = rmd.toString();
-					metaLinkMap.put(rmd, metaLink.getChildText(key));
-				}
-			}
-		}
-		return metaLinksList;
-	}
-
 	/**
 	 * Decodes the list of MetadataLinkInfo from the GeoServer Resource
 	 * 
@@ -205,12 +175,9 @@ public class RESTResource {
 					metaLinks.size());
 			for (Element metaLink : metaLinks) {
 				final GSMetadataLinkInfoEncoder metaLinkEnc = new GSMetadataLinkInfoEncoder();
-				for (ResourceMetadataLinkInfo rmd : ResourceMetadataLinkInfo
-						.values()) {
-					String key = rmd.toString();
-					metaLinkEnc.setMetadataLinkInfoMember(rmd,
-							metaLink.getChildText(key)); // change
-				}
+				metaLinkEnc.setType(metaLink.getChildText(ResourceMetadataLinkInfo.type.name()));
+				metaLinkEnc.setMetadataType(metaLink.getChildText(ResourceMetadataLinkInfo.metadataType.name()));
+				metaLinkEnc.setContent(metaLink.getChildText(ResourceMetadataLinkInfo.content.name()));
 				metaLinksList.add(metaLinkEnc);
 			}
 
