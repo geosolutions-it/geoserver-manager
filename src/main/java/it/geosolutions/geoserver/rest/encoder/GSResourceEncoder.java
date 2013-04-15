@@ -161,8 +161,8 @@ public abstract class GSResourceEncoder
 	 */
 	public void addMetadataLinkInfo(String type, String metadataType,
 			String content) {
-		final GSMetadataLinkInfoEncoder mde = new GSMetadataLinkInfoEncoder();
-		mde.setup(type, metadataType, content);
+		final GSMetadataLinkInfoEncoder mde = new GSMetadataLinkInfoEncoder(
+				type, metadataType, content);
 		metadataLinksListEncoder.addContent(mde.getRoot());
 	}
 
