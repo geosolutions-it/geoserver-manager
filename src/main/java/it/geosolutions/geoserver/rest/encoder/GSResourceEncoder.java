@@ -97,10 +97,26 @@ public abstract class GSResourceEncoder
 		metadata.add(key, dimensionInfo.getRoot());
 	}
 
-	public void setMetadata(String key, XmlElement dimensionInfo) {
-		metadata.set(key, dimensionInfo.getRoot());
-	}
+    /**
+     * @deprecated Use {@link #setMetadataDimension(String, GSDimensionInfoEncoder)} this method will be set as protected for internal use only
+     * @param key
+     * @param dimensionInfo
+     */
+    public void setMetadata(String key, XmlElement dimensionInfo) {
+        metadata.set(key, dimensionInfo.getRoot());
+    }
 	
+    /**
+     * @param key
+     * @param dimensionInfo
+     */
+    protected void addMetadataDimension(String key, GSDimensionInfoEncoder dimensionInfo) {
+        metadata.add(key, dimensionInfo.getRoot());
+    }
+
+    public void setMetadataDimension(String key, GSDimensionInfoEncoder dimensionInfo) {
+        metadata.set(key, dimensionInfo.getRoot());
+    }	
 
 	/**
 	 * @param key

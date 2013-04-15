@@ -26,6 +26,7 @@
 package it.geosolutions.geoserver.rest.encoder.feature;
 
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.GSVirtualTableEncoder;
 
@@ -49,7 +50,9 @@ public class GSFeatureTypeEncoder extends GSResourceEncoder {
         addContent(attributes);
     }
 
+
     /**
+     * @deprecated Use {@link GSResourceEncoder#addMetadataDimension(String, GSDimensionInfoEncoder)} this method will be removed soon
      * @param key
      * @param dimensionInfo
      * 
@@ -60,7 +63,7 @@ public class GSFeatureTypeEncoder extends GSResourceEncoder {
    
     
     /**
-     * 
+     * @deprecated Use {@link GSResourceEncoder#setMetadataDimension(String, GSDimensionInfoEncoder)} this method will be removed soon
      * @param key
      * @param dimensionInfo
      * 
