@@ -27,24 +27,19 @@ package it.geosolutions.geoserver.rest.encoder.metadata.virtualtable;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.jdom.Element;
 import org.jdom.filter.Filter;
 
 /**
- * GSVirtualTableParamEncoder - Encodes a metadata VirtualTable parameter for a
+ * VTParameterEncoder - Encodes a metadata VirtualTable parameter for a
  * GeoServer featureType, as follows:
  * 
  * <pre>
  * { @code
  * 	final VTParameterEncoder vtParam = new VTParameterEncoder();
- * 	vtParam.setVirtualTableParamMember(VTParameter.name, "fieldname");
- * 	vtParam.setVirtualTableParamMember(VTParameter.defaultValue,
- * 			"default_value");
- * 	vtParam.setVirtualTableParamMember(VTParameter.regexpValidator,
- * 			"^[\\w\\d\\s]+$");
+ * 	vtParam.setName("fieldname");
+ * 	vtParam.setDefaultValue("default_value");
+ * 	vtParam.setRegexpValidator("^[\\w\\d\\s]+$");
  * }
  * </pre>
  * 
@@ -70,7 +65,7 @@ public class VTParameterEncoder extends XmlElement {
 	 * A class to filter the VirtualTable parameters by name
 	 *
 	 */
-	public static class filterByName implements Filter {
+	private static class filterByName implements Filter {
 
 		final private String key;
 
@@ -110,9 +105,9 @@ public class VTParameterEncoder extends XmlElement {
 	/**
 	 * Constructs quickly a VTParameterEncoder
 	 * 
-	 * @param name
-	 * @param defaultValue
-	 * @param regexpValidator
+	 * @param name (required)
+	 * @param defaultValue (required)
+	 * @param regexpValidator (required)
 	 */
 	public VTParameterEncoder(String name, String defaultValue, String regexpValidator){
 		super("parameter");
@@ -127,21 +122,9 @@ public class VTParameterEncoder extends XmlElement {
 	 * @param regexpValidator
 	 */
 	protected void setup(String name, String defaultValue, String regexpValidator) {
-		set(VTParameter.name.name(), name);
-		set(VTParameter.defaultValue.name(), defaultValue);
-		set(VTParameter.regexpValidator.name(), regexpValidator);
-	}
-
-	/**
-	 * Set-up a VirtualTable parameter
-	 * 
-	 * @param vtParamMembers
-	 */
-	public void setup(Map<VTParameter, String> vtParamMembers) {
-		for (Entry<VTParameter, String> vtParamMember : vtParamMembers
-				.entrySet()) {
-			set(vtParamMember.getKey().toString(), vtParamMember.getValue());
-		}
+		setName(name);
+		setDefaultValue(defaultValue);
+		setRegexpValidator(regexpValidator);
 	}
 
 	/**
@@ -150,32 +133,114 @@ public class VTParameterEncoder extends XmlElement {
 	 * @param type
 	 * @param value
 	 */
-	public void setVirtualTableParamMember(VTParameter type,
+	protected void setMember(VTParameter type,
 			String value) {
 		set(type.toString(), value);
 	}
+	
+	/**
+	 * Set the parameter name
+	 * 
+	 * @param name
+	 */
+	public void setName(String name){
+		this.setMember(VTParameter.name, name);
+	}
+	
+	/**
+	 * Set the parameter default value
+	 * 
+	 * @param value
+	 */
+	public void setDefaultValue(String value){
+		this.setMember(VTParameter.defaultValue, value);
+	}
 
+	/**
+	 * Set the parameter regexp validator
+	 * 
+	 * @param validator
+	 */
+	public void setRegexpValidator(String validator){
+		this.setMember(VTParameter.regexpValidator, validator);
+	}
+	
 	/**
 	 * Deletes a VirtualTableParameter member
 	 * 
 	 * @param type
 	 * @return
 	 */
-	public boolean delVirtualTableParamMember(VTParameter type) {
+	protected boolean delMember(VTParameter type) {
 		return ElementUtils.remove(this.getRoot(), this.getRoot().getChild(type.toString()));
 	}
 
+	/**
+	 * Deletes the name
+	 * 
+	 * @return true if removed, false otherwise
+	 */
+	public boolean delName(){
+		return this.delMember(VTParameter.name);
+	}
+	
+	/**
+	 * Deletes the default value
+	 * 
+	 * @return true if removed, false otherwise
+	 */
+	public boolean delDefaultValue(){
+		return this.delMember(VTParameter.defaultValue);
+	}
+	
+	/**
+	 * Deletes the Regexp validator
+	 * 
+	 * @return true if removed, false otherwise
+	 */
+	public boolean delRegexpValidator(){
+		return this.delMember(VTParameter.regexpValidator);
+	}
+	
+	
 	/**
 	 * Get a VirtualTableParameter member
 	 * 
 	 * @param type
 	 * @return
 	 */
-	public String getVirtualTableParamMember(VTParameter type) {
+	protected String getMember(VTParameter type) {
 		Element el = getRoot().getChild(type.toString());
 		if (el != null)
 			return el.getTextTrim();
 		else
 			return null;
+	}
+	
+	/**
+	 * Get the parameter name
+	 * 
+	 * @return
+	 */
+	public String getName(){
+		return this.getMember(VTParameter.name);
+	}
+	
+	/**
+	 * Get the parameter default value
+	 * 
+	 * @return
+	 */
+	public String getDefaultValue(){
+		return this.getMember(VTParameter.defaultValue);
+	}
+	
+	/**
+	 * Get the parameter regexp validator
+	 * 
+	 * @return
+	 */
+	public String getRegexpValidator(){
+		return this.getMember(VTParameter.regexpValidator);
 	}
 }

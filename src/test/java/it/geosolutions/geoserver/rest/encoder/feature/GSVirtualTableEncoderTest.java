@@ -81,8 +81,8 @@ public class GSVirtualTableEncoderTest {
 		Assert.assertEquals("mysqlview", vte.getName());
 		Assert.assertEquals(sql, vte.getSql());
 
-		vtGeom.setVirtualTableGeometryMember(VTGeometry.type, "Point");
-		vtParam1.setVirtualTableParamMember(VTParameter.name, "newfieldname");
+		vtGeom.setType("Point");
+		vtParam1.setName("newfieldname");
 
 		Assert.assertEquals("Point",
 				((Element) vte.getRoot().getChildren("geometry").get(0))
@@ -91,9 +91,8 @@ public class GSVirtualTableEncoderTest {
 				.getChildren("parameter").get(0)).getChildText(VTParameter.name
 				.toString()));
 
-		Assert.assertTrue(vtGeom.delVirtualTableGeometryMember(VTGeometry.srid));
-		Assert.assertTrue(vtParam1
-				.delVirtualTableParamMember(VTParameter.regexpValidator));
+		Assert.assertTrue(vtGeom.delSrid());
+		Assert.assertTrue(vtParam1.delRegexpValidator());
 	}
 
 }

@@ -45,9 +45,9 @@ import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
  * 	@code
  * 	// Set-up the vtGeom
  * 	final VTGeometryEncoder vtGeom = new VTGeometryEncoder();
- * 	vtGeom.setVirtualTableGeometryMember(VTGeometry.name, "the_geom");
- * 	vtGeom.setVirtualTableGeometryMember(VTGeometry.type, "MultiPolygon");
- * 	vtGeom.setVirtualTableGeometryMember(VTGeometry.srid, "4326");
+ * 	vtGeom.setName("the_geom");
+ * 	vtGeom.setType("MultiPolygon");
+ * 	vtGeom.setSrid("4326");
  * 
  * 	// Set-up 2 virtual table parameters
  * 	final VTParameterEncoder vtParam1 = new VTParameterEncoder("high",
@@ -116,11 +116,11 @@ public class GSVirtualTableEncoder extends XmlElement {
 	/**
 	 * Constructs directly a GSVirtualTableEncoder
 	 * 
-	 * @param name
-	 * @param sql
-	 * @param keyColumns
-	 * @param geomEncList
-	 * @param paramEncList
+	 * @param name (required)
+	 * @param sql (required)
+	 * @param keyColumns (optional)
+	 * @param geomEncList (optional for geometryless sql view)
+	 * @param paramEncList (optional)
 	 */
 	public GSVirtualTableEncoder(String name, String sql, List<String> keyColumns,
 			List<VTGeometryEncoder> geomEncList,
