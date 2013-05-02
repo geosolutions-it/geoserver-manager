@@ -29,8 +29,10 @@ import java.net.MalformedURLException;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSOracleNGDatastoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
 
 import org.junit.Before;
@@ -41,8 +43,14 @@ import org.slf4j.LoggerFactory;
 /**
  * <P>
  * Since these tests require a running Store instance, this is more like integration tests.<br/>
+ * 
+ * For testing that a datastore is properly configured, a layer publication has
+ * to be attempted. For this, the 'states' data (states shapefile - available in
+ * testdata/states.zip) has to be imported in the corresponding store.
+ * Note: For Oracle NG this name has to be uppercase (STATES). 
  *
  * @author carlo cancellieri - GeoSolutions
+ * @author emmanuel blondel
  *
  * @see GeoserverRESTTest
  */
@@ -102,6 +110,32 @@ public abstract class StoreIntegrationTest extends GeoserverRESTTest {
         assertNotNull(datastore);
         LOGGER.info("The type of the created datastore is: " + datastore.getStoreType());
 
+		// check if the datastore is properly configured in GS for publishing layers
+		String layername = "states";
+		if (storeEncoder instanceof GSOracleNGDatastoreEncoder)
+			layername = layername.toUpperCase();
+
+		GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+		fte.setName(layername);
+		fte.setTitle(layername);
+		fte.setNativeCRS("EPSG:4326");
+		fte.setDescription("desc");
+		fte.setEnabled(true);
+		GSLayerEncoder layerEncoder = new GSLayerEncoder();
+		layerEncoder.setEnabled(true);
+		layerEncoder.setQueryable(true);
+		layerEncoder.setDefaultStyle("polygon");
+
+		boolean published = publisher.publishDBLayer(DEFAULT_WS, storeName,
+				fte, layerEncoder);
+		if (!ignore) {
+			assertTrue("Test layer not published", published);
+		} else if (!published) {
+			LOGGER.error("*** Test layer "
+					+ layername
+					+ " has not been published. Problem in datastore configuration");
+		}
+        
         // removing test
         boolean removed = storeManager.remove(DEFAULT_WS, storeEncoder, true);
         if( ! ignore )
