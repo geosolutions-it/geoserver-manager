@@ -36,6 +36,7 @@ public class GSOracleNGDatastoreEncoder extends GSAbstractDatastoreEncoder {
 
 	static final String TYPE = "Oracle NG";
 	
+	static final String DEFAULT_DB_TYPE = "oracle"; 
 	static final int DEFAULT_MIN_CONNECTIONS = 1;
 	static final int DEFAULT_MAX_CONNECTIONS = 10;
 	static final int DEFAULT_FETCH_SIZE = 1000;
@@ -68,6 +69,7 @@ public class GSOracleNGDatastoreEncoder extends GSAbstractDatastoreEncoder {
 
         // Set mandatory parameter
         setType(TYPE);
+        setDatabaseType(DEFAULT_DB_TYPE); 
         setDatabase(database);
 
         // Set default values
@@ -121,6 +123,11 @@ public class GSOracleNGDatastoreEncoder extends GSAbstractDatastoreEncoder {
         connectionParameters.set("passwd", password);
     }
 
+
+    public void setDatabaseType(String dbtype) {
+        connectionParameters.set("dbtype", dbtype);
+    } 
+    
     public void setJndiReferenceName(String jndiReferenceName) {
         connectionParameters.set("jndiReferenceName", jndiReferenceName);
     }
