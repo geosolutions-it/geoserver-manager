@@ -107,7 +107,7 @@ public class GeoServerRESTStoreManager extends GeoServerRESTAbstractManager {
 //            if (workspace.isEmpty() || storename.isEmpty())
 //                throw new IllegalArgumentException("Arguments may not be empty!");
 
-            final StringBuffer url=HTTPUtils.append(restURL,"/rest/workspaces/",workspace,"/", store.getStoreType().toString(), "/",store.getName());
+            final StringBuilder url=HTTPUtils.append(restURL,"/rest/workspaces/",workspace,"/", store.getStoreType().toString(), "/",store.getName());
             if (recurse)
                 url.append("?recurse=true");
             final URL deleteStore = new URL(url.toString());

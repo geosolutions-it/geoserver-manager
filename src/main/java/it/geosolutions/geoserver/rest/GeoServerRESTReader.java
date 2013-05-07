@@ -39,16 +39,20 @@ import it.geosolutions.geoserver.rest.decoder.RESTLayerList;
 import it.geosolutions.geoserver.rest.decoder.RESTNamespace;
 import it.geosolutions.geoserver.rest.decoder.RESTNamespaceList;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
+import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
+import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageIndexSchema;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
 import it.geosolutions.geoserver.rest.decoder.RESTWorkspaceList;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredCoverageGridReaderManager;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -574,5 +578,102 @@ public class GeoServerRESTReader {
         }
         return names;
     }
+
+    /**
+     * Get information about a granule for a structured coverage.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param format the format of the file to upload
+     * @param the absolute path to the file to upload
+     * @param id the ID of the granule to get information for
+     * 
+     * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
+     * 
+     * @throws MalformedURLException
+     * @throws UnsupportedEncodingException
+     */
+    public RESTStructuredCoverageGranulesList getGranuleById(final String workspace,
+            String coverageStore, String coverage, String id) throws MalformedURLException,
+            UnsupportedEncodingException {
+        try {
+            GeoServerRESTStructuredCoverageGridReaderManager manager = 
+                new GeoServerRESTStructuredCoverageGridReaderManager(new URL(baseurl), username, password);
+            return manager.getGranuleById(workspace, coverageStore, coverage, id);
+        } catch (IllegalArgumentException e) {
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(e.getLocalizedMessage(),e);
+            }
+        } catch (MalformedURLException e) {
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(e.getLocalizedMessage(),e);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get information about the schema of the index for a structured coverage.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param format the format of the file to upload
+     * 
+     * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
+     * 
+     * @throws MalformedURLException
+     * @throws UnsupportedEncodingException
+     */
+     @Test
+     public RESTStructuredCoverageIndexSchema getGranuleIndexSchema(final String workspace, String coverageStore, String coverage) throws MalformedURLException {
+         try {
+             GeoServerRESTStructuredCoverageGridReaderManager manager = 
+                 new GeoServerRESTStructuredCoverageGridReaderManager(new URL(baseurl), username, password);
+             return manager.getGranuleIndexSchema(workspace, coverageStore, coverage);
+         } catch (IllegalArgumentException e) {
+             if(LOGGER.isInfoEnabled()){
+                 LOGGER.info(e.getLocalizedMessage(),e);
+             }
+         } catch (MalformedURLException e) {
+             if(LOGGER.isInfoEnabled()){
+                 LOGGER.info(e.getLocalizedMessage(),e);
+             }
+         }
+         return null;
+     }
+
+    /**
+      * Get information about the granules for a coverage with optional filter and paging.
+      * 
+      * @param workspace the GeoServer workspace
+      * @param coverageStore the GeoServer coverageStore
+      * @param coverage the name of the target coverage
+      * @param filter the format of the file to upload, can be <code>null</code> to include all the granules
+      * @param offset the start page, can be <code>null</code> or an integer
+      * @param limit the dimension of the page, can be <code>null</code> or a positive integer
+      * 
+      * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
+      * 
+      * @throws MalformedURLException
+      * @throws UnsupportedEncodingException
+      */
+     @Test
+     public RESTStructuredCoverageGranulesList getGranules(final String workspace, String coverageStore, String coverage, String filter, String offset, String limit)
+             throws MalformedURLException, UnsupportedEncodingException {
+         try {
+             GeoServerRESTStructuredCoverageGridReaderManager manager = 
+                 new GeoServerRESTStructuredCoverageGridReaderManager(new URL(baseurl), username, password);
+             return manager.getGranules(workspace, coverageStore, coverage, filter, offset, limit);
+         } catch (IllegalArgumentException e) {
+             if(LOGGER.isInfoEnabled()){
+                 LOGGER.info(e.getLocalizedMessage(),e);
+             }
+         } catch (MalformedURLException e) {
+             if(LOGGER.isInfoEnabled()){
+                 LOGGER.info(e.getLocalizedMessage(),e);
+             }
+         }
+         return null;
+     }
 
 }
