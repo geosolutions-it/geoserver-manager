@@ -34,23 +34,22 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manage GeoTools StructuredCoverageGridReader. It allows to create a store from a file or harvest
+ * Manage GeoTools StructuredGridCoverageReader. It allows to create a store from a file or harvest
  * the coverages contained in a file, to delete granules from an existing coverage and eventually
- * to get information about the granules insi a StructuredCoverageGridReader.
+ * to get information about the granules inside a StructuredGridCoverageReader.
  * 
  * @author Simone Giannecchini, GeoSolutions
  */
-public class GeoServerRESTStructuredCoverageGridReaderManager extends GeoServerRESTAbstractManager {
+public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerRESTAbstractManager {
 
     /**
      * Default logger
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(GeoServerRESTStructuredCoverageGridReaderManager.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoServerRESTStructuredGridCoverageReaderManager.class);
 
     /**
      * Default constructor.
@@ -60,7 +59,7 @@ public class GeoServerRESTStructuredCoverageGridReaderManager extends GeoServerR
      * @param password GeoServer REST API password for the former username
      * @throws IllegalArgumentException
      */
-    public GeoServerRESTStructuredCoverageGridReaderManager(URL restURL, String username, String password) throws IllegalArgumentException, MalformedURLException{
+    public GeoServerRESTStructuredGridCoverageReaderManager(URL restURL, String username, String password) throws IllegalArgumentException, MalformedURLException{
         super(restURL, username, password);
     }
 
@@ -253,7 +252,6 @@ public class GeoServerRESTStructuredCoverageGridReaderManager extends GeoServerR
     * @throws MalformedURLException
     * @throws UnsupportedEncodingException
     */
-    @Test
     public RESTStructuredCoverageIndexSchema getGranuleIndexSchema(final String workspace, String coverageStore, String coverage) throws MalformedURLException {
         // checks
         checkString(workspace);
@@ -284,7 +282,6 @@ public class GeoServerRESTStructuredCoverageGridReaderManager extends GeoServerR
      * @throws MalformedURLException
      * @throws UnsupportedEncodingException
      */
-    @Test
     public RESTStructuredCoverageGranulesList getGranules(final String workspace, String coverageStore, String coverage, String filter, String offset, String limit)
             throws MalformedURLException, UnsupportedEncodingException {
         // checks
@@ -328,7 +325,6 @@ public class GeoServerRESTStructuredCoverageGridReaderManager extends GeoServerR
      * @throws MalformedURLException
      * @throws UnsupportedEncodingException
      */
-    @Test
     public RESTStructuredCoverageGranulesList getGranuleById(final String workspace,
             String coverageStore, String coverage, String id) throws MalformedURLException,
             UnsupportedEncodingException {

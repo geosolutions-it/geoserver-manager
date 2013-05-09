@@ -38,7 +38,7 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
-import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredCoverageGridReaderManager;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -2665,8 +2665,8 @@ public class GeoServerRESTPublisher {
      */
     public boolean createOrHarvestExternal(String workspace, String coverageStore, String format, String path) {
         try {
-            GeoServerRESTStructuredCoverageGridReaderManager manager = 
-                new GeoServerRESTStructuredCoverageGridReaderManager(new URL(restURL), gsuser, gspass);
+            GeoServerRESTStructuredGridCoverageReaderManager manager = 
+                new GeoServerRESTStructuredGridCoverageReaderManager(new URL(restURL), gsuser, gspass);
             return manager.createOrHarvestExternal(workspace, coverageStore, format, path);
         } catch (IllegalArgumentException e) {
             if(LOGGER.isInfoEnabled()){
@@ -2695,8 +2695,8 @@ public class GeoServerRESTPublisher {
       */
      public boolean removeGranuleById(final String workspace, String coverageStore, String coverage, String granuleId) {
          try {
-             GeoServerRESTStructuredCoverageGridReaderManager manager = 
-                 new GeoServerRESTStructuredCoverageGridReaderManager(new URL(restURL), gsuser, gspass);
+             GeoServerRESTStructuredGridCoverageReaderManager manager = 
+                 new GeoServerRESTStructuredGridCoverageReaderManager(new URL(restURL), gsuser, gspass);
              return manager.removeGranuleById(workspace, coverageStore, coverage, granuleId);
          } catch (IllegalArgumentException e) {
              if(LOGGER.isInfoEnabled()){
@@ -2724,8 +2724,8 @@ public class GeoServerRESTPublisher {
       */
      public boolean removeGranulesByCQL(final String workspace, String coverageStore,String coverage, String filter) throws UnsupportedEncodingException{
          try {
-             GeoServerRESTStructuredCoverageGridReaderManager manager = 
-                 new GeoServerRESTStructuredCoverageGridReaderManager(new URL(restURL), gsuser, gspass);
+             GeoServerRESTStructuredGridCoverageReaderManager manager = 
+                 new GeoServerRESTStructuredGridCoverageReaderManager(new URL(restURL), gsuser, gspass);
              return manager.removeGranulesByCQL(workspace, coverageStore, coverage, filter);
          } catch (IllegalArgumentException e) {
              if(LOGGER.isInfoEnabled()){
