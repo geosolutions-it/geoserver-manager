@@ -38,9 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manage GeoTools StructuredGridCoverageReader. It allows to create a store from a file or harvest
- * the coverages contained in a file, to delete granules from an existing coverage and eventually
- * to get information about the granules inside a StructuredGridCoverageReader.
+ * Manage GeoTools StructuredGridCoverageReader. It allows to create a store from a file or harvest the coverages contained in a file, to delete
+ * granules from an existing coverage and eventually to get information about the granules inside a StructuredGridCoverageReader.
  * 
  * @author Simone Giannecchini, GeoSolutions
  */
@@ -49,7 +48,8 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
     /**
      * Default logger
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(GeoServerRESTStructuredGridCoverageReaderManager.class);
+    private final static Logger LOGGER = LoggerFactory
+            .getLogger(GeoServerRESTStructuredGridCoverageReaderManager.class);
 
     /**
      * Default constructor.
@@ -59,7 +59,8 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
      * @param password GeoServer REST API password for the former username
      * @throws IllegalArgumentException
      */
-    public GeoServerRESTStructuredGridCoverageReaderManager(URL restURL, String username, String password) throws IllegalArgumentException, MalformedURLException{
+    public GeoServerRESTStructuredGridCoverageReaderManager(URL restURL, String username,
+            String password) throws IllegalArgumentException, MalformedURLException {
         super(restURL, username, password);
     }
 
@@ -72,19 +73,22 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
      * @param the absolut path to the file to upload
      * 
      * @return <code>true</code> if the call succeeds or <code>false</code> otherwise.
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
      */
-    public boolean createOrHarvestExternal(String workspace, String coverageStore, String format, String path) {
+    public boolean createOrHarvestExternal(String workspace, String coverageStore, String format,
+            String path) {
         // checks
         checkString(workspace);
         checkString(coverageStore);
         checkString(format);
         checkString(path);
-        
+
         // create URL
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",coverageStore,"/",UploadMethod.EXTERNAL.toString(),".", format).toString();
-        
+        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+                coverageStore, "/", UploadMethod.EXTERNAL.toString(), ".", format).toString();
+
         // POST request
-        String result = HTTPUtils.post(sUrl, "file:/"+path, "text/plain", gsuser, gspass);
+        String result = HTTPUtils.post(sUrl, "file:/" + path, "text/plain", gsuser, gspass);
         return result != null;
     }
 
@@ -97,13 +101,13 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
      * @param string the {@link String} to be checked
      */
     private static void checkString(String string) {
-        if(string==null){
+        if (string == null) {
             throw new NullPointerException("Provided string is is null!");
         }
-        if(string.length()<=0){
+        if (string.length() <= 0) {
             throw new IllegalArgumentException("Provided string is is empty!");
         }
-        
+
     }
 
     /**
@@ -118,59 +122,65 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
      * 
      * @throws MalformedURLException
      * @throws UnsupportedEncodingException
+     * 
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
      */
-    public boolean removeGranulesByCQL(final String workspace, String coverageStore,String coverage, String filter) throws UnsupportedEncodingException{
+    public boolean removeGranulesByCQL(final String workspace, String coverageStore,
+            String coverage, String filter) throws UnsupportedEncodingException {
         // checks
         checkString(workspace);
         checkString(coverage);
         checkString(filter);
         checkString(coverageStore);
-        
+
         // does it exist?
-        RESTStructuredCoverageGranulesList granulesList=null;
+        RESTStructuredCoverageGranulesList granulesList = null;
         try {
             granulesList = getGranules(workspace, coverageStore, coverageStore, filter, null, 1);
         } catch (MalformedURLException e) {
-            if(LOGGER.isTraceEnabled()){
+            if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
             }
         } catch (UnsupportedEncodingException e) {
-            if(LOGGER.isTraceEnabled()){
+            if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
             }
         }
-        if (granulesList == null||granulesList.isEmpty()) {
-            if(LOGGER.isTraceEnabled()){
-                LOGGER.trace("Granules for filter: "+filter+ " does not exist for coverage "+coverage);
-            }            
+        if (granulesList == null || granulesList.isEmpty()) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Granules for filter: " + filter + " does not exist for coverage "
+                        + coverage);
+            }
             return true; // nothing to remove
         }
-        
+
         // method
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores", "/",coverageStore,"/coverages/",coverage,"/index/granules?filter=",URLEncoder.encode(filter, "UTF-8")).toString();
-        if(!HTTPUtils.delete(sUrl, gsuser, gspass)){
+        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores",
+                "/", coverageStore, "/coverages/", coverage, "/index/granules?filter=",
+                URLEncoder.encode(filter, "UTF-8")).toString();
+        if (!HTTPUtils.delete(sUrl, gsuser, gspass)) {
             return false;
-        } 
-        
+        }
+
         // does it exist?
-        granulesList=null;
+        granulesList = null;
         try {
             granulesList = getGranules(workspace, coverageStore, coverageStore, filter, null, 1);
         } catch (MalformedURLException e) {
-            if(LOGGER.isTraceEnabled()){
+            if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
             }
         } catch (UnsupportedEncodingException e) {
-            if(LOGGER.isTraceEnabled()){
+            if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
             }
         }
-        if (granulesList == null||granulesList.isEmpty()) {           
+        if (granulesList == null || granulesList.isEmpty()) {
             return true; // nothing to remove
         }
         return false;
     }
-    
+
     /**
      * Remove a granule from a structured coverage by id.
      * 
@@ -183,8 +193,11 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
      * 
      * @throws MalformedURLException
      * @throws UnsupportedEncodingException
+     * 
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
      */
-    public boolean removeGranuleById(final String workspace, String coverageStore, String coverage, String granuleId) {
+    public boolean removeGranuleById(final String workspace, String coverageStore, String coverage,
+            String granuleId) {
         // checks
         checkString(workspace);
         checkString(coverage);
@@ -192,22 +205,23 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         checkString(coverageStore);
 
         // does it exist?
-        RESTStructuredCoverageGranulesList granule=null;
+        RESTStructuredCoverageGranulesList granule = null;
         try {
             granule = getGranuleById(workspace, coverageStore, coverage, granuleId);
         } catch (MalformedURLException e) {
-            if(LOGGER.isTraceEnabled()){
+            if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
             }
         } catch (UnsupportedEncodingException e) {
-            if(LOGGER.isTraceEnabled()){
+            if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
             }
         }
         if (granule == null) {
-            if(LOGGER.isTraceEnabled()){
-                LOGGER.trace("Granule for id: "+granuleId+ " does not exist for coverage "+coverage);
-            }            
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Granule for id: " + granuleId + " does not exist for coverage "
+                        + coverage);
+            }
             return true; // nothing to remove
         }
 
@@ -215,58 +229,62 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores",
                 "/", coverageStore, "/coverages/", coverage, "/index/granules/", granuleId)
                 .toString();
-        if(!HTTPUtils.delete(sUrl, gsuser, gspass)){
+        if (!HTTPUtils.delete(sUrl, gsuser, gspass)) {
             return false;
         }
 
         // has it been canceled?
         // does it exist?
-        granule=null;
+        granule = null;
         try {
             granule = getGranuleById(workspace, coverageStore, coverage, granuleId);
         } catch (MalformedURLException e) {
-            if(LOGGER.isTraceEnabled()){
+            if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
             }
         } catch (UnsupportedEncodingException e) {
-            if(LOGGER.isTraceEnabled()){
+            if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
             }
         }
         if (granule == null) {
             return true;
-        }        
+        }
 
         return false;
     }
 
-   /**
-    * Get information about the schema of the index for a structured coverage.
-    * 
-    * @param workspace the GeoServer workspace
-    * @param coverageStore the GeoServer coverageStore
-    * @param format the format of the file to upload
-    * 
-    * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
-    * 
-    * @throws MalformedURLException
-    * @throws UnsupportedEncodingException
-    */
-    public RESTStructuredCoverageIndexSchema getGranuleIndexSchema(final String workspace, String coverageStore, String coverage) throws MalformedURLException {
+    /**
+     * Get information about the schema of the index for a structured coverage.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param format the format of the file to upload
+     * 
+     * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
+     * 
+     * @throws MalformedURLException
+     * @throws UnsupportedEncodingException
+     * 
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
+     */
+    public RESTStructuredCoverageIndexSchema getGranuleIndexSchema(final String workspace,
+            String coverageStore, String coverage) throws MalformedURLException {
         // checks
         checkString(workspace);
         checkString(coverage);
         checkString(coverageStore);
 
         // create URL and then call it
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/", coverageStore, "/coverages/", coverage, "/index.xml").toString();
+        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+                coverageStore, "/coverages/", coverage, "/index.xml").toString();
         String result = HTTPUtils.get(sUrl, gsuser, gspass);
         if (result != null) {
             return RESTStructuredCoverageIndexSchema.build(result);
         }
         return null;
     }
-   
+
     /**
      * Get information about the granules for a coverage with optional filter and paging.
      * 
@@ -281,8 +299,11 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
      * 
      * @throws MalformedURLException
      * @throws UnsupportedEncodingException
+     * 
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
      */
-    public RESTStructuredCoverageGranulesList getGranules(final String workspace, String coverageStore, String coverage, String filter, Integer offset, Integer limit)
+    public RESTStructuredCoverageGranulesList getGranules(final String workspace,
+            String coverageStore, String coverage, String filter, Integer offset, Integer limit)
             throws MalformedURLException, UnsupportedEncodingException {
         // checks
         checkString(workspace);
@@ -291,17 +312,26 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
 
         // method
         boolean append = false;
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/", coverageStore, "/coverages/", coverage, "/index/granules.xml").toString();
+        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+                coverageStore, "/coverages/", coverage, "/index/granules.xml").toString();
         if (filter != null && !filter.isEmpty()) {
             append = true;
-            sUrl = HTTPUtils.append(sUrl, "?filter=", URLEncoder.encode(filter, "UTF-8")).toString();
+            sUrl = HTTPUtils.append(sUrl, "?filter=", URLEncoder.encode(filter, "UTF-8"))
+                    .toString();
         }
         if (offset != null) {
-            sUrl = HTTPUtils.append(sUrl, append ? "&offset=" : "?offset=", offset.toString()).toString();
+            if (offset < 0)
+                offset = 0;
+            sUrl = HTTPUtils.append(sUrl, append ? "&offset=" : "?offset=", offset.toString())
+                    .toString();
             append = true;
         }
         if (limit != null) {
-            sUrl = HTTPUtils.append(sUrl, append ? "&limit=" : "?limit=", limit.toString()).toString();
+            if (limit < 1) {
+                limit = 1;
+            }
+            sUrl = HTTPUtils.append(sUrl, append ? "&limit=" : "?limit=", limit.toString())
+                    .toString();
             append = true;
         }
         String result = HTTPUtils.get(sUrl, gsuser, gspass);
@@ -310,7 +340,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         }
         return null;
     }
-      
+
     /**
      * Get information about a granule for a structured coverage.
      * 
@@ -324,6 +354,8 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
      * 
      * @throws MalformedURLException
      * @throws UnsupportedEncodingException
+     * 
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
      */
     public RESTStructuredCoverageGranulesList getGranuleById(final String workspace,
             String coverageStore, String coverage, String id) throws MalformedURLException,
@@ -333,14 +365,15 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         checkString(coverage);
         checkString(coverageStore);
         checkString(id);
-        try{
+        try {
             Integer.parseInt(id);
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new IllegalArgumentException(e);
         }
 
         // method
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/", coverageStore, "/coverages/", coverage, "/index/granules/", id, ".xml").toString();
+        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+                coverageStore, "/coverages/", coverage, "/index/granules/", id, ".xml").toString();
         String result = HTTPUtils.get(sUrl, gsuser, gspass);
         if (result != null) {
             return RESTStructuredCoverageGranulesList.build(result);
