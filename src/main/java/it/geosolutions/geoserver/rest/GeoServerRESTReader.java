@@ -655,7 +655,7 @@ public class GeoServerRESTReader {
       * @throws MalformedURLException
       * @throws UnsupportedEncodingException
       */
-    public RESTStructuredCoverageGranulesList getGranules(final String workspace, String coverageStore, String coverage, String filter, String offset, String limit)
+    public RESTStructuredCoverageGranulesList getGranules(final String workspace, String coverageStore, String coverage, String filter, Integer offset, Integer limit)
              throws MalformedURLException, UnsupportedEncodingException {
          try {
              GeoServerRESTStructuredGridCoverageReaderManager manager = 

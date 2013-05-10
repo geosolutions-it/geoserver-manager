@@ -129,7 +129,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         // does it exist?
         RESTStructuredCoverageGranulesList granulesList=null;
         try {
-            granulesList = getGranules(workspace, coverageStore, coverageStore, filter, null, "1");
+            granulesList = getGranules(workspace, coverageStore, coverageStore, filter, null, 1);
         } catch (MalformedURLException e) {
             if(LOGGER.isTraceEnabled()){
                 LOGGER.trace(e.getMessage(), e);
@@ -155,7 +155,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         // does it exist?
         granulesList=null;
         try {
-            granulesList = getGranules(workspace, coverageStore, coverageStore, filter, null, "1");
+            granulesList = getGranules(workspace, coverageStore, coverageStore, filter, null, 1);
         } catch (MalformedURLException e) {
             if(LOGGER.isTraceEnabled()){
                 LOGGER.trace(e.getMessage(), e);
@@ -282,7 +282,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
      * @throws MalformedURLException
      * @throws UnsupportedEncodingException
      */
-    public RESTStructuredCoverageGranulesList getGranules(final String workspace, String coverageStore, String coverage, String filter, String offset, String limit)
+    public RESTStructuredCoverageGranulesList getGranules(final String workspace, String coverageStore, String coverage, String filter, Integer offset, Integer limit)
             throws MalformedURLException, UnsupportedEncodingException {
         // checks
         checkString(workspace);
@@ -296,12 +296,12 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
             append = true;
             sUrl = HTTPUtils.append(sUrl, "?filter=", URLEncoder.encode(filter, "UTF-8")).toString();
         }
-        if (offset != null && !offset.isEmpty()) {
-            sUrl = HTTPUtils.append(sUrl, append ? "&offset=" : "?offset=", offset).toString();
+        if (offset != null) {
+            sUrl = HTTPUtils.append(sUrl, append ? "&offset=" : "?offset=", offset.toString()).toString();
             append = true;
         }
-        if (limit != null && !limit.isEmpty()) {
-            sUrl = HTTPUtils.append(sUrl, append ? "&limit=" : "?limit=", limit).toString();
+        if (limit != null) {
+            sUrl = HTTPUtils.append(sUrl, append ? "&limit=" : "?limit=", limit.toString()).toString();
             append = true;
         }
         String result = HTTPUtils.get(sUrl, gsuser, gspass);

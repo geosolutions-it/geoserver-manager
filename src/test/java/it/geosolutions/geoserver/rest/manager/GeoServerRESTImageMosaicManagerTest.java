@@ -73,6 +73,9 @@ public class GeoServerRESTImageMosaicManagerTest extends StoreIntegrationTest {
     
     @Test
     public void createAndDelete() throws IllegalArgumentException, MalformedURLException, UnsupportedEncodingException{
+        if (!enabled()) {
+            return;
+        }
         GeoServerRESTStructuredGridCoverageReaderManager manager = 
             new GeoServerRESTStructuredGridCoverageReaderManager(new URL(RESTURL), RESTUSER, RESTPW);
         GeoServerRESTReader reader = new GeoServerRESTReader(new URL(RESTURL), RESTUSER, RESTPW);
@@ -129,14 +132,14 @@ public class GeoServerRESTImageMosaicManagerTest extends StoreIntegrationTest {
         
         
         // get with paging
-        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic" , null, "0", "1");
+        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic" , null, 0, 1);
         assertNotNull(granulesList);
         assertEquals(1, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule);       
         
-        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic", null, null, "2");
+        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic", null, null, 2);
         assertNotNull(granulesList);
         assertEquals(2, granulesList.size());
         assertFalse(granulesList.isEmpty());
@@ -182,10 +185,6 @@ public class GeoServerRESTImageMosaicManagerTest extends StoreIntegrationTest {
         final URL url = new URL(urlString); 
         final File file = urlToFile(url);
         final String filePath = file.getAbsolutePath();
-        
-        int i=0;
-        i++;
-        
         
         // use reflection to get the store URL since coveragestore only returns name and workspace
         result = manager.createOrHarvestExternal("it.geosolutions", "mosaic", "imagemosaic", filePath + File.separatorChar + fileLocation );
