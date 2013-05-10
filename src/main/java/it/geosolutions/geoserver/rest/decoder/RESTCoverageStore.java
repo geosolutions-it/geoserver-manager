@@ -76,15 +76,23 @@ public class RESTCoverageStore {
             return new RESTCoverageStore(pb);
         else
             return null;
-	}
+    }
 
-	public String getName() {
-		return cs.getChildText("name");
-	}
+    public String getName() {
+        return cs.getChildText("name");
+    }
 
-	public String getWorkspaceName() {
-		return cs.getChild("workspace").getChildText("name");
-	}
+    public String getWorkspaceName() {
+        return cs.getChild("workspace").getChildText("name");
+    }
+
+    public String getURL() {
+        return cs.getChildText("url");
+    }
+    
+    public String getType() {
+        return cs.getChildText("type");
+    }
 
     public String toString() {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName())

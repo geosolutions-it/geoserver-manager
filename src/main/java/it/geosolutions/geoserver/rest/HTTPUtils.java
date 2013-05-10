@@ -336,7 +336,7 @@ public class HTTPUtils {
                 InputStream is = httpMethod.getResponseBodyAsStream();
                 response = IOUtils.toString(is);
                 IOUtils.closeQuietly(is);
-                if (response.trim().equals("")) { // sometimes gs rest fails
+                if (response.trim().equals("")) { 
                     if (LOGGER.isDebugEnabled())
                         LOGGER
                             .debug("ResponseBody is empty (this may be not an error since we just performed a DELETE call)");
@@ -467,14 +467,14 @@ public class HTTPUtils {
     
     /**
      * @param str a string array
-     * @return create a StringBuffer appending all the passed arguments
+     * @return create a StringBuilder appending all the passed arguments
      */
-    public static StringBuffer append(String ... str){
+    public static StringBuilder append(String ... str){
         if (str==null){
             return null;
         }
         
-        StringBuffer buf=new StringBuffer();
+        StringBuilder buf=new StringBuilder();
         for (String s: str){
             if (s!=null)
                 buf.append(s);
@@ -488,12 +488,12 @@ public class HTTPUtils {
      * @param str strings to append
      * @return the base URL with parameters attached
      */
-    public static StringBuffer append(URL base, String ... str){
+    public static StringBuilder append(URL base, String ... str){
         if (str==null){
             return append(base.toString());
         }
         
-        StringBuffer buf=new StringBuffer(base.toString());
+        StringBuilder buf=new StringBuilder(base.toString());
         for (String s: str){
             if (s!=null)
                 buf.append(s);

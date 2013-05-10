@@ -26,6 +26,7 @@ package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageList;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import it.geosolutions.geoserver.rest.encoder.GSBackupEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
@@ -37,9 +38,11 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -2537,7 +2540,7 @@ public class GeoServerRESTPublisher {
      * 
      *       configured - Only setup or configured feature types are returned. This is the default value. available - Only unconfigured feature types
      *       (not yet setup) but are available from the specified datastore will be returned. available_with_geom - Same as available but only
-     *       includes feature types that have a geometry attribute. all - The union of configured and available.
+     *       includes feature types that have a geometry granule. all - The union of configured and available.
      * 
      * 
      * @return true if success
@@ -2647,4 +2650,94 @@ public class GeoServerRESTPublisher {
         return URLEncoder.encode(s);
         // }
     }
+    
+    // ==> StructuredCoverageGridReader
+
+    /**
+     * Create a store or harvest the coverage from the provided <b>external</b> path.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param format the format of the file to upload
+     * @param the absolut path to the file to upload
+     * 
+     * @return <code>true</code> if the call succeeds or <code>false</code> otherwise.
+     */
+    public boolean createOrHarvestExternal(String workspace, String coverageStore, String format, String path) {
+        try {
+            GeoServerRESTStructuredGridCoverageReaderManager manager = 
+                new GeoServerRESTStructuredGridCoverageReaderManager(new URL(restURL), gsuser, gspass);
+            return manager.createOrHarvestExternal(workspace, coverageStore, format, path);
+        } catch (IllegalArgumentException e) {
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(e.getLocalizedMessage(),e);
+            }
+        } catch (MalformedURLException e) {
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(e.getLocalizedMessage(),e);
+            }
+        }
+        return false;
+    }
+    
+    /**
+      * Remove a granule from a structured coverage by id.
+      * 
+      * @param workspace the GeoServer workspace
+      * @param coverageStore the GeoServer coverageStore
+      * @param coverage the name of the target coverage from which we are going to remove
+      * @param filter the absolute path to the file to upload
+      * 
+      * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
+      * 
+      * @throws MalformedURLException
+      * @throws UnsupportedEncodingException
+      */
+     public boolean removeGranuleById(final String workspace, String coverageStore, String coverage, String granuleId) {
+         try {
+             GeoServerRESTStructuredGridCoverageReaderManager manager = 
+                 new GeoServerRESTStructuredGridCoverageReaderManager(new URL(restURL), gsuser, gspass);
+             return manager.removeGranuleById(workspace, coverageStore, coverage, granuleId);
+         } catch (IllegalArgumentException e) {
+             if(LOGGER.isInfoEnabled()){
+                 LOGGER.info(e.getLocalizedMessage(),e);
+             }
+         } catch (MalformedURLException e) {
+             if(LOGGER.isInfoEnabled()){
+                 LOGGER.info(e.getLocalizedMessage(),e);
+             }
+         }
+         return false;
+     }     
+     /**
+      * Remove granules from a structured coverage, by providing a CQL filter.
+      * 
+      * @param workspace the GeoServer workspace
+      * @param coverageStore the GeoServer coverageStore
+      * @param coverage the name of the target coverage from which we are going to remove
+      * @param filter the absolute path to the file to upload
+      * 
+      * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
+      * 
+      * @throws MalformedURLException
+      * @throws UnsupportedEncodingException
+      */
+     public boolean removeGranulesByCQL(final String workspace, String coverageStore,String coverage, String filter) throws UnsupportedEncodingException{
+         try {
+             GeoServerRESTStructuredGridCoverageReaderManager manager = 
+                 new GeoServerRESTStructuredGridCoverageReaderManager(new URL(restURL), gsuser, gspass);
+             return manager.removeGranulesByCQL(workspace, coverageStore, coverage, filter);
+         } catch (IllegalArgumentException e) {
+             if(LOGGER.isInfoEnabled()){
+                 LOGGER.info(e.getLocalizedMessage(),e);
+             }
+         } catch (MalformedURLException e) {
+             if(LOGGER.isInfoEnabled()){
+                 LOGGER.info(e.getLocalizedMessage(),e);
+             }
+         }
+         return false;
+
+     }
+
 }

@@ -26,6 +26,7 @@ package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTAbstractManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -50,6 +51,8 @@ public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
     private final GeoServerRESTReader reader;
 
     private final GeoServerRESTStoreManager store;
+    
+    private final GeoServerRESTStructuredGridCoverageReaderManager structuredGridCoverageReader;
 
     /**
      * Default constructor.
@@ -69,6 +72,7 @@ public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
         // Internal publisher and reader, provide simple access methods.
         publisher = new GeoServerRESTPublisher(restURL.toString(), username, password);
         reader = new GeoServerRESTReader(restURL, username, password);
+        structuredGridCoverageReader = new GeoServerRESTStructuredGridCoverageReaderManager(restURL, username, password);
         store = new GeoServerRESTStoreManager(restURL, gsuser, gspass);
     }
 
@@ -82,6 +86,10 @@ public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
 
     public GeoServerRESTStoreManager getStoreManager() {
         return store;
+    }
+
+    public GeoServerRESTStructuredGridCoverageReaderManager getStructuredGridCoverageReader() {
+        return structuredGridCoverageReader;
     }
 
 }
