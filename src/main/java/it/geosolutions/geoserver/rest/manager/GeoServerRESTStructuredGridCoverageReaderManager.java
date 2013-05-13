@@ -136,7 +136,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         // does it exist?
         RESTStructuredCoverageGranulesList granulesList = null;
         try {
-            granulesList = getGranules(workspace, coverageStore, coverageStore, filter, null, 1);
+            granulesList = getGranules(workspace, coverageStore, coverage, filter, null, 1);
         } catch (MalformedURLException e) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
@@ -165,7 +165,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         // does it exist?
         granulesList = null;
         try {
-            granulesList = getGranules(workspace, coverageStore, coverageStore, filter, null, 1);
+            granulesList = getGranules(workspace, coverageStore, coverage, filter, null, 1);
         } catch (MalformedURLException e) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace(e.getMessage(), e);
