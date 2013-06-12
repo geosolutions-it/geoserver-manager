@@ -27,43 +27,41 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 /**
- * 
+ *
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
-public class GSImageMosaicEncoderTest extends TestCase {
+public class GSJP2KEncoderTest extends TestCase {
 
-    public GSImageMosaicEncoderTest() {
+    public GSJP2KEncoderTest() {
     }
 
     /**
      * Default logger
      */
-    protected final static Logger LOGGER = LoggerFactory.getLogger(GSImageMosaicEncoderTest.class);
-
+    protected final static Logger LOGGER = LoggerFactory.getLogger(GSJP2KEncoderTest.class);
+    
     /**
      * TODO implement this test
      */
     @Test
     public void testAll() {
-        final GSImageMosaicEncoder encoder = new GSImageMosaicEncoder();
-
-        Assert.isNull(encoder.getUseJaiImageRead());
-
-        encoder.setAllowMultithreading(true);
-
-        Assert.isTrue(encoder.getAllowMultithreading());
-
-        encoder.setAllowMultithreading(false);
-
-        Assert.isTrue(!encoder.getAllowMultithreading());
-
-        encoder.setSUGGESTED_TILE_SIZE("512,512");
-
-        Assert.isTrue(encoder.getSuggestedTileSize().equalsIgnoreCase("512,512"));
-
-        LOGGER.info(encoder.toString());
-
-        encoder.addSUGGESTED_TILE_SIZE("512,512");
-
+    	final GSJP2KEncoder encoder=new GSJP2KEncoder();
+    
+    	Assert.isNull(encoder.getUseJaiImageRead());
+    	
+    	encoder.setUseMultithreading(true);
+    	LOGGER.info(encoder.toString());
+    	Assert.isTrue(encoder.getUseMultithreading());
+    	
+    	encoder.setUseMultithreading(false);
+    	
+    	Assert.isTrue(!encoder.getUseMultithreading());
+    	
+    	encoder.setSuggestedTileSize("512,512");
+    	
+    	Assert.isTrue(encoder.getSuggestedTileSize().equalsIgnoreCase("512,512"));
+    	
+    	LOGGER.info(encoder.toString());
+    	
     }
 }
