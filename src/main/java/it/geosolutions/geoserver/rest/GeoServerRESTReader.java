@@ -479,12 +479,33 @@ public class GeoServerRESTReader {
 
     /**
      * Get detailed info about a given Layer.
+     * 
+     * @deprecated use {@link #getLayer(String, String)}
      *
      * @param name The name of the Layer
      * @return Layer details as a {@link RESTLayer}
      */
     public RESTLayer getLayer(String name) {
         String url = "/rest/layers/" + name + ".xml";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving layer from " + url);
+        }
+        return RESTLayer.build(load(url));
+    }
+
+    /**
+     * Get detailed info about a given Layer.
+     * 
+     * @param workspace the workspace name
+     * @param name the layer name
+     * @return a RESTLayer with layer information or null
+     */
+    public RESTLayer getLayer(String workspace, String name) {
+        if (workspace == null || workspace.isEmpty())
+            throw new IllegalArgumentException("Workspace may not be null");
+        if (name == null || name.isEmpty())
+            throw new IllegalArgumentException("Layername may not be null");
+        String url = HTTPUtils.append("/rest/layers/",workspace,":",name,".xml").toString();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("### Retrieving layer from " + url);
         }
