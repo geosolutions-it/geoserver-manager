@@ -43,6 +43,7 @@ public class GSPostGISDatastoreEncoder extends GSAbstractDatastoreEncoder {
 	static final boolean DEFAULT_LOOSE_BBOX = true;
 	static final boolean DEFAULT_PREPARED_STATEMENTS = false;
 	static final int DEFAULT_MAX_OPEN_PREPARED_STATEMENTS = 50;
+	static final boolean DEFAULT_ESTIMATED_EXTENDS = false;
 	
 	/**
 	 * 
@@ -63,6 +64,7 @@ public class GSPostGISDatastoreEncoder extends GSAbstractDatastoreEncoder {
         setLooseBBox(DEFAULT_LOOSE_BBOX);
         setPreparedStatements(DEFAULT_PREPARED_STATEMENTS);
         setMaxOpenPreparedStatements(DEFAULT_MAX_OPEN_PREPARED_STATEMENTS);
+        setEstimatedExtends(DEFAULT_ESTIMATED_EXTENDS);
         
     }
     
@@ -140,6 +142,10 @@ public class GSPostGISDatastoreEncoder extends GSAbstractDatastoreEncoder {
     
     public void setMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
     	connectionParameters.set("Max open prepared statements", Integer.toString(maxOpenPreparedStatements));
+    }
+    
+    public void setEstimatedExtends(boolean estimatedExtends){
+    	connectionParameters.set("Estimated extends", Boolean.toString(estimatedExtends));
     }
     
     /**
