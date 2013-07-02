@@ -371,8 +371,7 @@ public class GeoServerRESTPublisher {
             sUrl += "?name=" + encode(name);
         }
         LOGGER.debug("POSTing new style " + name + " to " + sUrl);
-        String result = HTTPUtils
-                .post(sUrl, sldFile, Format.SLD.getContentType(), gsuser, gspass);
+        String result = HTTPUtils.post(sUrl, sldFile, Format.SLD.getContentType(), gsuser, gspass);
         return result != null;
     }
 
@@ -513,7 +512,7 @@ public class GeoServerRESTPublisher {
          * @return
          */
         public static String getTypeName(StoreType type) {
-            return StoreType.getTypeNameWithFormat(type,Format.XML);
+            return StoreType.getTypeNameWithFormat(type, Format.XML);
         }
 
         /**
@@ -552,9 +551,9 @@ public class GeoServerRESTPublisher {
          * @return "featureTypes.{xml|html|...}" for DATASTORES, "coverages.{xml|html|...}" otherwise.
          */
         public static String getTypeNameWithFormat(StoreType type, Format format) {
-            return getTypeName(type)+"."+format;
+            return getTypeName(type) + "." + format;
         }
-        
+
         /**
          * Get the type name of a StoreType with the specified format.
          * 
@@ -563,9 +562,9 @@ public class GeoServerRESTPublisher {
          * @return "featuretypes.{xml|html|...}" for DATASTORES, "coverages.{xml|html|...}" otherwise.
          */
         public String getTypeNameWithFormat(Format format) {
-            return getTypeName(this).toLowerCase()+"."+format;
+            return getTypeName(this).toLowerCase() + "." + format;
         }
-        
+
         /**
          * Get the type name of a StoreType.
          * 
@@ -582,7 +581,7 @@ public class GeoServerRESTPublisher {
                 return "coverages";
             }
         }
-        
+
         /**
          * Get the type name of a StoreType.
          * 
@@ -599,7 +598,7 @@ public class GeoServerRESTPublisher {
                 return "coverageStore";
             }
         }
-        
+
         /**
          * Get the type name of a StoreType.
          * 
@@ -608,7 +607,7 @@ public class GeoServerRESTPublisher {
         public String getTypeName() {
             return getTypeName(this);
         }
-        
+
         /**
          * Get the type of a StoreType.
          * 
@@ -774,7 +773,7 @@ public class GeoServerRESTPublisher {
             ParameterConfigure configure, NameValuePair... params) throws FileNotFoundException,
             IllegalArgumentException {
         if (workspace == null || dsType == null || storeName == null || method == null
-                | extension == null || mimeType == null || uri == null) {
+                || extension == null || mimeType == null || uri == null) {
             throw new IllegalArgumentException("Null argument");
         }
         StringBuilder sbUrl = new StringBuilder(restURL).append("/rest/workspaces/")
@@ -876,7 +875,7 @@ public class GeoServerRESTPublisher {
     /**
      * Create a PostGIS datastore.
      * 
-     * @deprecated Will be deleted in next version 1.6.x, use {@link GeoServerRESTStoreManager} instead.
+     * @deprecated Will be deleted in next version 1.5.x, use {@link GeoServerRESTDatastoreManager} instead.
      * 
      * @param workspace Name of the workspace to contain the database. This will also be the prefix of any layer names created from tables in the
      *        database.
@@ -885,7 +884,7 @@ public class GeoServerRESTPublisher {
      * @return <TT>true</TT> if the PostGIS datastore has been successfully created, <TT>false</TT> otherwise
      */
     public boolean createPostGISDatastore(String workspace,
-            it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder datastoreEncoder) {
+            GSPostGISDatastoreEncoder datastoreEncoder) {
         String sUrl = restURL + "/rest/workspaces/" + workspace + "/datastores/";
         String xml = datastoreEncoder.toString();
         String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
@@ -1368,7 +1367,7 @@ public class GeoServerRESTPublisher {
                 return null;
             }
         }
-        
+
         /**
          * Gets the mime type from a format.
          * 
@@ -1378,7 +1377,7 @@ public class GeoServerRESTPublisher {
         public String getContentType() {
             return getContentType(this);
         }
-        
+
         /**
          * Returns a lowercase representation of the parameter. Useful when constructing the REST request.
          */
@@ -2008,32 +2007,7 @@ public class GeoServerRESTPublisher {
      */
     public boolean removeDatastore(String workspace, String storename, final boolean recurse)
             throws IllegalArgumentException {
-        try {
-            if (workspace == null || storename == null)
-                throw new IllegalArgumentException("Arguments may not be null!");
-            if (workspace.isEmpty() || storename.isEmpty())
-                throw new IllegalArgumentException("Arguments may not be empty!");
-
-            final StringBuilder url = new StringBuilder(restURL);
-            url.append("/rest/workspaces/").append(workspace).append("/datastores/")
-                    .append(storename);
-            if (recurse)
-                url.append("?recurse=true");
-            final URL deleteStore = new URL(url.toString());
-
-            boolean deleted = HTTPUtils.delete(deleteStore.toExternalForm(), gsuser, gspass);
-            if (!deleted) {
-                LOGGER.warn("Could not delete datastore " + workspace + ":" + storename);
-            } else {
-                LOGGER.info("Datastore successfully deleted " + workspace + ":" + storename);
-            }
-
-            return deleted;
-        } catch (MalformedURLException ex) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(ex.getLocalizedMessage(), ex);
-            return false;
-        }
+        return removeStore(workspace, storename, StoreType.DATASTORES, recurse);
     }
 
     /**
@@ -2045,13 +2019,7 @@ public class GeoServerRESTPublisher {
      * @deprecated use {@link #removeCoverageStore(String, String, boolean)}
      */
     public boolean removeCoverageStore(String workspace, String storename) {
-        try {
-            return removeCoverageStore(workspace, storename, true);
-        } catch (IllegalArgumentException e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error("Arguments may not be null or empty!", e);
-        }
-        return false;
+        return removeCoverageStore(workspace, storename, true);
     }
 
     /**
@@ -2064,6 +2032,21 @@ public class GeoServerRESTPublisher {
      */
     public boolean removeCoverageStore(final String workspace, final String storename,
             final boolean recurse) throws IllegalArgumentException {
+        return removeStore(workspace, storename, StoreType.COVERAGESTORES, recurse);
+    }
+
+    /**
+     * Remove a given Datastore in a given Workspace.
+     * 
+     * @param workspace The name of the workspace
+     * @param storename The name of the Datastore to remove.
+     * @param the {@link StoreType} type
+     * @param recurse if remove should be performed recursively
+     * @throws IllegalArgumentException if workspace or storename are null or empty
+     * @return <TT>true</TT> if the store was successfully removed.
+     */
+    private boolean removeStore(String workspace, String storename, StoreType type,
+            final boolean recurse) throws IllegalArgumentException {
         try {
             if (workspace == null || storename == null)
                 throw new IllegalArgumentException("Arguments may not be null!");
@@ -2071,7 +2054,7 @@ public class GeoServerRESTPublisher {
                 throw new IllegalArgumentException("Arguments may not be empty!");
 
             final StringBuilder url = new StringBuilder(restURL);
-            url.append("/rest/workspaces/").append(workspace).append("/coveragestores/")
+            url.append("/rest/workspaces/").append(workspace).append("/").append(type).append("/")
                     .append(storename);
             if (recurse)
                 url.append("?recurse=true");
@@ -2079,12 +2062,12 @@ public class GeoServerRESTPublisher {
 
             boolean deleted = HTTPUtils.delete(deleteStore.toExternalForm(), gsuser, gspass);
             if (!deleted) {
-                LOGGER.warn("Could not delete CoverageStore " + workspace + ":" + storename);
+                LOGGER.warn("Could not delete store " + workspace + ":" + storename);
             } else {
-                LOGGER.info("CoverageStore successfully deleted " + workspace + ":" + storename);
+                LOGGER.info("Store successfully deleted " + workspace + ":" + storename);
             }
-            return deleted;
 
+            return deleted;
         } catch (MalformedURLException ex) {
             if (LOGGER.isErrorEnabled())
                 LOGGER.error(ex.getLocalizedMessage(), ex);
@@ -2101,13 +2084,7 @@ public class GeoServerRESTPublisher {
      * @deprecated {@link #removeWorkspace(String, boolean)}
      */
     public boolean removeWorkspace(String workspace) {
-        try {
-            return removeWorkspace(workspace, false);
-        } catch (IllegalArgumentException e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error("Arguments may not be null or empty!", e);
-        }
-        return false;
+        return removeWorkspace(workspace, false);
     }
 
     /**
@@ -2154,15 +2131,15 @@ public class GeoServerRESTPublisher {
      * @param workspace the layer group workspace.
      * @param name the layer group name.
      * @return true if succeeded.
-     */    
+     */
     public boolean removeLayerGroup(String workspace, String name) {
         String url = restURL + "/rest";
         if (workspace == null) {
             url += "/layergroups/" + name;
         } else {
             url += "/workspaces/" + workspace + "/layergroups/" + name;
-        }  
-    
+        }
+
         try {
             URL deleteUrl = new URL(url);
             boolean deleted = HTTPUtils.delete(deleteUrl.toExternalForm(), gsuser, gspass);
@@ -2179,9 +2156,9 @@ public class GeoServerRESTPublisher {
             if (LOGGER.isErrorEnabled())
                 LOGGER.error(ex.getLocalizedMessage(), ex);
             return false;
-        }        
+        }
     }
-    
+
     /**
      * Remove a layer group.
      * 
@@ -2261,17 +2238,17 @@ public class GeoServerRESTPublisher {
         final String store = HTTPUtils.get(url, this.gsuser, this.gspass);
 
         if (store != null) {
-            String storeTag=storeType.getTypeName();
-//            switch (storeType) {
-//            case COVERAGESTORES:
-//                storeTag = storeType.toString().replaceAll("store", "");
-//                break;
-//            case DATASTORES:
-//                storeTag = "featureTypes";
-//                break;
-//            default:
-//                throw new IllegalArgumentException("Unrecognized type");
-//            }
+            String storeTag = storeType.getTypeName();
+            // switch (storeType) {
+            // case COVERAGESTORES:
+            // storeTag = storeType.toString().replaceAll("store", "");
+            // break;
+            // case DATASTORES:
+            // storeTag = "featureTypes";
+            // break;
+            // default:
+            // throw new IllegalArgumentException("Unrecognized type");
+            // }
 
             String startTag = "<" + storeTag + ">";
             int start = store.indexOf(startTag);
@@ -2363,7 +2340,7 @@ public class GeoServerRESTPublisher {
     public boolean createLayerGroup(String name, GSLayerGroupEncoder group) {
         return createLayerGroup(null, name, group);
     }
-    
+
     /**
      * Create a new LayerGroup using the specified encoder
      * 
@@ -2374,15 +2351,15 @@ public class GeoServerRESTPublisher {
      */
     public boolean createLayerGroup(String workspace, String name, GSLayerGroupEncoder group) {
         String url = restURL + "/rest";
-        if (workspace == null) {            
+        if (workspace == null) {
             url += "/layergroups/";
         } else {
             group.setWorkspace(workspace);
             url += "/workspaces/" + workspace + "/layergroups/";
-        }  
-    
+        }
+
         group.setName(name);
-        
+
         String sendResult = HTTPUtils.postXml(url, group.toString(), gsuser, gspass);
         if (sendResult != null) {
             if (LOGGER.isInfoEnabled()) {
@@ -2393,9 +2370,9 @@ public class GeoServerRESTPublisher {
                 LOGGER.warn("Error configuring LayerGroup " + name + " (" + sendResult + ")");
         }
 
-        return sendResult != null;  
+        return sendResult != null;
     }
-    
+
     /**
      * Update a LayerGroup using the specified encoder
      * 
@@ -2406,7 +2383,7 @@ public class GeoServerRESTPublisher {
     public boolean configureLayerGroup(String name, GSLayerGroupEncoder group) {
         return configureLayerGroup(null, name, group);
     }
-    
+
     /**
      * Update a LayerGroup using the specified encoder
      * 
@@ -2414,15 +2391,15 @@ public class GeoServerRESTPublisher {
      * @param name name of the layer group
      * @param group group encoder
      * @return true if operation was successful
-     */    
+     */
     public boolean configureLayerGroup(String workspace, String name, GSLayerGroupEncoder group) {
         String url = restURL + "/rest";
         if (workspace == null) {
             url += "/layergroups/" + name;
         } else {
             url += "/workspaces/" + workspace + "/layergroups/" + name;
-        }  
-        
+        }
+
         String sendResult = HTTPUtils.putXml(url, group.toString(), gsuser, gspass);
         if (sendResult != null) {
             if (LOGGER.isInfoEnabled()) {
@@ -2433,9 +2410,9 @@ public class GeoServerRESTPublisher {
                 LOGGER.warn("Error configuring LayerGroup " + name + " (" + sendResult + ")");
         }
 
-        return sendResult != null;         
+        return sendResult != null;
     }
-    
+
     /**
      * Configure an existent coverage in a given workspace and coverage store
      * 
@@ -2538,7 +2515,7 @@ public class GeoServerRESTPublisher {
      * 
      *       configured - Only setup or configured feature types are returned. This is the default value. available - Only unconfigured feature types
      *       (not yet setup) but are available from the specified datastore will be returned. available_with_geom - Same as available but only
-     *       includes feature types that have a geometry attribute. all - The union of configured and available.
+     *       includes feature types that have a geometry granule. all - The union of configured and available.
      * 
      * 
      * @return true if success

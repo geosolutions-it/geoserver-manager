@@ -25,6 +25,7 @@
 package it.geosolutions.geoserver.rest.manager;
 
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.Format;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.StoreType;
 import it.geosolutions.geoserver.rest.HTTPUtils;
 import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
@@ -120,4 +121,6 @@ public class GeoServerRESTStoreManager extends GeoServerRESTAbstractManager {
 //            }
             return deleted;
     }
+    
+    
 }
