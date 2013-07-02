@@ -373,8 +373,7 @@ public class GeoServerRESTPublisher {
             sUrl += "?name=" + encode(name);
         }
         LOGGER.debug("POSTing new style " + name + " to " + sUrl);
-        String result = HTTPUtils
-                .post(sUrl, sldFile, Format.SLD.getContentType(), gsuser, gspass);
+        String result = HTTPUtils.post(sUrl, sldFile, Format.SLD.getContentType(), gsuser, gspass);
         return result != null;
     }
 
@@ -515,7 +514,7 @@ public class GeoServerRESTPublisher {
          * @return
          */
         public static String getTypeName(StoreType type) {
-            return StoreType.getTypeNameWithFormat(type,Format.XML);
+            return StoreType.getTypeNameWithFormat(type, Format.XML);
         }
 
         /**
@@ -554,9 +553,9 @@ public class GeoServerRESTPublisher {
          * @return "featureTypes.{xml|html|...}" for DATASTORES, "coverages.{xml|html|...}" otherwise.
          */
         public static String getTypeNameWithFormat(StoreType type, Format format) {
-            return getTypeName(type)+"."+format;
+            return getTypeName(type) + "." + format;
         }
-        
+
         /**
          * Get the type name of a StoreType with the specified format.
          * 
@@ -565,9 +564,9 @@ public class GeoServerRESTPublisher {
          * @return "featuretypes.{xml|html|...}" for DATASTORES, "coverages.{xml|html|...}" otherwise.
          */
         public String getTypeNameWithFormat(Format format) {
-            return getTypeName(this).toLowerCase()+"."+format;
+            return getTypeName(this).toLowerCase() + "." + format;
         }
-        
+
         /**
          * Get the type name of a StoreType.
          * 
@@ -584,7 +583,7 @@ public class GeoServerRESTPublisher {
                 return "coverages";
             }
         }
-        
+
         /**
          * Get the type name of a StoreType.
          * 
@@ -601,7 +600,7 @@ public class GeoServerRESTPublisher {
                 return "coverageStore";
             }
         }
-        
+
         /**
          * Get the type name of a StoreType.
          * 
@@ -610,7 +609,7 @@ public class GeoServerRESTPublisher {
         public String getTypeName() {
             return getTypeName(this);
         }
-        
+
         /**
          * Get the type of a StoreType.
          * 
@@ -1370,7 +1369,7 @@ public class GeoServerRESTPublisher {
                 return null;
             }
         }
-        
+
         /**
          * Gets the mime type from a format.
          * 
@@ -1380,7 +1379,7 @@ public class GeoServerRESTPublisher {
         public String getContentType() {
             return getContentType(this);
         }
-        
+
         /**
          * Returns a lowercase representation of the parameter. Useful when constructing the REST request.
          */
@@ -2010,32 +2009,7 @@ public class GeoServerRESTPublisher {
      */
     public boolean removeDatastore(String workspace, String storename, final boolean recurse)
             throws IllegalArgumentException {
-        try {
-            if (workspace == null || storename == null)
-                throw new IllegalArgumentException("Arguments may not be null!");
-            if (workspace.isEmpty() || storename.isEmpty())
-                throw new IllegalArgumentException("Arguments may not be empty!");
-
-            final StringBuilder url = new StringBuilder(restURL);
-            url.append("/rest/workspaces/").append(workspace).append("/datastores/")
-                    .append(storename);
-            if (recurse)
-                url.append("?recurse=true");
-            final URL deleteStore = new URL(url.toString());
-
-            boolean deleted = HTTPUtils.delete(deleteStore.toExternalForm(), gsuser, gspass);
-            if (!deleted) {
-                LOGGER.warn("Could not delete datastore " + workspace + ":" + storename);
-            } else {
-                LOGGER.info("Datastore successfully deleted " + workspace + ":" + storename);
-            }
-
-            return deleted;
-        } catch (MalformedURLException ex) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(ex.getLocalizedMessage(), ex);
-            return false;
-        }
+        return removeStore(workspace, storename, StoreType.DATASTORES, recurse);
     }
 
     /**
@@ -2047,13 +2021,7 @@ public class GeoServerRESTPublisher {
      * @deprecated use {@link #removeCoverageStore(String, String, boolean)}
      */
     public boolean removeCoverageStore(String workspace, String storename) {
-        try {
-            return removeCoverageStore(workspace, storename, true);
-        } catch (IllegalArgumentException e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error("Arguments may not be null or empty!", e);
-        }
-        return false;
+        return removeCoverageStore(workspace, storename, true);
     }
 
     /**
@@ -2066,6 +2034,21 @@ public class GeoServerRESTPublisher {
      */
     public boolean removeCoverageStore(final String workspace, final String storename,
             final boolean recurse) throws IllegalArgumentException {
+        return removeStore(workspace, storename, StoreType.COVERAGESTORES, recurse);
+    }
+
+    /**
+     * Remove a given Datastore in a given Workspace.
+     * 
+     * @param workspace The name of the workspace
+     * @param storename The name of the Datastore to remove.
+     * @param the {@link StoreType} type
+     * @param recurse if remove should be performed recursively
+     * @throws IllegalArgumentException if workspace or storename are null or empty
+     * @return <TT>true</TT> if the store was successfully removed.
+     */
+    private boolean removeStore(String workspace, String storename, StoreType type,
+            final boolean recurse) throws IllegalArgumentException {
         try {
             if (workspace == null || storename == null)
                 throw new IllegalArgumentException("Arguments may not be null!");
@@ -2073,7 +2056,7 @@ public class GeoServerRESTPublisher {
                 throw new IllegalArgumentException("Arguments may not be empty!");
 
             final StringBuilder url = new StringBuilder(restURL);
-            url.append("/rest/workspaces/").append(workspace).append("/coveragestores/")
+            url.append("/rest/workspaces/").append(workspace).append("/").append(type).append("/")
                     .append(storename);
             if (recurse)
                 url.append("?recurse=true");
@@ -2081,12 +2064,12 @@ public class GeoServerRESTPublisher {
 
             boolean deleted = HTTPUtils.delete(deleteStore.toExternalForm(), gsuser, gspass);
             if (!deleted) {
-                LOGGER.warn("Could not delete CoverageStore " + workspace + ":" + storename);
+                LOGGER.warn("Could not delete store " + workspace + ":" + storename);
             } else {
-                LOGGER.info("CoverageStore successfully deleted " + workspace + ":" + storename);
+                LOGGER.info("Store successfully deleted " + workspace + ":" + storename);
             }
-            return deleted;
 
+            return deleted;
         } catch (MalformedURLException ex) {
             if (LOGGER.isErrorEnabled())
                 LOGGER.error(ex.getLocalizedMessage(), ex);
@@ -2103,13 +2086,7 @@ public class GeoServerRESTPublisher {
      * @deprecated {@link #removeWorkspace(String, boolean)}
      */
     public boolean removeWorkspace(String workspace) {
-        try {
-            return removeWorkspace(workspace, false);
-        } catch (IllegalArgumentException e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error("Arguments may not be null or empty!", e);
-        }
-        return false;
+        return removeWorkspace(workspace, false);
     }
 
     /**
@@ -2156,15 +2133,15 @@ public class GeoServerRESTPublisher {
      * @param workspace the layer group workspace.
      * @param name the layer group name.
      * @return true if succeeded.
-     */    
+     */
     public boolean removeLayerGroup(String workspace, String name) {
         String url = restURL + "/rest";
         if (workspace == null) {
             url += "/layergroups/" + name;
         } else {
             url += "/workspaces/" + workspace + "/layergroups/" + name;
-        }  
-    
+        }
+
         try {
             URL deleteUrl = new URL(url);
             boolean deleted = HTTPUtils.delete(deleteUrl.toExternalForm(), gsuser, gspass);
@@ -2181,9 +2158,9 @@ public class GeoServerRESTPublisher {
             if (LOGGER.isErrorEnabled())
                 LOGGER.error(ex.getLocalizedMessage(), ex);
             return false;
-        }        
+        }
     }
-    
+
     /**
      * Remove a layer group.
      * 
@@ -2263,17 +2240,17 @@ public class GeoServerRESTPublisher {
         final String store = HTTPUtils.get(url, this.gsuser, this.gspass);
 
         if (store != null) {
-            String storeTag=storeType.getTypeName();
-//            switch (storeType) {
-//            case COVERAGESTORES:
-//                storeTag = storeType.toString().replaceAll("store", "");
-//                break;
-//            case DATASTORES:
-//                storeTag = "featureTypes";
-//                break;
-//            default:
-//                throw new IllegalArgumentException("Unrecognized type");
-//            }
+            String storeTag = storeType.getTypeName();
+            // switch (storeType) {
+            // case COVERAGESTORES:
+            // storeTag = storeType.toString().replaceAll("store", "");
+            // break;
+            // case DATASTORES:
+            // storeTag = "featureTypes";
+            // break;
+            // default:
+            // throw new IllegalArgumentException("Unrecognized type");
+            // }
 
             String startTag = "<" + storeTag + ">";
             int start = store.indexOf(startTag);
@@ -2365,7 +2342,7 @@ public class GeoServerRESTPublisher {
     public boolean createLayerGroup(String name, GSLayerGroupEncoder group) {
         return createLayerGroup(null, name, group);
     }
-    
+
     /**
      * Create a new LayerGroup using the specified encoder
      * 
@@ -2376,15 +2353,15 @@ public class GeoServerRESTPublisher {
      */
     public boolean createLayerGroup(String workspace, String name, GSLayerGroupEncoder group) {
         String url = restURL + "/rest";
-        if (workspace == null) {            
+        if (workspace == null) {
             url += "/layergroups/";
         } else {
             group.setWorkspace(workspace);
             url += "/workspaces/" + workspace + "/layergroups/";
-        }  
-    
+        }
+
         group.setName(name);
-        
+
         String sendResult = HTTPUtils.postXml(url, group.toString(), gsuser, gspass);
         if (sendResult != null) {
             if (LOGGER.isInfoEnabled()) {
@@ -2395,9 +2372,9 @@ public class GeoServerRESTPublisher {
                 LOGGER.warn("Error configuring LayerGroup " + name + " (" + sendResult + ")");
         }
 
-        return sendResult != null;  
+        return sendResult != null;
     }
-    
+
     /**
      * Update a LayerGroup using the specified encoder
      * 
@@ -2408,7 +2385,7 @@ public class GeoServerRESTPublisher {
     public boolean configureLayerGroup(String name, GSLayerGroupEncoder group) {
         return configureLayerGroup(null, name, group);
     }
-    
+
     /**
      * Update a LayerGroup using the specified encoder
      * 
@@ -2416,15 +2393,15 @@ public class GeoServerRESTPublisher {
      * @param name name of the layer group
      * @param group group encoder
      * @return true if operation was successful
-     */    
+     */
     public boolean configureLayerGroup(String workspace, String name, GSLayerGroupEncoder group) {
         String url = restURL + "/rest";
         if (workspace == null) {
             url += "/layergroups/" + name;
         } else {
             url += "/workspaces/" + workspace + "/layergroups/" + name;
-        }  
-        
+        }
+
         String sendResult = HTTPUtils.putXml(url, group.toString(), gsuser, gspass);
         if (sendResult != null) {
             if (LOGGER.isInfoEnabled()) {
@@ -2435,9 +2412,9 @@ public class GeoServerRESTPublisher {
                 LOGGER.warn("Error configuring LayerGroup " + name + " (" + sendResult + ")");
         }
 
-        return sendResult != null;         
+        return sendResult != null;
     }
-    
+
     /**
      * Configure an existent coverage in a given workspace and coverage store
      * 
@@ -2650,7 +2627,7 @@ public class GeoServerRESTPublisher {
         return URLEncoder.encode(s);
         // }
     }
-    
+
     // ==> StructuredCoverageGridReader
 
     /**
@@ -2663,81 +2640,85 @@ public class GeoServerRESTPublisher {
      * 
      * @return <code>true</code> if the call succeeds or <code>false</code> otherwise.
      */
-    public boolean createOrHarvestExternal(String workspace, String coverageStore, String format, String path) {
+    public boolean createOrHarvestExternal(String workspace, String coverageStore, String format,
+            String path) {
         try {
-            GeoServerRESTStructuredGridCoverageReaderManager manager = 
-                new GeoServerRESTStructuredGridCoverageReaderManager(new URL(restURL), gsuser, gspass);
+            GeoServerRESTStructuredGridCoverageReaderManager manager = new GeoServerRESTStructuredGridCoverageReaderManager(
+                    new URL(restURL), gsuser, gspass);
             return manager.createOrHarvestExternal(workspace, coverageStore, format, path);
         } catch (IllegalArgumentException e) {
-            if(LOGGER.isInfoEnabled()){
-                LOGGER.info(e.getLocalizedMessage(),e);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(e.getLocalizedMessage(), e);
             }
         } catch (MalformedURLException e) {
-            if(LOGGER.isInfoEnabled()){
-                LOGGER.info(e.getLocalizedMessage(),e);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(e.getLocalizedMessage(), e);
             }
         }
         return false;
     }
-    
-    /**
-      * Remove a granule from a structured coverage by id.
-      * 
-      * @param workspace the GeoServer workspace
-      * @param coverageStore the GeoServer coverageStore
-      * @param coverage the name of the target coverage from which we are going to remove
-      * @param filter the absolute path to the file to upload
-      * 
-      * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
-      * 
-      * @throws MalformedURLException
-      * @throws UnsupportedEncodingException
-      */
-     public boolean removeGranuleById(final String workspace, String coverageStore, String coverage, String granuleId) {
-         try {
-             GeoServerRESTStructuredGridCoverageReaderManager manager = 
-                 new GeoServerRESTStructuredGridCoverageReaderManager(new URL(restURL), gsuser, gspass);
-             return manager.removeGranuleById(workspace, coverageStore, coverage, granuleId);
-         } catch (IllegalArgumentException e) {
-             if(LOGGER.isInfoEnabled()){
-                 LOGGER.info(e.getLocalizedMessage(),e);
-             }
-         } catch (MalformedURLException e) {
-             if(LOGGER.isInfoEnabled()){
-                 LOGGER.info(e.getLocalizedMessage(),e);
-             }
-         }
-         return false;
-     }     
-     /**
-      * Remove granules from a structured coverage, by providing a CQL filter.
-      * 
-      * @param workspace the GeoServer workspace
-      * @param coverageStore the GeoServer coverageStore
-      * @param coverage the name of the target coverage from which we are going to remove
-      * @param filter the absolute path to the file to upload
-      * 
-      * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
-      * 
-      * @throws MalformedURLException
-      * @throws UnsupportedEncodingException
-      */
-     public boolean removeGranulesByCQL(final String workspace, String coverageStore,String coverage, String filter) throws UnsupportedEncodingException{
-         try {
-             GeoServerRESTStructuredGridCoverageReaderManager manager = 
-                 new GeoServerRESTStructuredGridCoverageReaderManager(new URL(restURL), gsuser, gspass);
-             return manager.removeGranulesByCQL(workspace, coverageStore, coverage, filter);
-         } catch (IllegalArgumentException e) {
-             if(LOGGER.isInfoEnabled()){
-                 LOGGER.info(e.getLocalizedMessage(),e);
-             }
-         } catch (MalformedURLException e) {
-             if(LOGGER.isInfoEnabled()){
-                 LOGGER.info(e.getLocalizedMessage(),e);
-             }
-         }
-         return false;
 
-     }
+    /**
+     * Remove a granule from a structured coverage by id.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param coverage the name of the target coverage from which we are going to remove
+     * @param filter the absolute path to the file to upload
+     * 
+     * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
+     * 
+     * @throws MalformedURLException
+     * @throws UnsupportedEncodingException
+     */
+    public boolean removeGranuleById(final String workspace, String coverageStore, String coverage,
+            String granuleId) {
+        try {
+            GeoServerRESTStructuredGridCoverageReaderManager manager = new GeoServerRESTStructuredGridCoverageReaderManager(
+                    new URL(restURL), gsuser, gspass);
+            return manager.removeGranuleById(workspace, coverageStore, coverage, granuleId);
+        } catch (IllegalArgumentException e) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(e.getLocalizedMessage(), e);
+            }
+        } catch (MalformedURLException e) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(e.getLocalizedMessage(), e);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Remove granules from a structured coverage, by providing a CQL filter.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param coverage the name of the target coverage from which we are going to remove
+     * @param filter the absolute path to the file to upload
+     * 
+     * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
+     * 
+     * @throws MalformedURLException
+     * @throws UnsupportedEncodingException
+     */
+    public boolean removeGranulesByCQL(final String workspace, String coverageStore,
+            String coverage, String filter) throws UnsupportedEncodingException {
+        try {
+            GeoServerRESTStructuredGridCoverageReaderManager manager = new GeoServerRESTStructuredGridCoverageReaderManager(
+                    new URL(restURL), gsuser, gspass);
+            return manager.removeGranulesByCQL(workspace, coverageStore, coverage, filter);
+        } catch (IllegalArgumentException e) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(e.getLocalizedMessage(), e);
+            }
+        } catch (MalformedURLException e) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(e.getLocalizedMessage(), e);
+            }
+        }
+        return false;
+
+    }
 
 }
