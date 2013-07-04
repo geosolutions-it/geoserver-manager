@@ -19,7 +19,6 @@
  */
 package it.geosolutions.geoserver.rest.encoder;
 
-
 import junit.framework.Assert;
 
 import org.jdom.Element;
@@ -33,42 +32,54 @@ import org.junit.Test;
  *         emmanuel.blondel@fao.org
  */
 public class GSLayerEncoderTest {
-	
+
 	GSLayerEncoder layerEncoder;
-	
+
 	@Before
-	public void setup(){
+	public void setup() {
 		layerEncoder = new GSLayerEncoder();
 		layerEncoder.setEnabled(true);
-        layerEncoder.setQueryable(true);
-        layerEncoder.setDefaultStyle("point");
-        layerEncoder.addStyle("additional_style1");
-        layerEncoder.addStyle("additional_style2");
-	}
-	
-	@Test
-	public void testProperties(){
-        Assert.assertEquals(true, Boolean.parseBoolean(layerEncoder.getRoot().getChild("enabled").getValue()));
-        Assert.assertEquals(true, Boolean.parseBoolean(layerEncoder.getRoot().getChild("queryable").getValue()));
-	}
-	
-	@Test
-	public void testDefaultStyle(){
-        Assert.assertEquals("point", layerEncoder.getRoot().getChild("defaultStyle").getValue());
-	}
-    
-	@Test
-	public void testMultipleStyles(){
-		Assert.assertEquals(2, layerEncoder.getRoot().getChild("styles").getChildren().size());
-	    Assert.assertEquals("additional_style1", ((Element) layerEncoder.getRoot().getChild("styles").getChildren().get(0)).getText());
-	    Assert.assertEquals("additional_style2", ((Element) layerEncoder.getRoot().getChild("styles").getChildren().get(1)).getText());
+		layerEncoder.setQueryable(true);
+		layerEncoder.setDefaultStyle("point");
+		layerEncoder.addStyle("additional_style1");
+		layerEncoder.addStyle("additional_style2");
 	}
 
 	@Test
-    public void testRemoveStyle(){
-        Assert.assertTrue(layerEncoder.delStyle("additional_style1"));
-        Assert.assertEquals(1,layerEncoder.getRoot().getChild("styles").getChildren().size());
-        Assert.assertEquals("additional_style2", ((Element) layerEncoder.getRoot().getChild("styles").getChildren().get(0)).getText());  
+	public void testProperties() {
+		Assert.assertEquals(
+				true,
+				Boolean.parseBoolean(layerEncoder.getRoot().getChild("enabled")
+						.getValue()));
+		Assert.assertEquals(
+				true,
+				Boolean.parseBoolean(layerEncoder.getRoot()
+						.getChild("queryable").getValue()));
+	}
+
+	@Test
+	public void testDefaultStyle() {
+		Assert.assertEquals("point",
+				layerEncoder.getRoot().getChild("defaultStyle").getValue());
+	}
+
+	@Test
+	public void testMultipleStyles() {
+		Assert.assertEquals(2, layerEncoder.getRoot().getChild("styles")
+				.getChildren().size());
+		Assert.assertEquals("additional_style1", ((Element) layerEncoder
+				.getRoot().getChild("styles").getChildren().get(0)).getText());
+		Assert.assertEquals("additional_style2", ((Element) layerEncoder
+				.getRoot().getChild("styles").getChildren().get(1)).getText());
+	}
+
+	@Test
+	public void testRemoveStyle() {
+		Assert.assertTrue(layerEncoder.delStyle("additional_style1"));
+		Assert.assertEquals(1, layerEncoder.getRoot().getChild("styles")
+				.getChildren().size());
+		Assert.assertEquals("additional_style2", ((Element) layerEncoder
+				.getRoot().getChild("styles").getChildren().get(0)).getText());
 	}
 
 }

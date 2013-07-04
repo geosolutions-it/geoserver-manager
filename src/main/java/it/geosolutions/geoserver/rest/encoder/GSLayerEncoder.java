@@ -135,11 +135,12 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
         set("defaultStyle", defaultStyle);
     }
     
-    /**
+	/**
 	 * Add a style
-     * @param style to add to the list of available styles
-     */
-    public void addStyle(String style) {
+	 * 
+	 * @param style
+	 */
+	public void addStyle(String style) {
 		final Element el = new Element("style");
 		el.setText(style);
 		stylesEncoder.addContent(el);
