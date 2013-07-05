@@ -26,6 +26,7 @@
 package it.geosolutions.geoserver.rest.encoder;
 
 import org.jdom.Element;
+import org.jdom.filter.Filter;
 
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
@@ -38,10 +39,14 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
  * 
  */
 public class GSLayerEncoder extends PropertyXMLEncoder {
+	
+	public final static String STYLES = "styles";
+	final private Element stylesEncoder = new Element(STYLES);
 
     public GSLayerEncoder() {
         super("layer");
         addEnabled();
+        addContent(stylesEncoder);
     }
     
     /**
@@ -130,4 +135,36 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
             throw new IllegalArgumentException("Unable to set an empty or null parameter");
         set("defaultStyle", defaultStyle);
     }
+    
+	/**
+	 * Adds a style
+	 * 
+	 * @param style
+	 */
+	public void addStyle(String style) {
+		final Element el = new Element("style");
+		el.setText(style);
+		stylesEncoder.addContent(el);
+	}
+
+	/**
+	 * delete a style from the list
+	 * 
+	 * @param style
+	 * @return true if something is removed, false otherwise
+	 */
+	public boolean delStyle(final String style) {
+		final Element el = new Element("style");
+		el.setText(style);
+		return (stylesEncoder.removeContent(new Filter() {
+			private static final long serialVersionUID = 1L;
+
+			public boolean matches(Object obj) {
+				if (((Element) obj).getText().equals(style)) {
+					return true;
+				}
+				return false;
+			}
+		})).size() == 0 ? false : true;
+	}
 }
