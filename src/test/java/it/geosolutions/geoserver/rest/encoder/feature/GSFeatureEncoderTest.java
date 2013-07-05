@@ -48,9 +48,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 /**
+ * Note on adding multiple available styles to the GSLayerEncoder: - to run the
+ * testIntegration(), 2 clones of the "point" style, named "point2" and "point3"
+ * have to be created.
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com |
+ *         emmanuel.blondel@fao.org
  */
 public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
     protected final static Logger LOGGER = LoggerFactory.getLogger(GSFeatureEncoderTest.class);
@@ -86,6 +91,8 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         layerEncoder.setQueryable(true);
 
         layerEncoder.setDefaultStyle("point");
+        layerEncoder.addStyle("point2");
+        layerEncoder.addStyle("point3");
 
         publisher.createWorkspace(DEFAULT_WS);
 
