@@ -31,7 +31,6 @@ import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoderTest;
-import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureEncoderTest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,8 +38,6 @@ import java.io.IOException;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

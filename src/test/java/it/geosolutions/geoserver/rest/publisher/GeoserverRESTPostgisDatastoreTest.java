@@ -30,12 +30,8 @@ import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.datastore.StoreIntegrationTest;
 import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSPostGISDatastoreEncoder;
-import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
 
 import java.net.MalformedURLException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Testcase for creating postgis-based resources on geoserver.

@@ -29,10 +29,13 @@ import it.geosolutions.geoserver.rest.HTTPUtils;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageIndexSchema;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.zip.ZipFile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,21 @@ import org.slf4j.LoggerFactory;
  * @author Simone Giannecchini, GeoSolutions
  */
 public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerRESTAbstractManager {
+    
+    /**
+     * Option that tells GeoServer whether or not to configure all the coverages for a certain ImageMosaic.
+     * 
+     * @author Simone Giannecchini, GeoSolutions
+     *
+     */
+    public enum ConfigureCoveragesOption{
+        NONE,
+        ALL;
+        
+        public static ConfigureCoveragesOption getDefault() {
+            return ALL;
+        }
+    }
 
     /**
      * Default logger
@@ -63,19 +81,97 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
             String password) throws IllegalArgumentException, MalformedURLException {
         super(restURL, username, password);
     }
+    
+    /**
+     * Create a new ImageMosaic with the provided configuration provided as a zip file.
+     * 
+     * <p>
+     * This call configures all the coverages contained in the ImageMosaic.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param the absolute path to the file to upload
+     * 
+     * @return <code>true</code> if the call succeeds or <code>false</code> otherwise.
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
+     */
+    public boolean create(String workspace, String coverageStore, String path) {
+        return create(workspace, coverageStore, path, ConfigureCoveragesOption.ALL);
+    }
+    
+    /**
+     * Create a new ImageMosaic with the provided configuration provided as a zip file.
+     * 
+     * <p>
+     * With the options configure we can decide whether or not to configure or not the coverages contained in the ImageMosaic.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param the absolute path to the file to upload
+     * @param configureOpt tells GeoServer whether to configure all coverages in this mosaic (ALL) or none of them (NONE).
+     * 
+     * @return <code>true</code> if the call succeeds or <code>false</code> otherwise.
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
+     */
+    public boolean create(String workspace, String coverageStore, String path, ConfigureCoveragesOption configureOpt) {
+        // checks
+        checkString(workspace);
+        checkString(coverageStore);
+        checkString(path);
+        final File zipFile= new File(path);
+        if(!zipFile.exists()||!zipFile.isFile()||!zipFile.canRead()){
+            throw new IllegalArgumentException("The provided pathname does not point to a valide zip file: "+path);
+        }
+        // is it a zip?
+        ZipFile zip=null;
+        try{
+            zip= new ZipFile(zipFile);
+            zip.getName();
+        }catch (Exception e) {
+            LOGGER.trace(e.getLocalizedMessage(),e.getStackTrace());
+            throw new IllegalArgumentException("The provided pathname does not point to a valide zip file: "+path);
+        }finally{
+            if(zip!=null){
+                try {
+                    zip.close();
+                } catch (IOException e) {
+                    // swallow
+                    LOGGER.trace(e.getLocalizedMessage(),e.getStackTrace());
+                }
+            }
+        }
 
+        // create URL
+        StringBuilder ss=HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+                coverageStore, "/file.imagemosaic");
+        switch(configureOpt){
+        case ALL:
+            break;
+        case NONE:
+            ss.append("?configure=none");
+            break;
+        default: 
+            throw new IllegalArgumentException("Unrecognized COnfigureOption: "+configureOpt);
+        }
+        String sUrl = ss.toString();
+
+        // POST request
+        String result = HTTPUtils.put(sUrl, zipFile, "application/zip", gsuser, gspass);
+        return result != null;
+    }
+    
     /**
      * Create a store or harvest the coverage from the provided <b>external</b> path.
      * 
      * @param workspace the GeoServer workspace
      * @param coverageStore the GeoServer coverageStore
      * @param format the format of the file to upload
-     * @param the absolut path to the file to upload
+     * @param the absolute path to the file to upload
      * 
      * @return <code>true</code> if the call succeeds or <code>false</code> otherwise.
      * @since geoserver-2.4.0, geoserver-mng-1.6.0
      */
-    public boolean createOrHarvestExternal(String workspace, String coverageStore, String format,
+    public boolean harvestExternal(String workspace, String coverageStore, String format,
             String path) {
         // checks
         checkString(workspace);
