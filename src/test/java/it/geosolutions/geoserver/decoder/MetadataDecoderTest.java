@@ -24,7 +24,6 @@ package it.geosolutions.geoserver.decoder;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
 import it.geosolutions.geoserver.rest.decoder.RESTDimensionInfo;
 import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadatalink.ResourceMetadataLinkInfo;
 
 import java.io.File;
 import java.io.IOException;

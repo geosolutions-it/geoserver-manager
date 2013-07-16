@@ -24,12 +24,11 @@
  */
 package it.geosolutions.geoserver.rest.datastore;
 
-import java.net.MalformedURLException;
-
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSArcSDEDatastoreEncoder;
-import it.geosolutions.geoserver.rest.encoder.datastore.GSOracleNGDatastoreEncoder;
+
+import java.net.MalformedURLException;
 
 /**
  * Testcase for creating arcsde-based resources on geoserver.

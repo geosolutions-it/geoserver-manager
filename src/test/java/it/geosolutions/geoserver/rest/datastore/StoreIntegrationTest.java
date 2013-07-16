@@ -24,18 +24,16 @@
  */
 package it.geosolutions.geoserver.rest.datastore;
 
-import java.net.MalformedURLException;
-
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
-import it.geosolutions.geoserver.rest.encoder.datastore.GSAbstractDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSOracleNGDatastoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
 
-import org.junit.Before;
+import java.net.MalformedURLException;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,14 +54,14 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class StoreIntegrationTest extends GeoserverRESTTest {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(StoreIntegrationTest.class);
-
-    private final GeoServerRESTStoreManager storeManager;
+    protected final GeoServerRESTStoreManager storeManager;
    
     /**
      * ignore integration tests
      */
-    private final boolean ignore;
+    protected final boolean ignore;
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(StoreIntegrationTest.class);
     
     public boolean isIgnore() {
         return ignore;
@@ -84,64 +82,64 @@ public abstract class StoreIntegrationTest extends GeoserverRESTTest {
     public abstract GSAbstractStoreEncoder getStoreEncoderTest();
 
     @Test
-    public void testCreateDeleteDatastore() throws IllegalArgumentException, MalformedURLException {
-        if (!enabled()) {
-            return;
+        public void testCreateDeleteDatastore() throws IllegalArgumentException, MalformedURLException {
+            if (!enabled()) {
+                return;
+            }
+            deleteAll();
+    
+            assertTrue(publisher.createWorkspace(DEFAULT_WS));
+            
+            // creation test
+            GSAbstractStoreEncoder storeEncoder=getStoreEncoderTest();
+    
+            String storeName = storeEncoder.getName();
+    //        String description = storeEncoder.getDescription();
+            
+            boolean created = storeManager.create(DEFAULT_WS, storeEncoder);
+    
+            if( ! ignore )
+                assertTrue("Datastore not created", created);
+            else if( ! created)
+                LOGGER.error("*** store " + storeName + " has not been created.");
+    
+    
+            RESTDataStore datastore = reader.getDatastore(DEFAULT_WS, storeName);
+            assertNotNull(datastore);
+            LOGGER.info("The type of the created datastore is: " + datastore.getStoreType());
+    
+            //check if the datastore is properly configured in GS for publishing layers
+            String layername = "states";
+            if(storeEncoder instanceof GSOracleNGDatastoreEncoder)
+            	layername = layername.toUpperCase();
+            
+            GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+            fte.setName(layername);
+            fte.setTitle(layername);
+            fte.setNativeCRS("EPSG:4326");
+            fte.setDescription("desc");
+            fte.setEnabled(true);
+            GSLayerEncoder layerEncoder = new GSLayerEncoder();
+            layerEncoder.setEnabled(true);
+            layerEncoder.setQueryable(true);
+            layerEncoder.setDefaultStyle("polygon");
+            
+            boolean published = publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder);
+            if(!ignore){
+            	assertTrue("Test layer not published", published);
+            }else if(!published){
+    			LOGGER.error("*** Test layer "
+    					+ layername
+    					+ " has not been published. Problem in datastore configuration");
+    		}
+            
+            // removing test
+            boolean removed = storeManager.remove(DEFAULT_WS, storeEncoder, true);
+            if( ! ignore )
+                assertTrue("Datastore not removed", removed);
+            else if( ! removed )
+                LOGGER.error("*** Datastore " + storeName + " has not been removed.");
+            
+            assertTrue(publisher.removeWorkspace(DEFAULT_WS, false));
         }
-        deleteAll();
-
-        assertTrue(publisher.createWorkspace(DEFAULT_WS));
-        
-        // creation test
-        GSAbstractStoreEncoder storeEncoder=getStoreEncoderTest();
-
-        String storeName = storeEncoder.getName();
-//        String description = storeEncoder.getDescription();
-        
-        boolean created = storeManager.create(DEFAULT_WS, storeEncoder);
-
-        if( ! ignore )
-            assertTrue("Datastore not created", created);
-        else if( ! created)
-            LOGGER.error("*** store " + storeName + " has not been created.");
-
-
-        RESTDataStore datastore = reader.getDatastore(DEFAULT_WS, storeName);
-        assertNotNull(datastore);
-        LOGGER.info("The type of the created datastore is: " + datastore.getStoreType());
-
-        //check if the datastore is properly configured in GS for publishing layers
-        String layername = "states";
-        if(storeEncoder instanceof GSOracleNGDatastoreEncoder)
-        	layername = layername.toUpperCase();
-        
-        GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
-        fte.setName(layername);
-        fte.setTitle(layername);
-        fte.setNativeCRS("EPSG:4326");
-        fte.setDescription("desc");
-        fte.setEnabled(true);
-        GSLayerEncoder layerEncoder = new GSLayerEncoder();
-        layerEncoder.setEnabled(true);
-        layerEncoder.setQueryable(true);
-        layerEncoder.setDefaultStyle("polygon");
-        
-        boolean published = publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder);
-        if(!ignore){
-        	assertTrue("Test layer not published", published);
-        }else if(!published){
-			LOGGER.error("*** Test layer "
-					+ layername
-					+ " has not been published. Problem in datastore configuration");
-		}
-        
-        // removing test
-        boolean removed = storeManager.remove(DEFAULT_WS, storeEncoder, true);
-        if( ! ignore )
-            assertTrue("Datastore not removed", removed);
-        else if( ! removed )
-            LOGGER.error("*** Datastore " + storeName + " has not been removed.");
-        
-        assertTrue(publisher.removeWorkspace(DEFAULT_WS, false));
-    }
 }

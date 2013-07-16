@@ -24,16 +24,11 @@
  */
 package it.geosolutions.geoserver.rest.datastore;
 
-import java.net.MalformedURLException;
-
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
 import it.geosolutions.geoserver.rest.encoder.datastore.GSOracleNGDatastoreEncoder;
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.net.MalformedURLException;
 
 /**
  * Testcase for creating OracleNG-based resources on geoserver.
