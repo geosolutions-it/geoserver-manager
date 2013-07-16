@@ -35,17 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
-import sun.management.counter.Units;
-
 /**
- * In order to test that class, make sure to configure a geoserver with a "mosaic" store.
- * 
- * 1) take the mosaic.zip archive contained on src/test/resources/testdata.granules
- * 2) extract it on disk
- * 3) configure an ImageMosaic store on geoserver (name the store as "mosaic"), use the "it.geosolutions" workspace
- * 4) configure a layer on that store (name the coverage as "mosaic" again).
- * 5) on dimensions configuration tab, make sure to enable custom depth and date dimensions.
- * 6) publish it.
+ * Self contained test for working with Structured readers
  * 
  * 
  * @author Simone Giannecchini, simone.giannecchini@geo-solutions.it
