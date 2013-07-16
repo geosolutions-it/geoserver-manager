@@ -1,14 +1,10 @@
 package it.geosolutions.geoserver.rest.encoder.feature;
 
 import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.GSVirtualTableEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTGeometryEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTParameterEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTGeometry;
+import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTGeometryEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTParameter;
-import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
-
-import java.util.Arrays;
-
+import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTParameterEncoder;
 import junit.framework.Assert;
 
 import org.jdom.Element;

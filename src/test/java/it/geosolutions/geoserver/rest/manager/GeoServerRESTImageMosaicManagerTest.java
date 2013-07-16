@@ -16,26 +16,26 @@
  */
 package it.geosolutions.geoserver.rest.manager;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import it.geosolutions.geoserver.rest.datastore.StoreIntegrationTest;
-import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList.RESTStructuredCoverageGranule;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageIndexSchema;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageIndexSchema.RESTStructuredCoverageIndexAttribute;
-import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
+import it.geosolutions.geoserver.rest.encoder.coverage.GSImageMosaicEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+
+import sun.management.counter.Units;
 
 /**
  * In order to test that class, make sure to configure a geoserver with a "mosaic" store.
@@ -52,42 +52,30 @@ import org.slf4j.LoggerFactory;
  * @author Daniele Romagnoli, GeoSolutions SAS
  *
  */
-public class GeoServerRESTImageMosaicManagerTest extends StoreIntegrationTest {
+public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoServerRESTImageMosaicManagerTest.class);
     
-    /**
-     * @param ignore
-     * @throws IllegalArgumentException
-     * @throws MalformedURLException
-     */
-    public GeoServerRESTImageMosaicManagerTest()
-            throws IllegalArgumentException, MalformedURLException {
-        super(true);
-    }
-
-    @Override
-    public GSAbstractStoreEncoder getStoreEncoderTest() {
-        return null;
-    }
     
     @Test
-    public void createAndDelete() throws IllegalArgumentException, MalformedURLException, UnsupportedEncodingException{
+    public void createAndDelete() throws Exception{
         if (!enabled()) {
             return;
         }
         GeoServerRESTStructuredGridCoverageReaderManager manager = 
             new GeoServerRESTStructuredGridCoverageReaderManager(new URL(RESTURL), RESTUSER, RESTPW);
-        GeoServerRESTReader reader = new GeoServerRESTReader(new URL(RESTURL), RESTUSER, RESTPW);
+        
+        // create mosaic
+        boolean create=manager.create("it.geosolutions", "mosaic",new ClassPathResource("testdata/granules/mosaic.zip").getFile().getAbsolutePath());
+        assertTrue(create);
+        
+        // enable dimension
+        fixDimensions("it.geosolutions", "mosaic", "mosaic");
         
         // check index format
         RESTStructuredCoverageIndexSchema indexFormat = manager.getGranuleIndexSchema("it.geosolutions", "mosaic","mosaic");
-        if (indexFormat == null) {
-            if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("sample coverage hasn't been found. Make sure to configure the layer before running this test");
-                return;
-            }
-        }
+        assertTrue(create);
+        
         assertNotNull(indexFormat);
         assertFalse(indexFormat.isEmpty());
         assertEquals(5, indexFormat.size());
@@ -104,7 +92,7 @@ public class GeoServerRESTImageMosaicManagerTest extends StoreIntegrationTest {
                 assertEquals("0", element.getMinOccurs());
                 assertEquals("1", element.getMaxOccurs());
                 assertEquals("true", element.getNillable());
-                assertEquals("java.sql.Timestamp", element.getBinding());
+                assertEquals("java.util.Date", element.getBinding());
             } else if (elementName.equals("date")) {
                 assertEquals("0", element.getMinOccurs());
                 assertEquals("1", element.getMaxOccurs());
@@ -180,14 +168,8 @@ public class GeoServerRESTImageMosaicManagerTest extends StoreIntegrationTest {
         assertNotNull(granule);
         
         // Readding that granule
-        RESTCoverageStore store = reader.getCoverageStore("it.geosolutions", "mosaic");
-        final String urlString = store.getURL();
-        final URL url = new URL(urlString); 
-        final File file = urlToFile(url);
-        final String filePath = file.getAbsolutePath();
-        
         // use reflection to get the store URL since coveragestore only returns name and workspace
-        result = manager.createOrHarvestExternal("it.geosolutions", "mosaic", "imagemosaic", filePath + File.separatorChar + fileLocation );
+        result = manager.harvestExternal("it.geosolutions", "mosaic", "imagemosaic", new ClassPathResource("testdata/granules/NCOM_wattemp_100_20081101T0000000_12.tiff").getFile().getAbsolutePath() );
         Assert.assertTrue(result);
         
         granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic", null, null, null);
@@ -201,64 +183,57 @@ public class GeoServerRESTImageMosaicManagerTest extends StoreIntegrationTest {
     
     
     /**
-     * This method has been copied from org.geotools.data.DataUtilities
+     * This method enables the various dimensions for the coverage autocreated for this test.
      * 
-     * Takes a URL and converts it to a File. The attempts to deal with Windows UNC format specific
-     * problems, specifically files located on network shares and different drives.
-     * 
-     * If the URL.getAuthority() returns null or is empty, then only the url's path property is used
-     * to construct the file. Otherwise, the authority is prefixed before the path.
-     * 
-     * It is assumed that url.getProtocol returns "file".
-     * 
-     * Authority is the drive or network share the file is located on. Such as "C:", "E:",
-     * "\\fooServer"
-     * 
-     * @param url
-     *            a URL object that uses protocol "file"
-     * @return a File that corresponds to the URL's location
+     * @param wsName the workspace
+     * @param coverageStoreName the coverage store name
+     * @param csname the coverage name
      */
-    private static File urlToFile(URL url) {
-        if (!"file".equals(url.getProtocol())) {
-            return null; // not a File URL
-        }
-        String string = url.toExternalForm();
-        if (string.contains("+")) {
-            // this represents an invalid URL created using either
-            // file.toURL(); or
-            // file.toURI().toURL() on a specific version of Java 5 on Mac
-            string = string.replace("+", "%2B");
-        }
-        try {
-            string = URLDecoder.decode(string, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Could not decode the URL to UTF-8 format", e);
-        }
+    private void fixDimensions(String wsName, String coverageStoreName, String csname) {
 
-        String path3;
-
-        String simplePrefix = "file:/";
-        String standardPrefix = "file://";
-        String os = System.getProperty("os.name");
-
-        if (os.toUpperCase().contains("WINDOWS") && string.startsWith(standardPrefix)) {
-            // win32: host/share reference
-            path3 = string.substring(standardPrefix.length() - 2);
-        } else if (string.startsWith(standardPrefix)) {
-            path3 = string.substring(standardPrefix.length());
-        } else if (string.startsWith(simplePrefix)) {
-            path3 = string.substring(simplePrefix.length() - 1);
-        } else {
-            String auth = url.getAuthority();
-            String path2 = url.getPath().replace("%20", " ");
-            if (auth != null && !auth.equals("")) {
-                path3 = "//" + auth + path2;
-            } else {
-                path3 = path2;
-            }
-        }
-
-        return new File(path3);
+        final GSImageMosaicEncoder coverageEncoder = new GSImageMosaicEncoder();
+        /*
+         * unused in mosaic creation
+         * this is only useful if you want to modify an existing coverage:
+         * publisher.configureCoverage(ce, wsname, csname);
+         * or create a new one from an existing store:
+         * publisher.createCoverage(ce, wsname, csname);
+         */
+        coverageEncoder.setName("mosaic");
+        
+        coverageEncoder.setAllowMultithreading(true);
+        coverageEncoder.setBackgroundValues("");
+        coverageEncoder.setFilter("");
+        coverageEncoder.setInputTransparentColor("");
+        coverageEncoder.setLatLonBoundingBox(-180, -90, 180, 90, "EPSG:4326");
+        coverageEncoder.setMaxAllowedTiles(11);
+        coverageEncoder.setNativeBoundingBox(-180, -90, 180, 90, "EPSG:4326");
+        coverageEncoder.setProjectionPolicy(ProjectionPolicy.NONE);
+        coverageEncoder.setSRS("EPSG:4326");
+        
+        // activate time
+        final GSDimensionInfoEncoder time=new GSDimensionInfoEncoder(true);
+        time.setUnit("Seconds");
+        time.setUnitSymbol("s");
+        time.setPresentation(Presentation.LIST);
+        coverageEncoder.setMetadataDimension("time", time);
+        
+        // activate date
+        final GSDimensionInfoEncoder date=new GSDimensionInfoEncoder(true);
+        date.setPresentation(Presentation.LIST);
+        coverageEncoder.setMetadataDimension("custom_dimension_DATE", date);
+        
+        // activate depth
+        final GSDimensionInfoEncoder depth=new GSDimensionInfoEncoder(true);
+        depth.setPresentation(Presentation.LIST);
+        depth.setUnit("Meters");
+        depth.setUnitSymbol("m");
+        coverageEncoder.setMetadataDimension("custom_dimension_DEPTH", depth);
+        
+        
+        boolean config=publisher.configureCoverage(coverageEncoder, wsName, csname);
+        assertTrue(config);
+       
     }
 
 }

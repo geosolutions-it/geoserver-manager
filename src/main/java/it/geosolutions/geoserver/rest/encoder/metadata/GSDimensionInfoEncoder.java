@@ -32,13 +32,19 @@ import java.math.BigDecimal;
 /**
  * 
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Simone Giannecchini, GeoSolutions
  *
  */
 public class GSDimensionInfoEncoder extends XmlElement{
 	public final static String DIMENSIONINFO="dimensionInfo";
 	
 	public final static String RESOLUTION="resolution";
+	
 	public final static String PRESENTATION="presentation";
+	
+	public final static String UNITS="units";
+	
+	public final static String UNIT_SYMBOL="unitSymbol";
 	
 	private boolean enabled;
 	
@@ -115,5 +121,37 @@ public class GSDimensionInfoEncoder extends XmlElement{
 		}
 	}
 	
+	
+	/**
+	 * Set UoM for this dimension.
+	 * 
+	 * <code>null</code> is acceptable and leave this UoM blank.
+	 * 
+	 * @param unit UoM for this dimension.
+	 */
+	public void setUnit(final String unit){
+	    if(unit==null||unit.length()<=0){
+	        return;
+	    }
+            if (enabled){
+                set(UNITS,unit);    
+            }
+	}
+	
+	/**
+         * Set UoM for this dimension.
+         * 
+         * <code>null</code> is acceptable and leave this UoM blank.
+         * 
+         * @param unit UoM for this dimension.
+         */
+        public void setUnitSymbol(final String unitSymbol){
+            if(unitSymbol==null||unitSymbol.length()<=0){
+                return;
+            }
+            if (enabled){
+                set(UNIT_SYMBOL,unitSymbol);    
+            }
+        }
 	
 }

@@ -24,12 +24,12 @@
  */
 package it.geosolutions.geoserver.rest.publisher;
 
-import org.junit.Test;
-
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTNamespace;
 
 import java.net.URI;
+
+import org.junit.Test;
 
 /**
  * Testcase for namespace management.

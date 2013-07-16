@@ -39,15 +39,18 @@ import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager.ConfigureCoveragesOption;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.FilenameUtils;
@@ -2640,12 +2643,12 @@ public class GeoServerRESTPublisher {
      * 
      * @return <code>true</code> if the call succeeds or <code>false</code> otherwise.
      */
-    public boolean createOrHarvestExternal(String workspace, String coverageStore, String format,
+    public boolean harvestExternal(String workspace, String coverageStore, String format,
             String path) {
         try {
             GeoServerRESTStructuredGridCoverageReaderManager manager = new GeoServerRESTStructuredGridCoverageReaderManager(
                     new URL(restURL), gsuser, gspass);
-            return manager.createOrHarvestExternal(workspace, coverageStore, format, path);
+            return manager.harvestExternal(workspace, coverageStore, format, path);
         } catch (IllegalArgumentException e) {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info(e.getLocalizedMessage(), e);
@@ -2656,6 +2659,84 @@ public class GeoServerRESTPublisher {
             }
         }
         return false;
+    }
+
+    /**
+     * Create a new ImageMosaic with the provided configuration provided as a zip file.
+     * 
+     * <p>
+     * This call configures all the coverages contained in the ImageMosaic.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param the absolute path to the file to upload
+     * 
+     * @return <code>true</code> if the call succeeds or <code>false</code> otherwise.
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
+     */
+    public boolean createImageMosaic(String workspace, String coverageStore, String path) {
+        return createImageMosaic(workspace, coverageStore, path, ConfigureCoveragesOption.ALL);
+    }
+    
+    /**
+     * Create a new ImageMosaic with the provided configuration provided as a zip file.
+     * 
+     * <p>
+     * With the options configure we can decide whether or not to configure or not the coverages contained in the ImageMosaic.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param the absolute path to the file to upload
+     * @param configureOpt tells GeoServer whether to configure all coverages in this mosaic (ALL) or none of them (NONE).
+     * 
+     * @return <code>true</code> if the call succeeds or <code>false</code> otherwise.
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
+     */
+    public boolean createImageMosaic(String workspace, String coverageStore, String path, ConfigureCoveragesOption configureOpt) {
+        // checks
+        checkString(workspace);
+        checkString(coverageStore);
+        checkString(path);
+        final File zipFile= new File(path);
+        if(!zipFile.exists()||!zipFile.isFile()||!zipFile.canRead()){
+            throw new IllegalArgumentException("The provided pathname does not point to a valide zip file: "+path);
+        }
+        // is it a zip?
+        ZipFile zip=null;
+        try{
+            zip= new ZipFile(zipFile);
+            zip.getName();
+        }catch (Exception e) {
+            LOGGER.trace(e.getLocalizedMessage(),e.getStackTrace());
+            throw new IllegalArgumentException("The provided pathname does not point to a valide zip file: "+path);
+        }finally{
+            if(zip!=null){
+                try {
+                    zip.close();
+                } catch (IOException e) {
+                    // swallow
+                    LOGGER.trace(e.getLocalizedMessage(),e.getStackTrace());
+                }
+            }
+        }
+
+        // create URL
+        StringBuilder ss=HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+                coverageStore, "/", UploadMethod.EXTERNAL.toString(), ".imagemosaic");
+        switch(configureOpt){
+        case ALL:
+            break;
+        case NONE:
+            ss.append("?configure=none");
+            break;
+        default: 
+            throw new IllegalArgumentException("Unrecognized COnfigureOption: "+configureOpt);
+        }
+        String sUrl = ss.toString();
+
+        // POST request
+        String result = HTTPUtils.put(sUrl, zipFile, "application/zip", gsuser, gspass);
+        return result != null;
     }
 
     /**
@@ -2719,6 +2800,24 @@ public class GeoServerRESTPublisher {
         }
         return false;
 
+    }
+
+    /**
+     * Check the provided string for not being null or empty.
+     * 
+     * <p>
+     * It throws an exception in case the string is either null or empty.
+     * 
+     * @param string the {@link String} to be checked
+     */
+    private static void checkString(String string) {
+        if (string == null) {
+            throw new NullPointerException("Provided string is is null!");
+        }
+        if (string.length() <= 0) {
+            throw new IllegalArgumentException("Provided string is is empty!");
+        }
+    
     }
 
 }

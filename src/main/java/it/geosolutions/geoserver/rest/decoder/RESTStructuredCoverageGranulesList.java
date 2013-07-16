@@ -227,4 +227,23 @@ public class RESTStructuredCoverageGranulesList implements Iterable<RESTStructur
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("RESTStructuredCoverageGranulesList [");
+        if (bbox != null) {
+            builder.append("bbox=");
+            builder.append(bbox);
+        }
+        if (granulesList != null) {
+            builder.append("granulesList={");
+            for(RESTStructuredCoverageGranule granule:granulesList){
+                builder.append(granule);
+            }
+            builder.append("}, ");
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
 }
