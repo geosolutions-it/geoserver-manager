@@ -2292,11 +2292,11 @@ public class GeoServerRESTPublisher {
     }
 
     // ==========================================================================
-    // === MISCELLANEA
+    // === MISCELLANEOUS
     // ==========================================================================
 
     /**
-     * Allows to configure some layer attributes such and DefaultStyle
+     * Allows to configure some layer attributes such as DefaultStyle
      * 
      * @param workspace
      * @param resourceName the name of the resource to use (featureStore or coverageStore name)

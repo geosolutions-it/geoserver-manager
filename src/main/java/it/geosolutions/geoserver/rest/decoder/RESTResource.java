@@ -123,15 +123,17 @@ public class RESTResource {
         List<Map<FeatureTypeAttribute, String>> attrsList = null;
 
         final Element attrsRoot = rootElem.getChild("attributes");
-        final List<Element> attrs = attrsRoot.getChildren();
-        if (attrs != null) {
-            attrsList = new ArrayList<Map<FeatureTypeAttribute, String>>(attrs.size());
-            for (Element attr : attrs) {
-                Map<FeatureTypeAttribute, String> attrsMap = new HashMap<FeatureTypeAttribute, String>();
-                attrsList.add(attrsMap);
-                for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
-                    String key = at.toString();
-                    attrsMap.put(at, attr.getChildText(key));
+        if(attrsRoot!=null){
+            final List<Element> attrs = attrsRoot.getChildren();
+            if (attrs != null) {
+                attrsList = new ArrayList<Map<FeatureTypeAttribute, String>>(attrs.size());
+                for (Element attr : attrs) {
+                    Map<FeatureTypeAttribute, String> attrsMap = new HashMap<FeatureTypeAttribute, String>();
+                    attrsList.add(attrsMap);
+                    for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
+                        String key = at.toString();
+                        attrsMap.put(at, attr.getChildText(key));
+                    }
                 }
             }
         }
@@ -142,18 +144,20 @@ public class RESTResource {
         List<GSAttributeEncoder> attrsList = null;
 
         final Element attrsRoot = rootElem.getChild("attributes");
-        final List<Element> attrs = attrsRoot.getChildren();
-        if (attrs != null) {
-            attrsList = new ArrayList<GSAttributeEncoder>(attrs.size());
-            for (Element attr : attrs) {
-                final GSAttributeEncoder attrEnc = new GSAttributeEncoder();
-                for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
-                    String key = at.toString();
-                    attrEnc.setAttribute(at, attr.getChildText(key));
+        if(attrsRoot!=null){
+            final List<Element> attrs = attrsRoot.getChildren();
+            if (attrs != null) {
+                attrsList = new ArrayList<GSAttributeEncoder>(attrs.size());
+                for (Element attr : attrs) {
+                    final GSAttributeEncoder attrEnc = new GSAttributeEncoder();
+                    for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
+                        String key = at.toString();
+                        attrEnc.setAttribute(at, attr.getChildText(key));
+                    }
+                    attrsList.add(attrEnc);
                 }
-                attrsList.add(attrEnc);
+    
             }
-
         }
         return attrsList;
     }
@@ -169,19 +173,21 @@ public class RESTResource {
 		List<GSMetadataLinkInfoEncoder> metaLinksList = null;
 
 		final Element metaLinksRoot = rootElem.getChild("metadataLinks");
-		final List<Element> metaLinks = metaLinksRoot.getChildren();
-		if (metaLinks != null) {
-			metaLinksList = new ArrayList<GSMetadataLinkInfoEncoder>(
-					metaLinks.size());
-			for (Element metaLink : metaLinks) {
-				final GSMetadataLinkInfoEncoder metaLinkEnc = new GSMetadataLinkInfoEncoder();
-				metaLinkEnc.setType(metaLink.getChildText(ResourceMetadataLinkInfo.type.name()));
-				metaLinkEnc.setMetadataType(metaLink.getChildText(ResourceMetadataLinkInfo.metadataType.name()));
-				metaLinkEnc.setContent(metaLink.getChildText(ResourceMetadataLinkInfo.content.name()));
-				metaLinksList.add(metaLinkEnc);
-			}
-
-		}
+	        if(metaLinksRoot!=null){
+        		final List<Element> metaLinks = metaLinksRoot.getChildren();
+        		if (metaLinks != null) {
+        			metaLinksList = new ArrayList<GSMetadataLinkInfoEncoder>(
+        					metaLinks.size());
+        			for (Element metaLink : metaLinks) {
+        				final GSMetadataLinkInfoEncoder metaLinkEnc = new GSMetadataLinkInfoEncoder();
+        				metaLinkEnc.setType(metaLink.getChildText(ResourceMetadataLinkInfo.type.name()));
+        				metaLinkEnc.setMetadataType(metaLink.getChildText(ResourceMetadataLinkInfo.metadataType.name()));
+        				metaLinkEnc.setContent(metaLink.getChildText(ResourceMetadataLinkInfo.content.name()));
+        				metaLinksList.add(metaLinkEnc);
+        			}
+        
+        		}
+	        }
 		return metaLinksList;
 	}
     

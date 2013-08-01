@@ -24,14 +24,14 @@
  */
 package it.geosolutions.geoserver.rest.encoder.feature;
 
+import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
+import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jdom.Element;
 import org.jdom.filter.Filter;
-
-import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
-import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
 /**
  * 

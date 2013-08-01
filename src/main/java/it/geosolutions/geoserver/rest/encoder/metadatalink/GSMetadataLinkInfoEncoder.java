@@ -24,14 +24,11 @@
  */
 package it.geosolutions.geoserver.rest.encoder.metadatalink;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
+import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 import org.jdom.Element;
 import org.jdom.filter.Filter;
-
-import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
-import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 /**
  * GSMetadataLinkEncoder - encodes a metadataLink for a given GeoServer Resource

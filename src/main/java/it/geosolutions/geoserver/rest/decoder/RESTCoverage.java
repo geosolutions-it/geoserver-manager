@@ -25,9 +25,12 @@
 package it.geosolutions.geoserver.rest.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+import it.geosolutions.geoserver.rest.encoder.feature.FeatureTypeAttribute;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jdom.Element;
 
@@ -205,6 +208,136 @@ public class RESTCoverage extends RESTResource {
             }
             return listDim;
         }
+	
+	
+    /**
+     * Retrieves the list of parameters for this coverage.
+     * 
+     * @return a {@link Map} where the key is the name for the parameter and the value is the value for the parameter.
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getParametersList() {
+        Map<String, String> paramsList = new HashMap<String, String>();
+
+        final Element paramsRoot = rootElem.getChild("parameters");
+        if (paramsRoot != null) {
+            final List<Element> params = paramsRoot.getChildren();
+            if (params != null) {
+                for (Element param : params) {
+                    final List<Element> values = param.getChildren();
+                    assert values.size()==2;
+                    paramsList.put(values.get(0).getValue(), values.get(1).getValue()); // save key and value
+                }
+            }
+        }
+        return paramsList;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("RESTCoverage [");
+        if (getNativeFormat() != null) {
+            builder.append("getNativeFormat()=");
+            builder.append(getNativeFormat());
+            builder.append(", ");
+        }
+        if (getNativeCRS() != null) {
+            builder.append("getNativeCRS()=");
+            builder.append(getNativeCRS());
+            builder.append(", ");
+        }
+        if (getSRS() != null) {
+            builder.append("getSRS()=");
+            builder.append(getSRS());
+            builder.append(", ");
+        }
+        if (getMetadataList() != null) {
+            builder.append("getMetadataList()=");
+            builder.append(getMetadataList());
+            builder.append(", ");
+        }
+        if (getDimensionInfo() != null) {
+            builder.append("getDimensionInfo()=");
+            builder.append(getDimensionInfo());
+            builder.append(", ");
+        }
+        if (getParametersList() != null) {
+            builder.append("getParametersList()=");
+            builder.append(getParametersList());
+            builder.append(", ");
+        }
+        if (getName() != null) {
+            builder.append("getName()=");
+            builder.append(getName());
+            builder.append(", ");
+        }
+        if (getTitle() != null) {
+            builder.append("getTitle()=");
+            builder.append(getTitle());
+            builder.append(", ");
+        }
+        if (getNativeName() != null) {
+            builder.append("getNativeName()=");
+            builder.append(getNativeName());
+            builder.append(", ");
+        }
+        if (getAbstract() != null) {
+            builder.append("getAbstract()=");
+            builder.append(getAbstract());
+            builder.append(", ");
+        }
+        if (getNameSpace() != null) {
+            builder.append("getNameSpace()=");
+            builder.append(getNameSpace());
+            builder.append(", ");
+        }
+        if (getStoreName() != null) {
+            builder.append("getStoreName()=");
+            builder.append(getStoreName());
+            builder.append(", ");
+        }
+        if (getStoreType() != null) {
+            builder.append("getStoreType()=");
+            builder.append(getStoreType());
+            builder.append(", ");
+        }
+        if (getStoreUrl() != null) {
+            builder.append("getStoreUrl()=");
+            builder.append(getStoreUrl());
+            builder.append(", ");
+        }
+        if (getCRS() != null) {
+            builder.append("getCRS()=");
+            builder.append(getCRS());
+            builder.append(", ");
+        }
+        builder.append("getMinX()=");
+        builder.append(getMinX());
+        builder.append(", getMaxX()=");
+        builder.append(getMaxX());
+        builder.append(", getMinY()=");
+        builder.append(getMinY());
+        builder.append(", getMaxY()=");
+        builder.append(getMaxY());
+        builder.append(", ");
+        if (getAttributeList() != null) {
+            builder.append("getAttributeList()=");
+            builder.append(getAttributeList());
+            builder.append(", ");
+        }
+        if (getEncodedAttributeList() != null) {
+            builder.append("getEncodedAttributeList()=");
+            builder.append(getEncodedAttributeList());
+            builder.append(", ");
+        }
+        if (getEncodedMetadataLinkInfoList() != null) {
+            builder.append("getEncodedMetadataLinkInfoList()=");
+            builder.append(getEncodedMetadataLinkInfoList());
+        }
+        builder.append("]");
+        return builder.toString();
+    }
 
 //	public String getStoreName() {
 //		return rootElem.getChild("store").getChildText("name");

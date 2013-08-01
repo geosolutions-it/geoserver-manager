@@ -26,8 +26,9 @@ package it.geosolutions.geoserver.rest.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
 
-import org.jdom.Element;
 import java.net.URI;
+
+import org.jdom.Element;
 
 /**
  * Parse <TT>namespace</TT>s returned as XML REST objects.

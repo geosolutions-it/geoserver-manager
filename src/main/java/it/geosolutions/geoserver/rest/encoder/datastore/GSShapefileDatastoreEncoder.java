@@ -24,12 +24,12 @@
  */
 package it.geosolutions.geoserver.rest.encoder.datastore;
 
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 
 /**
  * Encoder for a {@value #TYPE} datastore.

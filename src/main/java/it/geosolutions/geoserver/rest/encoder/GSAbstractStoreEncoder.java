@@ -24,12 +24,12 @@
  */
 package it.geosolutions.geoserver.rest.encoder;
 
-import org.jdom.Element;
-
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.StoreType;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+
+import org.jdom.Element;
 
 /**
  * Generic Store encoder.
