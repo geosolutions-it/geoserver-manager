@@ -26,6 +26,7 @@
 package it.geosolutions.geoserver.rest.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;

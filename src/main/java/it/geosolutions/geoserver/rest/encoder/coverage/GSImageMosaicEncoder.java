@@ -38,8 +38,10 @@ import org.jdom.filter.Filter;
  * Use this encoder for ImageMosaic coverages.
  * 
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Simone Giannecchini, GeoSolutions SAS
  * 
  */
+@SuppressWarnings("unchecked")
 public class GSImageMosaicEncoder extends GSCoverageEncoder {
 
     final private static String STRING = "string";
@@ -98,7 +100,7 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
         return null;
     }
 
-    private final static String allowMultithreading = "AllowMultithreading";
+    public final static String allowMultithreading = "AllowMultithreading";
 
     /**
      * @param val
@@ -133,7 +135,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
         return null;
     }
 
-    private final static String filter = "Filter";
+    //
+    // Filter
+    //
+    public final static String filter = "Filter";
 
     /**
      * @param val
@@ -151,9 +156,25 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
         removeParameter(filterFilter);
         addFilter(val);
     }
-
-    private final static String maxAllowedTiles = "MaxAllowedTiles";
-
+    public Boolean getFilter() {
+        Element el = getParameter(filterFilter);
+        if (el != null) {
+            List<Element> values = el.getChildren();
+            for (Element elm : values) {
+                String value = elm.getValue();
+                if (!value.equalsIgnoreCase(filter)) {
+                    return Boolean.valueOf(value);
+                }
+            }
+        }
+        return null;
+    }
+    
+    //
+    // MaxAllowedTiles
+    //
+    public final static String maxAllowedTiles = "MaxAllowedTiles";
+    
     /**
      * @param val
      */
@@ -170,8 +191,26 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
         removeParameter(maxAllowedTilesFilter);
         addMaxAllowedTiles(val);
     }
+    
+    public Boolean getMaxAllowedTiles() {
+        Element el = getParameter(maxAllowedTilesFilter);
+        if (el != null) {
+            List<Element> values = el.getChildren();
+            for (Element elm : values) {
+                String value = elm.getValue();
+                if (!value.equalsIgnoreCase(maxAllowedTiles)) {
+                    return Boolean.valueOf(value);
+                }
+            }
+        }
+        return null;
+    }
 
-    private final static String inputTransparentColor = "InputTransparentColor";
+    
+    //
+    // InputTransparentColor
+    //
+    public final static String inputTransparentColor = "InputTransparentColor";
 
     /**
      * @param val
@@ -190,8 +229,26 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
         removeParameter(inputTransparentColorFilter);
         addInputTransparentColor(val);
     }
+    
+    public Boolean getInputTransparentColor() {
+        Element el = getParameter(inputTransparentColorFilter);
+        if (el != null) {
+            List<Element> values = el.getChildren();
+            for (Element elm : values) {
+                String value = elm.getValue();
+                if (!value.equalsIgnoreCase(inputTransparentColor)) {
+                    return Boolean.valueOf(value);
+                }
+            }
+        }
+        return null;
+    }
 
-    private final static String outputTransparentColor = "OutputTransparentColor";
+    
+    //
+    // OutputTransparentColor
+    //
+    public final static String outputTransparentColor = "OutputTransparentColor";
 
     /**
      * @param val
@@ -210,8 +267,24 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
         removeParameter(outputTransparentColorFilter);
         addInputTransparentColor(val);
     }
-
-    private final static String SUGGESTED_TILE_SIZE = "SUGGESTED_TILE_SIZE";
+    public Boolean getOutputTransparentColor() {
+        Element el = getParameter(outputTransparentColorFilter);
+        if (el != null) {
+            List<Element> values = el.getChildren();
+            for (Element elm : values) {
+                String value = elm.getValue();
+                if (!value.equalsIgnoreCase(outputTransparentColor)) {
+                    return Boolean.valueOf(value);
+                }
+            }
+        }
+        return null;
+    }
+    
+    //
+    // SUGGESTED_TILE_SIZE
+    //
+    public final static String SUGGESTED_TILE_SIZE = "SUGGESTED_TILE_SIZE";
 
     /**
      * @param val
@@ -246,7 +319,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
         return null;
     }
 
-    private final static String USE_JAI_IMAGEREAD = "USE_JAI_IMAGEREAD";
+    //
+    // USE_JAI_IMAGEREAD
+    //
+    public final static String USE_JAI_IMAGEREAD = "USE_JAI_IMAGEREAD";
 
     /**
      * @param val
@@ -279,7 +355,10 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
         return null;
     }
 
-    private final static String backgroundValues = "BackgroundValues";
+    //
+    // BackgroundValues
+    //
+    public final static String backgroundValues = "BackgroundValues";
 
     /**
      * @param val
@@ -297,5 +376,62 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
         removeParameter(backgroundValuesFilter);
         addBackgroundValues(val);
     }
+    public Boolean getBackgroundValues() {
+        Element el = getParameter(backgroundValuesFilter);
+        if (el != null) {
+            List<Element> values = el.getChildren();
+            for (Element elm : values) {
+                String value = elm.getValue();
+                if (!value.equalsIgnoreCase(backgroundValues)) {
+                    return Boolean.valueOf(value);
+                }
+            }
+        }
+        return null;
+    }
 
+    //
+    // SORTING
+    //
+    public final static String SORTING = "SORTING";
+
+    /**
+     * @param val
+     */
+    protected void addSORTING(final String val) {
+        final List<Element> list = new ArrayList<Element>(2);
+        list.add(new Element(STRING).setText(SORTING));
+        list.add(new Element(STRING).setText(val));
+        parameters.add(null, list);
+    }
+
+    private final static Filter SORTING_FILTER = new parametersFilter(SORTING);
+
+    public void setSORTING(final String val) {
+        removeParameter(SORTING_FILTER);
+        addBackgroundValues(val);
+    }
+    
+    //
+    // SORTING
+    //
+    
+    public final static String MERGEBEHAVIOR = "MergeBehavior";
+
+    /**
+     * @param val
+     */
+    protected void addMergeBehavior(final String val) {
+        final List<Element> list = new ArrayList<Element>(2);
+        list.add(new Element(STRING).setText(MERGEBEHAVIOR));
+        list.add(new Element(STRING).setText(val));
+        parameters.add(null, list);
+    }
+
+    private final static Filter MERGEBEHAVIOR_FILTER = new parametersFilter(MERGEBEHAVIOR);
+
+    public void setMergeBehavior(final String val) {
+        removeParameter(MERGEBEHAVIOR_FILTER);
+        addBackgroundValues(val);
+    }
 }

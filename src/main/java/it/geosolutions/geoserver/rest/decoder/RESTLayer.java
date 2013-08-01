@@ -26,6 +26,7 @@
 package it.geosolutions.geoserver.rest.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+
 import org.jdom.Element;
 import org.jdom.Namespace;
 

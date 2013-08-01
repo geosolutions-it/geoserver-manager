@@ -111,13 +111,42 @@ public abstract class GSResourceEncoder
      * @param dimensionInfo
      */
     protected void addMetadataDimension(String key, GSDimensionInfoEncoder dimensionInfo) {
-        metadata.add(key, dimensionInfo.getRoot());
+        addMetadataDimension(key, dimensionInfo, false);
+    }
+    
+    /**
+     * Add the metadata for a custom dimension.
+     * 
+     * @param key the name of the dimension
+     * @param dimensionInfo {@link GSDimensionInfoEncoder} with additional information about the dimension
+     * @param custom is the dimension custom or not?
+     */
+    protected void addMetadataDimension(String key, GSDimensionInfoEncoder dimensionInfo, boolean custom) {
+        if(custom){
+            metadata.set("custom_dimension_"+key.toUpperCase(), dimensionInfo.getRoot());
+        }else{
+            metadata.add(key, dimensionInfo.getRoot());
+        }
     }
 
     public void setMetadataDimension(String key, GSDimensionInfoEncoder dimensionInfo) {
-        metadata.set(key, dimensionInfo.getRoot());
+       setMetadataDimension(key, dimensionInfo, false);
     }	
 
+    /**
+     * Set the metadata for a custom dimension.
+     * 
+     * @param key the name of the dimension
+     * @param dimensionInfo {@link GSDimensionInfoEncoder} with additional information about the dimension
+     * @param custom is the dimension custom or not?
+     */
+    public void setMetadataDimension(String key, GSDimensionInfoEncoder dimensionInfo, boolean custom) {
+        if(custom){
+            metadata.set("custom_dimension_"+key.toUpperCase(), dimensionInfo.getRoot());
+        }else{
+            metadata.set(key, dimensionInfo.getRoot());
+        }
+    }   
 	/**
 	 * @param key
 	 *            the name of the metadata to add (f.e.: elevation, time)

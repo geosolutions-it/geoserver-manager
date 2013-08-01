@@ -53,12 +53,7 @@ public class GSDimensionInfoEncoder extends XmlElement{
 	 */
 	public enum Presentation {
 		LIST,
-		CONTINUOUS_INTERVAL
-	}
-	/**
-	 * Enum for presentation mode which needs arguments
-	 */
-	public enum PresentationDiscrete {
+		CONTINUOUS_INTERVAL,
 		DISCRETE_INTERVAL
 	}
 	
@@ -87,38 +82,40 @@ public class GSDimensionInfoEncoder extends XmlElement{
 		this.enabled=Boolean.TRUE;
 	}
 	
-	/**
-	 * @param pres
-	 */
-	protected void addPresentation(final Presentation pres){
-		if (enabled){
-			add(PRESENTATION,pres.toString());
-		}
-	}
-	
 	public void setPresentation(final Presentation pres){
-		if (enabled){
-			set(PRESENTATION,pres.toString());
-			remove(RESOLUTION);
-		}
+		setPresentation(pres, null);
 	}
 	
 	/**
 	 * @param pres
 	 * @param interval
 	 */
-	protected void addPresentation(final PresentationDiscrete pres, final BigDecimal interval){
+	protected void addPresentation(final Presentation pres, final BigDecimal interval){
 		if (enabled){
 			add(PRESENTATION,pres.toString());
-			add(RESOLUTION,String.valueOf(interval));	
+			if(pres==Presentation.DISCRETE_INTERVAL){
+	                    if(pres==Presentation.DISCRETE_INTERVAL&&interval==null){
+	                        throw new IllegalArgumentException("Null interval was provided while trying to set the presentation to discrete interval.");
+	                    }
+	                    add(RESOLUTION,String.valueOf(interval)); 
+	                } else {
+	                    remove(RESOLUTION);
+	                }
 		}
 	}
 	
-	public void setPresentation(final PresentationDiscrete pres, final BigDecimal interval){
-		if (enabled){
-			set(PRESENTATION,pres.toString());
-			set(RESOLUTION,String.valueOf(interval));	
-		}
+	public void setPresentation(final Presentation pres, final BigDecimal interval){
+            if (enabled){
+                set(PRESENTATION,pres.toString());
+                if(pres==Presentation.DISCRETE_INTERVAL){
+                    if(pres==Presentation.DISCRETE_INTERVAL&&interval==null){
+                        throw new IllegalArgumentException("Null interval was provided while trying to set the presentation to discrete interval.");
+                    }
+                    set(RESOLUTION,String.valueOf(interval)); 
+                } else {
+                    remove(RESOLUTION);
+                }
+        }
 	}
 	
 	

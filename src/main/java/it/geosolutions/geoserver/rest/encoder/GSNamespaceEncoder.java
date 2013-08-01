@@ -24,10 +24,10 @@
  */
 package it.geosolutions.geoserver.rest.encoder;
 
-import java.net.URI;
-
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+
+import java.net.URI;
 
 /**
  * Namespace XML encoder. Namespaces must contain a non empty prefix and a URI:

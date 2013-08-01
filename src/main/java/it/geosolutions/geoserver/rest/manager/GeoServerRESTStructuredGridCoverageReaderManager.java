@@ -382,6 +382,26 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
     }
 
     /**
+     * Get information about all the granules for a coverage with optional filter and paging.
+     * 
+     * @param workspace the GeoServer workspace
+     * @param coverageStore the GeoServer coverageStore
+     * @param coverage the name of the target coverage
+     * 
+     * @return <code>null</code> in case the call does not succeed, or an instance of {@link RESTStructuredCoverageGranulesList}.
+     * 
+     * @throws MalformedURLException
+     * @throws UnsupportedEncodingException
+     * 
+     * @since geoserver-2.4.0, geoserver-mng-1.6.0
+     */
+    public RESTStructuredCoverageGranulesList getGranules(final String workspace,
+            String coverageStore, String coverage)
+            throws MalformedURLException, UnsupportedEncodingException {
+        return getGranules(workspace, coverageStore, coverage, null, null, null);
+    }
+    
+    /**
      * Get information about the granules for a coverage with optional filter and paging.
      * 
      * @param workspace the GeoServer workspace
