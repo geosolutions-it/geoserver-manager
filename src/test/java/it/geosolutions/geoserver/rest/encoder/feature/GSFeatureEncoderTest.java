@@ -26,7 +26,6 @@ import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.GSVirtualTableEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTGeometryEncoder;
@@ -155,21 +154,21 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         
         GSFeatureDimensionInfoEncoder dim2 = new GSFeatureDimensionInfoEncoder("ELE");
         
-        encoder.addMetadata("elevation", dim2);
-        dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
+        encoder.setMetadataDimension("elevation", dim2);
+        dim2.setPresentation(Presentation.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
         Element el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
         Assert.assertNotNull(el);
         
         LOGGER.info("contains_key:" + el.toString());
 
-        dim2.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL, BigDecimal.valueOf(12));
+        dim2.setPresentation(Presentation.DISCRETE_INTERVAL, BigDecimal.valueOf(12));
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.RESOLUTION);
         Assert.assertNotNull(el);
         Assert.assertEquals("12", el.getText());
 
         dim2.setPresentation(Presentation.CONTINUOUS_INTERVAL);
         
-        encoder.setMetadata("time", new GSFeatureDimensionInfoEncoder("time"));
+        encoder.setMetadataDimension("time", new GSFeatureDimensionInfoEncoder("time"));
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
         Assert.assertNotNull(el);
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.RESOLUTION);
@@ -220,9 +219,9 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         // LOGGER.info(encoder.toString());
 
         final String metadata = "elevation";
-        encoder.setMetadata(metadata, elevationDimension);
+        encoder.setMetadataDimension(metadata, elevationDimension);
 
-        elevationDimension.setPresentation(PresentationDiscrete.DISCRETE_INTERVAL,
+        elevationDimension.setPresentation(Presentation.DISCRETE_INTERVAL,
                 BigDecimal.valueOf(10));
 
         if (LOGGER.isInfoEnabled())

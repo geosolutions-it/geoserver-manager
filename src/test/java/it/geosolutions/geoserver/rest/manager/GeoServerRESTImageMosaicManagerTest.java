@@ -1,33 +1,18 @@
-/*
- *    GeoTools - The Open Source Java GIS Toolkit
- *    http://geotools.org
- *
- *    (C) 2002-2011, Open Source Geospatial Foundation (OSGeo)
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- */
 package it.geosolutions.geoserver.rest.manager;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList.RESTStructuredCoverageGranule;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageIndexSchema;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageIndexSchema.RESTStructuredCoverageIndexAttribute;
-import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSImageMosaicEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 
 import java.net.URL;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,18 +38,25 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         if (!enabled()) {
             return;
         }
+        // crea the manager
         GeoServerRESTStructuredGridCoverageReaderManager manager = 
             new GeoServerRESTStructuredGridCoverageReaderManager(new URL(RESTURL), RESTUSER, RESTPW);
         
         // create mosaic
-        boolean create=manager.create("it.geosolutions", "mosaic",new ClassPathResource("testdata/granules/mosaic.zip").getFile().getAbsolutePath());
+        final String workspaceName = "it.geosolutions";
+        final String coverageStoreName = "mosaic";
+        final String coverageName = "mosaic";
+        final String format = "imagemosaic";
+        
+        // upload the mosaic
+        boolean create=manager.create(workspaceName, coverageStoreName,new ClassPathResource("testdata/granules/mosaic.zip").getFile().getAbsolutePath());
         assertTrue(create);
         
         // enable dimension
-        fixDimensions("it.geosolutions", "mosaic", "mosaic");
+        fixDimensions(workspaceName, coverageStoreName, coverageName);
         
         // check index format
-        RESTStructuredCoverageIndexSchema indexFormat = manager.getGranuleIndexSchema("it.geosolutions", "mosaic","mosaic");
+        RESTStructuredCoverageIndexSchema indexFormat = manager.getGranuleIndexSchema(workspaceName, coverageName,coverageName);
         assertTrue(create);
         
         assertNotNull(indexFormat);
@@ -99,47 +91,47 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
 
         RESTStructuredCoverageGranulesList granulesList = null;
         RESTStructuredCoverageGranule granule = null;
-        // get some granules by id
-//        manager.getGranuleById("it.geosolutions", "mosaic","mosaic","2");
-//        assertNotNull(granulesList);
-//        assertSame(1, granulesList.size());
-//        assertFalse(granulesList.isEmpty());
-//        RESTStructuredCoverageGranule granule = granulesList.get(0);
-//        assertNotNull(granule);
-//        assertEquals(granule.getAttributeByIndex(4), "1250.0");
-//        assertEquals(granule.getAttributeByName("elevation"), "1250.0");
         
         
         // get with paging
-        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic" , null, 0, 1);
+        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName , null, 0, 1);
         assertNotNull(granulesList);
         assertEquals(1, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule);       
         
-        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic", null, null, 2);
+        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, null, null, 2);
         assertNotNull(granulesList);
         assertEquals(2, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule);
         
-        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic", null, null, null);
+        // get with no paging
+        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName);
         assertNotNull(granulesList);
         assertEquals(4, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule);   
         
-        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic", "depth = 100", null, null);
+        // examples of filtering with CQL
+        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, "depth = 100", null, null);
         assertNotNull(granulesList);
         assertEquals(2, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule); 
         
-        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic", "depth = 100 AND date='20081101T0000000'", null, null);
+        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, "depth = 100 AND date='20081101T0000000'", null, null);
+        assertNotNull(granulesList);
+        assertEquals(1, granulesList.size());
+        assertFalse(granulesList.isEmpty());
+        granule = granulesList.get(0);
+        assertNotNull(granule); 
+        
+        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, "location LIKE 'NCOM_wattemp%'", 0, 1);
         assertNotNull(granulesList);
         assertEquals(1, granulesList.size());
         assertFalse(granulesList.isEmpty());
@@ -148,22 +140,21 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         
         // remove by filter
         final String fileLocation = "NCOM_wattemp_100_20081101T0000000_12.tiff";
-        boolean result = manager.removeGranulesByCQL("it.geosolutions", "mosaic", "mosaic", "location = '" + fileLocation + "'");
+        boolean result = manager.removeGranulesByCQL(workspaceName, coverageStoreName, coverageName, "location = '" + fileLocation + "'");
         Assert.assertTrue(result);
         
-        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic", null, null, null);
+        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName);
         assertNotNull(granulesList);
         assertEquals(3, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule);
         
-        // Readding that granule
-        // use reflection to get the store URL since coveragestore only returns name and workspace
-        result = manager.harvestExternal("it.geosolutions", "mosaic", "imagemosaic", new ClassPathResource("testdata/granules/NCOM_wattemp_100_20081101T0000000_12.tiff").getFile().getAbsolutePath() );
+        // Readding that granule with harvest
+        result = manager.harvestExternal(workspaceName, coverageStoreName, format, new ClassPathResource("testdata/granules/NCOM_wattemp_100_20081101T0000000_12.tiff").getFile().getAbsolutePath() );
         Assert.assertTrue(result);
         
-        granulesList = manager.getGranules("it.geosolutions", "mosaic", "mosaic", null, null, null);
+        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, null, null, null);
         assertNotNull(granulesList);
         assertEquals(4, granulesList.size());
         assertFalse(granulesList.isEmpty());
@@ -171,57 +162,96 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         assertNotNull(granule);
         
     }
-    
-    
+
+
     /**
      * This method enables the various dimensions for the coverage autocreated for this test.
      * 
+     * <p> Notice that 
      * @param wsName the workspace
      * @param coverageStoreName the coverage store name
      * @param csname the coverage name
      */
+    
     private void fixDimensions(String wsName, String coverageStoreName, String csname) {
-
+        // get current config for the coverage to extract the params we want to set again
+        final RESTCoverage coverage = reader.getCoverage(wsName, coverageStoreName, csname);
+        final Map<String, String> params = coverage.getParametersList();     
+        
+        // prepare and fill the encoder 
         final GSImageMosaicEncoder coverageEncoder = new GSImageMosaicEncoder();
-        /*
-         * unused in mosaic creation
-         * this is only useful if you want to modify an existing coverage:
-         * publisher.configureCoverage(ce, wsname, csname);
-         * or create a new one from an existing store:
-         * publisher.createCoverage(ce, wsname, csname);
-         */
         coverageEncoder.setName("mosaic");
         
-        coverageEncoder.setAllowMultithreading(true);
-        coverageEncoder.setBackgroundValues("");
-        coverageEncoder.setFilter("");
-        coverageEncoder.setInputTransparentColor("");
-        coverageEncoder.setLatLonBoundingBox(-180, -90, 180, 90, "EPSG:4326");
-        coverageEncoder.setMaxAllowedTiles(11);
-        coverageEncoder.setNativeBoundingBox(-180, -90, 180, 90, "EPSG:4326");
-        coverageEncoder.setProjectionPolicy(ProjectionPolicy.NONE);
-        coverageEncoder.setSRS("EPSG:4326");
-        
-        // activate time
+        // set the current params, change here if you want to change the values
+        for(Map.Entry<String, String> entry:params.entrySet()){
+            if(entry.getKey().equals(GSImageMosaicEncoder.allowMultithreading)){
+                coverageEncoder.setAllowMultithreading(Boolean.parseBoolean(entry.getValue()));
+                continue;
+            }
+            
+            if(entry.getKey().equals(GSImageMosaicEncoder.backgroundValues)){
+                coverageEncoder.setBackgroundValues(entry.getValue());
+                continue;
+            }
+            
+            if(entry.getKey().equals(GSImageMosaicEncoder.filter)){
+                coverageEncoder.setFilter(entry.getValue());
+                continue;
+            }
+            
+            if(entry.getKey().equals(GSImageMosaicEncoder.inputTransparentColor)){
+                coverageEncoder.setInputTransparentColor(entry.getValue());
+                continue;
+            }
+            
+            if(entry.getKey().equals(GSImageMosaicEncoder.maxAllowedTiles)){
+                coverageEncoder.setMaxAllowedTiles(Integer.parseInt(entry.getValue()));
+                continue;
+            }
+            
+            if(entry.getKey().equals(GSImageMosaicEncoder.MERGEBEHAVIOR)){
+                coverageEncoder.setMergeBehavior(entry.getValue());
+                continue;
+            }
+            
+            if(entry.getKey().equals(GSImageMosaicEncoder.outputTransparentColor)){
+                coverageEncoder.setOutputTransparentColor(entry.getValue());
+                continue;
+            }
+            
+            if(entry.getKey().equals(GSImageMosaicEncoder.SORTING)){
+                coverageEncoder.setSORTING(entry.getValue());
+                continue;
+            }
+            
+            if(entry.getKey().equals(GSImageMosaicEncoder.SUGGESTED_TILE_SIZE)){
+                coverageEncoder.setSUGGESTED_TILE_SIZE(entry.getValue());
+                continue;
+            }
+            
+            if(entry.getKey().equals(GSImageMosaicEncoder.USE_JAI_IMAGEREAD)){
+                coverageEncoder.setUSE_JAI_IMAGEREAD(Boolean.parseBoolean(entry.getValue()));
+                continue;
+            }
+            
+        }
+  
+               
+        // activate time dimension
         final GSDimensionInfoEncoder time=new GSDimensionInfoEncoder(true);
         time.setUnit("Seconds");
         time.setUnitSymbol("s");
-        time.setPresentation(Presentation.LIST);
+        time.setPresentation(Presentation.CONTINUOUS_INTERVAL);
         coverageEncoder.setMetadataDimension("time", time);
         
-        // activate date
-        final GSDimensionInfoEncoder date=new GSDimensionInfoEncoder(true);
-        date.setPresentation(Presentation.LIST);
-        coverageEncoder.setMetadataDimension("custom_dimension_DATE", date);
+        // activate run which is a custom dimension
+        final GSDimensionInfoEncoder run=new GSDimensionInfoEncoder(true);
+        run.setPresentation(Presentation.LIST);
+        run.setUnit("Hours");
+        run.setUnitSymbol("h");
+        coverageEncoder.setMetadataDimension("run", run,true);
         
-        // activate depth
-        final GSDimensionInfoEncoder depth=new GSDimensionInfoEncoder(true);
-        depth.setPresentation(Presentation.LIST);
-        depth.setUnit("Meters");
-        depth.setUnitSymbol("m");
-        coverageEncoder.setMetadataDimension("custom_dimension_DEPTH", depth);
-        
-        
+        // persiste the changes
         boolean config=publisher.configureCoverage(coverageEncoder, wsName, csname);
         assertTrue(config);
        

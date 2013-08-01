@@ -29,6 +29,7 @@ import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMListIterator;
 
 import java.util.Iterator;
+
 import org.jdom.Element;
 
 /**

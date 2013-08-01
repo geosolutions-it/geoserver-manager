@@ -25,9 +25,9 @@
 
 package it.geosolutions.geoserver.rest.decoder;
 
-import org.jdom.Element;
-
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
+
+import org.jdom.Element;
 
 
 /**

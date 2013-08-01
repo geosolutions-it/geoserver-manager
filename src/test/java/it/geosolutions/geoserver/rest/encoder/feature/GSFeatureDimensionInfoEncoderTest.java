@@ -2,7 +2,6 @@ package it.geosolutions.geoserver.rest.encoder.feature;
 
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.PresentationDiscrete;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 
@@ -25,10 +24,10 @@ public class GSFeatureDimensionInfoEncoderTest {
 		// LOGGER.info(encoder.toString());
 
 		elevationDimension.setPresentation(
-				PresentationDiscrete.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
+				Presentation.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
 
 		elevationDimension.setPresentation(
-				PresentationDiscrete.DISCRETE_INTERVAL, BigDecimal.valueOf(12));
+				Presentation.DISCRETE_INTERVAL, BigDecimal.valueOf(12));
 
 		List<Element> elList = ElementUtils.search(
 				elevationDimension.getRoot(), new Filter() {
@@ -44,8 +43,8 @@ public class GSFeatureDimensionInfoEncoderTest {
 					}
 				});
 		// using set we get only one element called
-		// PresentationDiscrete.DISCRETE_INTERVAL
-		Assert.assertEquals(Integer.valueOf(elList.size()), Integer.valueOf(1));
+		// Presentation.DISCRETE_INTERVAL
+		Assert.assertEquals(elList.size(), 1);
 
 		
 		elevationDimension.setPresentation(Presentation.LIST);
@@ -65,7 +64,7 @@ public class GSFeatureDimensionInfoEncoderTest {
 					}
 				});
 		
-		Assert.assertEquals(Integer.valueOf(elList.size()), Integer.valueOf(0));
+		Assert.assertEquals(elList.size(), 0);
 		
 	}
 

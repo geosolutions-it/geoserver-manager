@@ -24,13 +24,13 @@
  */
 package it.geosolutions.geoserver.rest.encoder.metadata.virtualtable;
 
+import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
+import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
+
 import java.util.List;
 
 import org.jdom.Element;
 import org.jdom.filter.Filter;
-
-import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
-import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
 
 /**
  * GSVirtualTableEncoder - Encodes a metadata VirtualTable for a GeoServer

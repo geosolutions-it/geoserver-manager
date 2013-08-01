@@ -25,10 +25,10 @@
 
 package it.geosolutions.geoserver.rest.encoder;
 
-import org.jdom.Element;
-
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
+
+import org.jdom.Element;
 
 /**
  *

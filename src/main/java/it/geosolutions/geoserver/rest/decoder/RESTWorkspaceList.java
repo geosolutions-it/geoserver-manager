@@ -25,8 +25,9 @@
 
 package it.geosolutions.geoserver.rest.decoder;
 
-import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
