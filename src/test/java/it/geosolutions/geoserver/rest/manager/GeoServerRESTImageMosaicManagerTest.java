@@ -161,6 +161,9 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         granule = granulesList.get(0);
         assertNotNull(granule);
         
+        
+        // delete
+        delete(workspaceName, coverageStoreName);
     }
 
 
@@ -174,6 +177,40 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
      */
     
     private void fixDimensions(String wsName, String coverageStoreName, String csname) {
+        final GSImageMosaicEncoder coverageEncoder = copyParameters(wsName, coverageStoreName,
+                csname);
+  
+               
+        // activate time dimension
+        final GSDimensionInfoEncoder time=new GSDimensionInfoEncoder(true);
+        time.setUnit("Seconds");
+        time.setUnitSymbol("s");
+        time.setPresentation(Presentation.CONTINUOUS_INTERVAL);
+        coverageEncoder.setMetadataDimension("time", time);
+        
+        // activate run which is a custom dimension
+        final GSDimensionInfoEncoder run=new GSDimensionInfoEncoder(true);
+        run.setPresentation(Presentation.LIST);
+        run.setUnit("Hours");
+        run.setUnitSymbol("h");
+        coverageEncoder.setMetadataDimension("run", run,true);
+        
+        // persiste the changes
+        boolean config=publisher.configureCoverage(coverageEncoder, wsName, csname);
+        assertTrue(config);
+       
+    }
+
+
+    /**
+     * @param wsName
+     * @param coverageStoreName
+     * @param csname
+     * @return
+     * @throws NumberFormatException
+     */
+    private GSImageMosaicEncoder copyParameters(String wsName, String coverageStoreName,
+            String csname) throws NumberFormatException {
         // get current config for the coverage to extract the params we want to set again
         final RESTCoverage coverage = reader.getCoverage(wsName, coverageStoreName, csname);
         final Map<String, String> params = coverage.getParametersList();     
@@ -235,26 +272,23 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
             }
             
         }
-  
-               
-        // activate time dimension
-        final GSDimensionInfoEncoder time=new GSDimensionInfoEncoder(true);
-        time.setUnit("Seconds");
-        time.setUnitSymbol("s");
-        time.setPresentation(Presentation.CONTINUOUS_INTERVAL);
-        coverageEncoder.setMetadataDimension("time", time);
-        
-        // activate run which is a custom dimension
-        final GSDimensionInfoEncoder run=new GSDimensionInfoEncoder(true);
-        run.setPresentation(Presentation.LIST);
-        run.setUnit("Hours");
-        run.setUnitSymbol("h");
-        coverageEncoder.setMetadataDimension("run", run,true);
-        
-        // persiste the changes
-        boolean config=publisher.configureCoverage(coverageEncoder, wsName, csname);
-        assertTrue(config);
-       
+        return coverageEncoder;
     }
-
+    
+    /**
+     * Deletes the provided coverage recursively with purging.
+     * @param workspaceName
+     * @param coverageStoreName
+     * @throws Exception
+     */
+    private void delete(String workspaceName, String coverageStoreName) throws Exception {
+        if (!enabled()) {
+            return;
+        }
+        
+        // delete mosaic
+        boolean result = publisher.removeCoverageStore(workspaceName, coverageStoreName, true);
+        assertTrue(result);
+    }
+ 
 }

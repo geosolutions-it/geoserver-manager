@@ -24,6 +24,7 @@
  */
 package it.geosolutions.geoserver.rest;
 
+import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageList;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
@@ -2417,9 +2418,9 @@ public class GeoServerRESTPublisher {
 
         return sendResult != null;
     }
-
+    
     /**
-     * Configure an existent coverage in a given workspace and coverage store
+     * Configure an existing coverage in a given workspace and coverage store
      * 
      * @param ce contains the coverage name to configure and the configuration to apply
      * @param wsname the workspace to search for existent coverage
@@ -2428,8 +2429,21 @@ public class GeoServerRESTPublisher {
      */
     public boolean configureCoverage(final GSCoverageEncoder ce, final String wsname,
             final String csname) {
-        final String cname = ce.getName();
-        if (cname == null) {
+        return configureCoverage(ce, wsname, csname, ce.getName());
+    }    
+
+    /**
+     * Configure an existing coverage in a given workspace and coverage store
+     * 
+     * @param ce contains the coverage name to configure and the configuration to apply
+     * @param wsname the workspace to search for existent coverage
+     * @param csname the coverage store to search for existent coverage
+     * @param coverageName the name of the coverage, useful for changing name for the coverage itself
+     * @return true if success
+     */
+    public boolean configureCoverage(final GSCoverageEncoder ce, final String wsname,
+            final String csname, final String coverageName) {
+        if (coverageName == null) {
             if (LOGGER.isErrorEnabled())
                 LOGGER.error("Unable to configure a coverage with no name try using GSCoverageEncoder.setName(String)");
             return false;
@@ -2443,43 +2457,45 @@ public class GeoServerRESTPublisher {
                 LOGGER.error(e.getLocalizedMessage(), e);
             return false;
         }
-        final RESTCoverageList covList = reader.getCoverages(wsname, csname);
-        if (covList.isEmpty()) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error("No coverages found in new coveragestore " + csname);
-            return false;
-        }
-        final Iterator<NameLinkElem> it = covList.iterator();
-        boolean found = false;
-        while (it.hasNext()) {
-            NameLinkElem nameElem = it.next();
-            if (nameElem.getName().equals(cname)) {
-                found = true;
-                break;
-            }
-        }
+        
+        // optimized search, left the old code for reference 
+        RESTCoverage coverage = reader.getCoverage(wsname, csname, coverageName);
+//        final RESTCoverageList covList = reader.getCoverages(wsname, csname);
+//        if (covList==null||covList.isEmpty()) {
+//            if (LOGGER.isErrorEnabled())
+//                LOGGER.error("No coverages found in new coveragestore " + csname);
+//            return false;
+//        }
+//        final Iterator<NameLinkElem> it = covList.iterator();
+//        while (it.hasNext()) {
+//            NameLinkElem nameElem = it.next();
+//            if (nameElem.getName().equals(coverageName)) {
+//                found = true;
+//                break;
+//            }
+//        }
         // if no coverage to configure is found return false
-        if (!found) {
+        if (coverage==null) {
             if (LOGGER.isErrorEnabled())
                 LOGGER.error("No coverages found in new coveragestore " + csname + " called "
-                        + cname);
+                        + coverageName);
             return false;
         }
 
         // configure the selected coverage
         final String url = restURL + "/rest/workspaces/" + wsname + "/coveragestores/" + csname
-                + "/coverages/" + cname + ".xml";
+                + "/coverages/" + coverageName + ".xml";
 
         final String xmlBody = ce.toString();
         final String sendResult = HTTPUtils.putXml(url, xmlBody, gsuser, gspass);
         if (sendResult != null) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Coverage successfully configured " + wsname + ":" + csname + ":"
-                        + cname);
+                        + coverageName);
             }
         } else {
             if (LOGGER.isWarnEnabled())
-                LOGGER.warn("Error configuring coverage " + wsname + ":" + csname + ":" + cname
+                LOGGER.warn("Error configuring coverage " + wsname + ":" + csname + ":" + coverageName
                         + " (" + sendResult + ")");
         }
 
