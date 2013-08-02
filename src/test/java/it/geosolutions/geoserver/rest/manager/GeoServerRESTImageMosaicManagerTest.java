@@ -189,11 +189,15 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         coverageEncoder.setMetadataDimension("time", time);
         
         // activate run which is a custom dimension
-        final GSDimensionInfoEncoder run=new GSDimensionInfoEncoder(true);
-        run.setPresentation(Presentation.LIST);
-        run.setUnit("Hours");
-        run.setUnitSymbol("h");
-        coverageEncoder.setMetadataDimension("run", run,true);
+        final GSDimensionInfoEncoder date=new GSDimensionInfoEncoder(true);
+        date.setPresentation(Presentation.LIST);
+        coverageEncoder.setMetadataDimension("date", date,true);
+        
+        final GSDimensionInfoEncoder depth=new GSDimensionInfoEncoder(true);
+        depth.setPresentation(Presentation.LIST);
+        depth.setUnit("Meters");
+        depth.setUnitSymbol("m");
+        coverageEncoder.setMetadataDimension("depth", depth,true);
         
         // persiste the changes
         boolean config=publisher.configureCoverage(coverageEncoder, wsName, csname);
