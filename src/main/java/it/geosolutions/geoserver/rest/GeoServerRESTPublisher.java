@@ -27,6 +27,8 @@ package it.geosolutions.geoserver.rest;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
+import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
+import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import it.geosolutions.geoserver.rest.encoder.GSBackupEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerGroupEncoder;
@@ -2102,6 +2104,9 @@ public class GeoServerRESTPublisher {
                     workspace);
             if (recurse)
                 url.append("?recurse=true");
+
+            deleteStylesForWorkspace(workspace); // !!! workaround
+
             final URL deleteUrl = new URL(url.toString());
             boolean deleted = HTTPUtils.delete(deleteUrl.toExternalForm(), gsuser, gspass);
             if (!deleted) {
@@ -2115,6 +2120,17 @@ public class GeoServerRESTPublisher {
             if (LOGGER.isErrorEnabled())
                 LOGGER.error(ex.getLocalizedMessage(), ex);
             return false;
+        }
+    }
+
+    /**
+     *  workaround: geoserver does not delete styles inside workspaces
+     * https://jira.codehaus.org/browse/GEOS-5986
+     */
+    private void deleteStylesForWorkspace(String workspace) {
+        RESTStyleList styles = styleManager.getStyles(workspace);
+        for (NameLinkElem nameLinkElem : styles) {
+            removeStyleInWorkspace(workspace, nameLinkElem.getName(), true);
         }
     }
 

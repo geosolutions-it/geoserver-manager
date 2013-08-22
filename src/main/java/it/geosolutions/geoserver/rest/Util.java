@@ -26,6 +26,8 @@
 package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -36,18 +38,20 @@ public class Util {
     /**
      * Search for a stylename in global and in all workspaces.
      */
-    public static RESTStyle searchStyle(GeoServerRESTReader reader, String stylename) {
+    public static List<RESTStyle> searchStyles(GeoServerRESTReader reader, String stylename) {
+
+        List<RESTStyle> styles = new ArrayList<RESTStyle>();
 
         RESTStyle style = reader.getStyle(stylename);
         if(style != null)
-            return style;
+            styles.add(style);
 
         for (String workspace : reader.getWorkspaceNames()) {
             style = reader.getStyle(workspace, stylename);
             if(style != null)
-                return style;
+                styles.add(style);
         }
 
-        return null;
+        return styles;
     }
 }

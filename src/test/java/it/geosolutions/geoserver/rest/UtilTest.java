@@ -31,6 +31,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.slf4j.Logger;
@@ -54,15 +55,14 @@ public class UtilTest extends GeoserverRESTTest {
 
         final String WORKSPACE = "testWorkspace";
 		final String STYLENAME = "restteststyle";
-		final String STYLENAME2 = "restteststyle2";
+
 		File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
 
         publisher.createWorkspace(WORKSPACE);
 
 		assertEquals(0, reader.getStyles().size());
 		assertEquals(0, reader.getStyles(WORKSPACE).size());
-        assertNull(Util.searchStyle(reader, STYLENAME));
-        assertNull(Util.searchStyle(reader, STYLENAME2));
+        assertEquals(0, Util.searchStyles(reader, STYLENAME).size());
 
 		// insert style in workspace
 		assertTrue(publisher.publishStyleInWorkspace(WORKSPACE, sldFile, STYLENAME));
@@ -70,29 +70,26 @@ public class UtilTest extends GeoserverRESTTest {
 		assertFalse(reader.existsStyle(STYLENAME));
 		assertEquals(0, reader.getStyles().size());
 		assertEquals(1, reader.getStyles(WORKSPACE).size());
-        assertNotNull(Util.searchStyle(reader, STYLENAME));
-        assertNull(Util.searchStyle(reader, STYLENAME2));
+        assertEquals(1, Util.searchStyles(reader, STYLENAME).size());
 
         // insert global style
-		assertTrue(publisher.publishStyle(sldFile, STYLENAME2));
+		assertTrue(publisher.publishStyle(sldFile, STYLENAME));
 
-        assertFalse(reader.existsStyle(STYLENAME));
-		assertTrue(reader.existsStyle(STYLENAME2));
-
+        assertTrue(reader.existsStyle(STYLENAME));
         assertTrue(reader.existsStyle(WORKSPACE, STYLENAME));
-		assertFalse(reader.existsStyle(WORKSPACE, STYLENAME2));
+
+        assertEquals(2, Util.searchStyles(reader, STYLENAME).size());
 
 		assertEquals(1, reader.getStyles().size());
 		assertEquals(1, reader.getStyles(WORKSPACE).size());
 
-        RESTStyle style;
-        style = Util.searchStyle(reader, STYLENAME);
-        assertEquals(STYLENAME, style.getName());
-        assertEquals(WORKSPACE, style.getWorkspace());
+        List<RESTStyle> styles = Util.searchStyles(reader, STYLENAME);
 
-        style = Util.searchStyle(reader, STYLENAME2);
-        assertEquals(STYLENAME2, style.getName());
-        assertEquals(null, style.getWorkspace());
+        assertEquals(STYLENAME, styles.get(0).getName());
+        assertEquals(null, styles.get(0).getWorkspace());  // first one is the global one, if any
+
+        assertEquals(STYLENAME, styles.get(1).getName());
+        assertEquals(WORKSPACE, styles.get(1).getWorkspace());
 	}
 
 }
