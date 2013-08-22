@@ -78,7 +78,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
      * @throws IllegalArgumentException
      */
     public GeoServerRESTStructuredGridCoverageReaderManager(URL restURL, String username,
-            String password) throws IllegalArgumentException, MalformedURLException {
+            String password) throws IllegalArgumentException {
         super(restURL, username, password);
     }
     
@@ -142,7 +142,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         }
 
         // create URL
-        StringBuilder ss=HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+        StringBuilder ss=HTTPUtils.append(gsBaseUrl, "/rest/workspaces/", workspace, "/coveragestores/",
                 coverageStore, "/file.imagemosaic");
         switch(configureOpt){
         case ALL:
@@ -180,7 +180,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         checkString(path);
 
         // create URL
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+        String sUrl = HTTPUtils.append(gsBaseUrl, "/rest/workspaces/", workspace, "/coveragestores/",
                 coverageStore, "/", UploadMethod.EXTERNAL.toString(), ".", format).toString();
 
         // POST request
@@ -251,7 +251,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         }
 
         // method
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores",
+        String sUrl = HTTPUtils.append(gsBaseUrl, "/rest/workspaces/", workspace, "/coveragestores",
                 "/", coverageStore, "/coverages/", coverage, "/index/granules?filter=",
                 URLEncoder.encode(filter, "UTF-8")).toString();
         if (!HTTPUtils.delete(sUrl, gsuser, gspass)) {
@@ -322,7 +322,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         }
 
         // delete
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores",
+        String sUrl = HTTPUtils.append(gsBaseUrl, "/rest/workspaces/", workspace, "/coveragestores",
                 "/", coverageStore, "/coverages/", coverage, "/index/granules/", granuleId)
                 .toString();
         if (!HTTPUtils.delete(sUrl, gsuser, gspass)) {
@@ -372,7 +372,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         checkString(coverageStore);
 
         // create URL and then call it
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+        String sUrl = HTTPUtils.append(gsBaseUrl, "/rest/workspaces/", workspace, "/coveragestores/",
                 coverageStore, "/coverages/", coverage, "/index.xml").toString();
         String result = HTTPUtils.get(sUrl, gsuser, gspass);
         if (result != null) {
@@ -428,7 +428,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
 
         // method
         boolean append = false;
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+        String sUrl = HTTPUtils.append(gsBaseUrl, "/rest/workspaces/", workspace, "/coveragestores/",
                 coverageStore, "/coverages/", coverage, "/index/granules.xml").toString();
         if (filter != null && !filter.isEmpty()) {
             append = true;
@@ -488,7 +488,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
         }
 
         // method
-        String sUrl = HTTPUtils.append(restURL, "/rest/workspaces/", workspace, "/coveragestores/",
+        String sUrl = HTTPUtils.append(gsBaseUrl, "/rest/workspaces/", workspace, "/coveragestores/",
                 coverageStore, "/coverages/", coverage, "/index/granules/", id, ".xml").toString();
         String result = HTTPUtils.get(sUrl, gsuser, gspass);
         if (result != null) {

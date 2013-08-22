@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2013 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,7 +26,10 @@
 package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import static it.geosolutions.geoserver.rest.GeoserverRESTTest.publisher;
+import static it.geosolutions.geoserver.rest.GeoserverRESTTest.reader;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 
@@ -39,6 +42,7 @@ import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -64,18 +68,22 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 
 		assertEquals(0, reader.getStyles().size());
 
-		final String styleName = "restteststyle";
+		final String STYLENAME = "restteststyle";
 		File sldFile = new ClassPathResource("testdata/restteststyle.sld")
 				.getFile();
 
 		// insert style
 		assertTrue(publisher.publishStyle(sldFile));
-		assertTrue(reader.existsStyle(styleName));
+		assertTrue(reader.existsStyle(STYLENAME));
 
 		assertFalse(publisher.publishStyle(sldFile));
-		assertTrue(reader.existsStyle(styleName));
+		assertTrue(reader.existsStyle(STYLENAME));
 
-		String sld = reader.getSLD(styleName);
+        RESTStyle style = reader.getStyle(STYLENAME);
+        assertEquals(STYLENAME, style.getName());
+        assertNull(style.getWorkspace());
+
+		String sld = reader.getSLD(STYLENAME);
 		assertNotNull(sld);
 
 		Element styleEl = JDOMBuilder.buildElement(sld);
@@ -86,7 +94,7 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 
 		try {
 
-			assertEquals(styleName, styleEl.getChild("NamedLayer", SLDNS)
+			assertEquals(STYLENAME, styleEl.getChild("NamedLayer", SLDNS)
 					.getChild("Name", SLDNS).getText());
 			assertEquals(
 					"STYLE FOR TESTING PURPOSES",
@@ -259,4 +267,88 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 				true);
 		assertTrue("removeDatastore() failed", dsRemoved);
 	}
+
+	@Test
+	public void testStylesInWorkspace() throws IOException {
+		if (!enabled())
+			return;
+		deleteAll();
+
+        final String WORKSPACE = "testWorkspace";
+		final String STYLENAME = "restteststyle";
+		File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
+
+        publisher.createWorkspace(WORKSPACE);
+
+		assertEquals(0, reader.getStyles().size());
+		assertEquals(0, reader.getStyles(WORKSPACE).size());
+
+
+		// insert style
+		assertTrue(publisher.publishStyleInWorkspace(WORKSPACE, sldFile));
+		assertTrue(reader.existsStyle(WORKSPACE, STYLENAME));
+		assertFalse(reader.existsStyle(STYLENAME));
+
+        // insert style again
+		assertFalse(publisher.publishStyleInWorkspace(WORKSPACE, sldFile));
+		assertTrue(reader.existsStyle(WORKSPACE, STYLENAME));
+		assertFalse(reader.existsStyle(STYLENAME));
+
+		String sld = reader.getSLD(WORKSPACE, STYLENAME);
+		assertNotNull(sld);
+
+        RESTStyle style = reader.getStyle(WORKSPACE, STYLENAME);
+        assertEquals(STYLENAME, style.getName());
+        assertEquals(WORKSPACE, style.getWorkspace());
+
+		Element styleEl = JDOMBuilder.buildElement(sld);
+		assertNotNull(styleEl);
+
+		Namespace SLDNS = Namespace.getNamespace("sld",
+				"http://www.opengis.net/sld");
+
+		try {
+
+			assertEquals(STYLENAME, styleEl.getChild("NamedLayer", SLDNS)
+					.getChild("Name", SLDNS).getText());
+			assertEquals(
+					"STYLE FOR TESTING PURPOSES",
+					styleEl.getChild("NamedLayer", SLDNS)
+							.getChild("UserStyle", SLDNS)
+							.getChild("Title", SLDNS).getText());
+		} catch (NullPointerException npe) {
+			fail("Error in SLD");
+		}
+
+		// assertEquals(1475, sld.length());
+
+		assertEquals(0, reader.getStyles().size());
+		assertEquals(1, reader.getStyles(WORKSPACE).size());
+	}
+
+	@Test
+	public void testRemoveStylesInWorkspace() throws IOException {
+		if (!enabled())
+			return;
+		deleteAll();
+
+        final String WORKSPACE = "testWorkspace";
+		final String STYLENAME = "restteststyle";
+		final File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
+
+        publisher.createWorkspace(WORKSPACE);
+
+		assertEquals(0, reader.getStyles(WORKSPACE).size());
+
+		// insert style
+		assertTrue(publisher.publishStyleInWorkspace(WORKSPACE, sldFile));
+		assertEquals(1, reader.getStyles(WORKSPACE).size());
+        assertTrue(reader.existsStyle(WORKSPACE, STYLENAME));
+
+        // remove style
+        assertTrue(publisher.removeStyleInWorkspace(WORKSPACE, STYLENAME, true));
+		assertEquals(0, reader.getStyles(WORKSPACE).size());
+        assertFalse(reader.existsStyle(WORKSPACE, STYLENAME));
+    }
+
 }

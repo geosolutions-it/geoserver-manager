@@ -81,7 +81,7 @@ public class HTTPUtils {
      *         (OK).
      * @throws MalformedURLException
      */
-    public static String get(String url, String username, String pw) throws MalformedURLException {
+    public static String get(String url, String username, String pw) {
 
         GetMethod httpMethod = null;
         HttpClient client = new HttpClient();

@@ -35,6 +35,7 @@ import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import java.util.List;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 
 /**

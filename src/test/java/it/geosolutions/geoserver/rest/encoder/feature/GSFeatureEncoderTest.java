@@ -20,6 +20,7 @@
 package it.geosolutions.geoserver.rest.encoder.feature;
 
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
@@ -32,7 +33,6 @@ import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTGeometryEn
 import it.geosolutions.geoserver.rest.encoder.metadata.virtualtable.VTParameterEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
-import it.geosolutions.geoserver.rest.publisher.GeoserverRESTPublisherTest;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,8 +40,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.jdom.Element;
-import org.junit.Assert;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -57,7 +57,7 @@ import org.springframework.core.io.ClassPathResource;
  * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com |
  *         emmanuel.blondel@fao.org
  */
-public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
+public class GSFeatureEncoderTest extends GeoserverRESTTest {
     protected final static Logger LOGGER = LoggerFactory.getLogger(GSFeatureEncoderTest.class);
 
     @Test
@@ -157,33 +157,33 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         encoder.setMetadataDimension("elevation", dim2);
         dim2.setPresentation(Presentation.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
         Element el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
-        Assert.assertNotNull(el);
+        assertNotNull(el);
         
         LOGGER.info("contains_key:" + el.toString());
 
         dim2.setPresentation(Presentation.DISCRETE_INTERVAL, BigDecimal.valueOf(12));
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.RESOLUTION);
-        Assert.assertNotNull(el);
-        Assert.assertEquals("12", el.getText());
+        assertNotNull(el);
+        assertEquals("12", el.getText());
 
         dim2.setPresentation(Presentation.CONTINUOUS_INTERVAL);
         
         encoder.setMetadataDimension("time", new GSFeatureDimensionInfoEncoder("time"));
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
-        Assert.assertNotNull(el);
+        assertNotNull(el);
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.RESOLUTION);
-        Assert.assertNull(el);
+        assertNull(el);
 
         el = ElementUtils.contains(encoder.getRoot(), GSResourceEncoder.METADATA);
-        Assert.assertNotNull(el);
+        assertNotNull(el);
         LOGGER.info("contains_key:" + el.toString());
 
         final boolean removed = ElementUtils.remove(encoder.getRoot(), el);
         LOGGER.info("remove:" + removed);
-        Assert.assertTrue(removed);
+        assertTrue(removed);
 
         el = ElementUtils.contains(encoder.getRoot(), "metadata");
-        Assert.assertNull(el);
+        assertNull(el);
         if (el == null)
             LOGGER.info("REMOVED");
         
@@ -201,15 +201,15 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         encoder.addKeyword("...");
         encoder.addKeyword("KEYWORD_N");
 
-        Assert.assertTrue(encoder.delKeyword("KEYWORD_2"));
-        Assert.assertFalse(encoder.delKeyword("KEYWORD_M"));
+        assertTrue(encoder.delKeyword("KEYWORD_2"));
+        assertFalse(encoder.delKeyword("KEYWORD_M"));
 
         //metadataLinkInfo
         encoder.addMetadataLinkInfo("text/xml", "ISO19115:2003","http://www.organization.org/metadata1");
         encoder.addMetadataLinkInfo("text/html", "ISO19115:2003","http://www.organization.org/metadata2");
         
-        Assert.assertTrue(encoder.delMetadataLinkInfo("http://www.organization.org/metadata2"));
-        Assert.assertFalse(encoder.delMetadataLinkInfo("http://www.organization.org/metadata3"));
+        assertTrue(encoder.delMetadataLinkInfo("http://www.organization.org/metadata2"));
+        assertFalse(encoder.delMetadataLinkInfo("http://www.organization.org/metadata3"));
         
         //dimensions
         final GSFeatureDimensionInfoEncoder elevationDimension = new GSFeatureDimensionInfoEncoder(
@@ -227,14 +227,14 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         if (LOGGER.isInfoEnabled())
             LOGGER.info(encoder.toString());
 
-        Assert.assertTrue(encoder.delMetadata(metadata));
+        assertTrue(encoder.delMetadata(metadata));
 
         if (LOGGER.isInfoEnabled())
             LOGGER.info(encoder.toString());
 
         final Element el = ElementUtils.contains(encoder.getRoot(),
                 GSDimensionInfoEncoder.DIMENSIONINFO);
-        Assert.assertNull(el);
+        assertNull(el);
         if (el == null)
             LOGGER.info("REMOVED");
 
@@ -315,8 +315,8 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
         //------------
         publisher.createWorkspace(DEFAULT_WS);
         boolean published = publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder);
-        assertTrue("Successfull publication", published);
-        assertTrue(existsLayer(layerName));
+        assertTrue("Publication unsuccessful", published);
+        assertTrue("Layer does not exist", existsLayer(layerName));
 
     }
 }

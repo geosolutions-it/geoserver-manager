@@ -37,8 +37,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestName;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +61,11 @@ import org.slf4j.LoggerFactory;
  * @author etj
  * @author carlo cancellieri - GeoSolutions
  */
-public abstract class GeoserverRESTTest extends Assert {
+public abstract class GeoserverRESTTest {
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTTest.class);
+
+    @Rule
+    public TestName _testName = new TestName();
 
     public static final String DEFAULT_WS = "geosolutions";
 
@@ -102,9 +109,9 @@ public abstract class GeoserverRESTTest extends Assert {
 
     private static String getenv(String envName, String envDefault) {
         String env = System.getenv(envName);
-        String ret = System.getProperty(envName, env);
-        LOGGER.debug("env var " + envName + " is " + ret);
-        return ret != null ? ret : envDefault;
+        String prop = System.getProperty(envName, env);
+        LOGGER.debug("varname " + envName + " --> env:" + env + " prop:"+prop);
+        return prop != null ? prop : envDefault;
     }
 
     @BeforeClass
@@ -128,7 +135,17 @@ public abstract class GeoserverRESTTest extends Assert {
             }
         } else {
             System.out.println("Skipping tests ");
+            LOGGER.warn("Tests are disabled. Please read the documentation to enable them.");
         }
+    }
+
+    @Before
+    public void before(){
+        String testName = _testName.getMethodName();
+        LOGGER.warn("");
+        LOGGER.warn("============================================================");
+        LOGGER.warn("=== RUNNING TEST " + testName);
+        LOGGER.warn("");
     }
 
     protected boolean enabled() {

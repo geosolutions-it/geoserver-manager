@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2013 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -41,9 +41,11 @@ import it.geosolutions.geoserver.rest.decoder.RESTNamespaceList;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageIndexSchema;
+import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
 import it.geosolutions.geoserver.rest.decoder.RESTWorkspaceList;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStyleManager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -68,24 +70,12 @@ import org.slf4j.LoggerFactory;
 public class GeoServerRESTReader {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoServerRESTReader.class);
+
     private final String baseurl;
     private String username;
     private String password;
 
-    /**
-     * Creates a <TT>GeoServerRESTReader</TT> for a given GeoServer instance and
-     * no auth credentials.
-     * <P><B><I>Note that GeoServer 2.0 REST interface requires username/password credentials by
-     * default, if not otherwise configured. </I></B>.
-     *
-     * @param restUrl the base GeoServer URL(e.g.: <TT>http://localhost:8080/geoserver</TT>)
-     */
-    public GeoServerRESTReader(URL restUrl) {
-        String extForm = restUrl.toExternalForm();
-        this.baseurl = extForm.endsWith("/") ?
-                        extForm.substring(0, extForm.length()-1) :
-                        extForm;
-    }
+    private GeoServerRESTStyleManager styleManager;
 
     /**
      * Creates a <TT>GeoServerRESTReader</TT> for a given GeoServer instance and
@@ -93,65 +83,75 @@ public class GeoServerRESTReader {
      * <P><B><I>Note that GeoServer 2.0 REST interface requires username/password credentials by
      * default, if not otherwise configured. </I></B>.
      *
-     * @param restUrl the base GeoServer URL (e.g.: <TT>http://localhost:8080/geoserver</TT>)
+     * @param gsUrl the base GeoServer URL(e.g.: <TT>http://localhost:8080/geoserver</TT>)
      */
-    public GeoServerRESTReader(String restUrl)
-            throws MalformedURLException {
-        new URL(restUrl); // check URL correctness
-        this.baseurl = restUrl.endsWith("/") ?
-                        restUrl.substring(0, restUrl.length()-1) :
-                        restUrl;
+    public GeoServerRESTReader(URL gsUrl) {
+        baseurl = init(gsUrl, null, null);
+    }
+
+    /**
+     * Creates a <TT>GeoServerRESTReader</TT> for a given GeoServer instance and
+     * no auth credentials.
+     * <P><B><I>Note that GeoServer 2.0 REST interface requires username/password credentials by
+     * default, if not otherwise configured. </I></B>.
+     *
+     * @param gsUrl the base GeoServer URL (e.g.: <TT>http://localhost:8080/geoserver</TT>)
+     */
+    public GeoServerRESTReader(String gsUrl) throws MalformedURLException {
+        baseurl = init(gsUrl, null, null);
     }
 
     /**
      * Creates a <TT>GeoServerRESTReader</TT> for a given GeoServer instance
      * with the given auth credentials.
      *
-     * @param restUrl the base GeoServer URL (e.g.: <TT>http://localhost:8080/geoserver</TT>)
+     * @param gsUrl the base GeoServer URL (e.g.: <TT>http://localhost:8080/geoserver</TT>)
      * @param username username auth credential
      * @param password password auth credential
      */
-    public GeoServerRESTReader(String restUrl, String username, String password) throws MalformedURLException {
-        this(restUrl);
-        this.username = username;
-        this.password = password;
+    public GeoServerRESTReader(String gsUrl, String username, String password) throws MalformedURLException {
+        baseurl = init(gsUrl, username, password);
     }
 
     /**
      * Creates a <TT>GeoServerRESTReader</TT> for a given GeoServer instance
      * with the given auth credentials.
      *
-     * @param restUrl the base GeoServer URL (e.g.: <TT>http://localhost:8080/geoserver</TT>)
+     * @param gsUrl the base GeoServer URL (e.g.: <TT>http://localhost:8080/geoserver</TT>)
      * @param username username auth credential
      * @param password password auth credential
      */
-    public GeoServerRESTReader(URL restUrl, String username, String password) {
-        this(restUrl);
+    public GeoServerRESTReader(URL gsUrl, String username, String password) {
+        baseurl = init(gsUrl, username, password);
+    }
+
+    private String init(String gsUrl, String username, String password) throws MalformedURLException {
+        return init(new URL(gsUrl), username, password);
+    }
+
+    private String init(URL gsUrl, String username, String password) {
+        String restUrl = gsUrl.toExternalForm();
+        String cleanUrl = restUrl.endsWith("/") ?
+                            restUrl.substring(0, restUrl.length()-1) :
+                            restUrl;
         this.username = username;
         this.password = password;
+
+        styleManager = new GeoServerRESTStyleManager(gsUrl, username, password);
+
+        return cleanUrl;
     }
 
     private String load(String url) {
         LOGGER.info("Loading from REST path " + url);
-        try {
-            String response = HTTPUtils.get(baseurl + url, username, password);
-            return response;
-        } catch (MalformedURLException ex) {
-            LOGGER.warn("Bad URL", ex);
-        } 
-
-        return null;
+        String response = HTTPUtils.get(baseurl + url, username, password);
+        return response;
     }
 
     private String loadFullURL(String url) {
         LOGGER.info("Loading from REST path " + url);
-        try {
-            String response = HTTPUtils.get(url, username, password);
-            return response;
-        } catch (MalformedURLException ex) {
-            LOGGER.warn("Bad URL", ex);
-        }
-        return null;
+        String response = HTTPUtils.get(url, username, password);
+        return response;
     }
 
     /**
@@ -181,8 +181,31 @@ public class GeoServerRESTReader {
      * @throws RuntimeException if any other HTTP code than 200 or 404 was retrieved.
      */
     public boolean existsStyle(String styleName) throws RuntimeException {
-        String url = baseurl + "/rest/styles/" + styleName + ".xml";
-        return HTTPUtils.exists(url, username, password);
+        return styleManager.existsStyle(styleName);
+    }
+
+    /**
+     * @see GeoServerRESTStyleManager#existsStyle(java.lang.String, java.lang.String) 
+     * @since GeoServer 2.2
+     */
+    public boolean existsStyle(String workspace, String styleName) throws RuntimeException {
+        return styleManager.existsStyle(workspace, styleName);
+    }
+
+    /**
+     * @see GeoServerRESTStyleManager#getStyle(java.lang.String)
+     * @since GeoServer 2.2
+     */
+    public RESTStyle getStyle(String name) {
+        return styleManager.getStyle(name);
+    }
+
+    /**
+     * @see GeoServerRESTStyleManager#getStyle(java.lang.String, java.lang.String)
+     * @since GeoServer 2.2
+     */
+    public RESTStyle getStyle(String workspace, String name) {
+        return styleManager.getStyle(workspace, name);
     }
 
     /**
@@ -191,22 +214,30 @@ public class GeoServerRESTReader {
      * @return summary info about Styles as a {@link RESTStyleList}
      */
     public RESTStyleList getStyles() {
-        String url = "/rest/styles.xml";
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("### Retrieving Styles list from " + url);
-        }
-        return RESTStyleList.build(load(url));
+        return styleManager.getStyles();
+    }
+
+    /**
+     * @see GeoServerRESTStyleManager#getStyles(java.lang.String)
+     * @since GeoServer 2.2
+     */
+    public RESTStyleList getStyles(String workspace) {
+        return styleManager.getStyles(workspace);
     }
 
     /**
      * Get the SLD body of a Style.
      */
     public String getSLD(String styleName) {
-        String url = "/rest/styles/"+styleName+".sld";
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("### Retrieving SLD body from " + url);
-        }
-        return load(url);
+        return styleManager.getSLD(styleName);
+    }
+
+    /**
+     * @see GeoServerRESTStyleManager#getSLD(java.lang.String, java.lang.String) 
+     * @since GeoServer 2.2
+     */
+    public String getSLD(String workspace, String styleName) {
+        return styleManager.getSLD(workspace, styleName);
     }
 
     //==========================================================================

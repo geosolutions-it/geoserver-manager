@@ -38,7 +38,7 @@ import java.net.URL;
  */
 public abstract class GeoServerRESTAbstractManager {
 
-    protected final URL restURL;
+    protected final URL gsBaseUrl;
     protected final String gsuser;
     protected final String gspass;
 
@@ -50,17 +50,21 @@ public abstract class GeoServerRESTAbstractManager {
      * @param restURL GeoServer REST API endpoint
      * @param username GeoServer REST API authorized username
      * @param password GeoServer REST API password for the former username
-     * @throws MalformedURLException if restURL is malformed
      */
     public GeoServerRESTAbstractManager(URL restURL, String username, String password)
-        throws IllegalArgumentException, MalformedURLException {
-        if (restURL == null || username == null || password == null)
-            throw new IllegalArgumentException("Unable to create the manager using a null argument");
+        throws IllegalArgumentException {
+        try {
+            if (restURL == null || username == null || password == null)
+                throw new IllegalArgumentException("Unable to create the manager using a null argument");
 
-        this.restURL = new URL(restURL.getProtocol(), restURL.getHost(), restURL.getPort(),
-                               HTTPUtils.decurtSlash(restURL.getPath()), null);
-        
-        this.gsuser = username;
-        this.gspass = password;
+            this.gsBaseUrl = new URL(restURL.getProtocol(), restURL.getHost(), restURL.getPort(),
+                                   HTTPUtils.decurtSlash(restURL.getPath()), null);
+
+            this.gsuser = username;
+            this.gspass = password;
+
+        } catch (MalformedURLException ex) {
+            throw new IllegalArgumentException("URL can't be parsed properly", ex);
+        }
     }
 }

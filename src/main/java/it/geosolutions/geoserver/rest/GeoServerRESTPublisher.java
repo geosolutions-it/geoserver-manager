@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2013 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,10 +25,8 @@
 package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
-import it.geosolutions.geoserver.rest.decoder.RESTCoverageList;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
-import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import it.geosolutions.geoserver.rest.encoder.GSBackupEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerGroupEncoder;
@@ -41,6 +39,7 @@ import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager.ConfigureCoveragesOption;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTStyleManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -50,7 +49,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Iterator;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.httpclient.NameValuePair;
@@ -88,6 +86,8 @@ public class GeoServerRESTPublisher {
      */
     private final String gspass;
 
+
+    private final GeoServerRESTStyleManager styleManager;
     /**
      * Creates a <TT>GeoServerRESTPublisher</TT> to connect against a GeoServer instance with the given URL and user credentials.
      * 
@@ -99,6 +99,14 @@ public class GeoServerRESTPublisher {
         this.restURL = HTTPUtils.decurtSlash(restURL);
         this.gsuser = username;
         this.gspass = password;
+
+        URL url = null;
+        try {
+            url = new URL(restURL);
+        } catch (MalformedURLException ex) {
+            LOGGER.error("Bad URL: Calls to GeoServer are going to fail" , ex);
+        }
+        styleManager = new GeoServerRESTStyleManager(url, username, password);
     }
 
     // ==========================================================================
@@ -306,20 +314,7 @@ public class GeoServerRESTPublisher {
      * @return <TT>true</TT> if the operation completed successfully.
      */
     public boolean publishStyle(String sldBody) {
-        /*
-         * This is the equivalent call with cUrl:
-         * 
-         * {@code curl -u admin:geoserver -XPOST \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
-         * http://$GSIP:$GSPORT/$SERVLET/rest/styles}
-         */
-        try {
-            return publishStyle(sldBody, null);
-        } catch (IllegalArgumentException e) {
-            if (LOGGER.isErrorEnabled()) {
-                LOGGER.error(e.getLocalizedMessage(), e);
-            }
-        }
-        return false;
+        return styleManager.publishStyle(sldBody);
     }
 
     /**
@@ -333,23 +328,7 @@ public class GeoServerRESTPublisher {
      */
     public boolean publishStyle(final String sldBody, final String name)
             throws IllegalArgumentException {
-        /*
-         * This is the equivalent call with cUrl:
-         * 
-         * {@code curl -u admin:geoserver -XPOST \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
-         * http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=name}
-         */
-        if (sldBody == null || sldBody.isEmpty()) {
-            throw new IllegalArgumentException("The style body may not be null or empty");
-        }
-        StringBuilder sUrl = new StringBuilder(restURL);
-        sUrl.append("/rest/styles");
-        if (name != null && !name.isEmpty()) {
-            sUrl.append("?name=").append(name);
-        }
-        final String result = HTTPUtils.post(sUrl.toString(), sldBody,
-                "application/vnd.ogc.sld+xml", gsuser, gspass);
-        return result != null;
+        return styleManager.publishStyle(sldBody, name);
     }
 
     /**
@@ -360,7 +339,7 @@ public class GeoServerRESTPublisher {
      * @return <TT>true</TT> if the operation completed successfully.
      */
     public boolean publishStyle(File sldFile) {
-        return publishStyle(sldFile, null);
+        return styleManager.publishStyle(sldFile);
     }
 
     /**
@@ -372,13 +351,7 @@ public class GeoServerRESTPublisher {
      * @return <TT>true</TT> if the operation completed successfully.
      */
     public boolean publishStyle(File sldFile, String name) {
-        String sUrl = restURL + "/rest/styles";
-        if (name != null && !name.isEmpty()) {
-            sUrl += "?name=" + encode(name);
-        }
-        LOGGER.debug("POSTing new style " + name + " to " + sUrl);
-        String result = HTTPUtils.post(sUrl, sldFile, Format.SLD.getContentType(), gsuser, gspass);
-        return result != null;
+        return styleManager.publishStyle(sldFile, name);
     }
 
     /**
@@ -392,24 +365,7 @@ public class GeoServerRESTPublisher {
      */
     public boolean updateStyle(final String sldBody, final String name)
             throws IllegalArgumentException {
-        /*
-         * This is the equivalent call with cUrl:
-         * 
-         * {@code curl -u admin:geoserver -XPUT \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
-         * http://$GSIP:$GSPORT/$SERVLET/rest/styles/$NAME}
-         */
-        if (sldBody == null || sldBody.isEmpty()) {
-            throw new IllegalArgumentException("The style body may not be null or empty");
-        } else if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("The style name may not be null or empty");
-        }
-
-        final StringBuilder sUrl = new StringBuilder(restURL);
-        sUrl.append("/rest/styles/").append(encode(name));
-
-        final String result = HTTPUtils.put(sUrl.toString(), sldBody,
-                "application/vnd.ogc.sld+xml", gsuser, gspass);
-        return result != null;
+        return styleManager.updateStyle(sldBody, name);
     }
 
     /**
@@ -424,19 +380,7 @@ public class GeoServerRESTPublisher {
     public boolean updateStyle(final File sldFile, final String name)
             throws IllegalArgumentException {
 
-        if (sldFile == null) {
-            throw new IllegalArgumentException("Unable to updateStyle using a null parameter file");
-        } else if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("The style name may not be null or empty");
-        }
-
-        final StringBuilder sUrl = new StringBuilder(restURL);
-        sUrl.append("/rest/styles/").append(encode(name));
-
-        final String result = HTTPUtils.put(sUrl.toString(), sldFile,
-                "application/vnd.ogc.sld+xml", gsuser, gspass);
-        return result != null;
-
+        return styleManager.updateStyle(sldFile, name);
     }
 
     /**
@@ -452,24 +396,8 @@ public class GeoServerRESTPublisher {
      */
     public boolean removeStyle(String styleName, final boolean purge)
             throws IllegalArgumentException {
-        if (styleName == null || styleName.isEmpty())
-            throw new IllegalArgumentException(
-                    "Check styleName parameter, it may never be null or empty");
 
-        final StringBuffer sUrl = new StringBuffer(restURL);
-
-        // check style name
-        // TODO may we whant to throw an exception instead of
-        // change style name?
-        styleName = styleName.replaceAll(":", "_");
-        styleName = encode(styleName);
-
-        sUrl.append("/rest/styles/").append(styleName);
-        if (purge) {
-            sUrl.append("?purge=true");
-        }
-
-        return HTTPUtils.delete(sUrl.toString(), gsuser, gspass);
+        return styleManager.removeStyle(styleName, purge);
     }
 
     /**
@@ -482,15 +410,73 @@ public class GeoServerRESTPublisher {
      * @return <TT>true</TT> if the operation completed successfully.
      */
     public boolean removeStyle(String styleName) {
-        try {
-            return removeStyle(styleName, true);
-        } catch (IllegalArgumentException e) {
-            if (LOGGER.isErrorEnabled()) {
-                LOGGER.error(e.getLocalizedMessage(), e);
-            }
-        }
-        return false;
+        return styleManager.removeStyle(styleName);
     }
+
+    /**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#
+     */
+    public boolean publishStyleInWorkspace(String workspace, String sldBody) {
+        return styleManager.publishStyleInWorkspace(workspace, sldBody);
+    }
+
+    /**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#
+     */
+    public boolean publishStyleInWorkspace(String workspace, String sldBody, String name) throws IllegalArgumentException {
+        return styleManager.publishStyleInWorkspace(workspace, sldBody, name);
+    }
+
+    /**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#publishStyleInWorkspace(java.lang.String, java.io.File)
+     */
+    public boolean publishStyleInWorkspace(String workspace, File sldFile) {
+        return styleManager.publishStyleInWorkspace(workspace, sldFile);
+    }
+
+    /**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#publishStyleInWorkspace(java.lang.String, java.io.File, java.lang.String)
+     */
+    public boolean publishStyleInWorkspace(String workspace, File sldFile, String name) {
+        return styleManager.publishStyleInWorkspace(workspace, sldFile, name);
+    }
+
+    /**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#updateStyleInWorkspace(java.lang.String, java.lang.String, java.lang.String)
+     */
+    public boolean updateStyleInWorkspace(String workspace, String sldBody, String name) throws IllegalArgumentException {
+        return styleManager.updateStyleInWorkspace(workspace, sldBody, name);
+    }
+
+    /**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#updateStyleInWorkspace(java.lang.String, java.io.File, java.lang.String)
+     */
+    public boolean updateStyleInWorkspace(String workspace, File sldFile, String name) throws IllegalArgumentException {
+        return styleManager.updateStyleInWorkspace(workspace, sldFile, name);
+    }
+
+    /**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#removeStyleInWorkspace(java.lang.String, java.lang.String, boolean)
+     */
+    public boolean removeStyleInWorkspace(String workspace, String styleName, boolean purge) throws IllegalArgumentException {
+        return styleManager.removeStyleInWorkspace(workspace, styleName, purge);
+    }
+
+    /**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#removeStyleInWorkspace(java.lang.String, java.lang.String)
+     */
+    public boolean removeStyleInWorkspace(String workspace, String styleName) {
+        return styleManager.removeStyleInWorkspace(workspace, styleName);
+    }
+
 
     // ==========================================================================
     // === DATASTORE PUBLISHING
@@ -524,6 +510,7 @@ public class GeoServerRESTPublisher {
         /**
          * @deprecated use {@link StoreType#toString()}
          */
+        @Override
         public String toString() {
             return this.name().toLowerCase();
         }
@@ -958,7 +945,7 @@ public class GeoServerRESTPublisher {
 
             if (layerEncoder == null) {
                 if (LOGGER.isErrorEnabled())
-                    LOGGER.error("GSLayerEncoder is null: Unable to find the defauldStyle for this layer");
+                    LOGGER.error("GSLayerEncoder is null: Unable to find the defaultStyle for this layer");
                 return false;
             }
 

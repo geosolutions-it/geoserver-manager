@@ -36,6 +36,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Test datastore handling (create, read and update):

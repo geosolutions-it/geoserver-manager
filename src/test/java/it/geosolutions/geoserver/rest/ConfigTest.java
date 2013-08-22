@@ -36,16 +36,13 @@ import java.io.IOException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 /**
  * Testcase for publishing layers on geoserver.
- * We need a running GeoServer to properly run the tests. 
- * Login credentials are hardcoded at the moment (localhost:8080 admin/geoserver).
- * If such geoserver instance cannot be contacted, tests will be skipped.
- *
  *
  * @author etj
  */
@@ -53,25 +50,6 @@ public class ConfigTest extends GeoserverRESTTest {
     private final static Logger LOGGER = LoggerFactory.getLogger(ConfigTest.class);
 
     private static final String DEFAULT_WS = "geosolutions";
-
-//    @Test
-//    public void testEtj() throws FileNotFoundException, IOException {
-//    	if(!enabled()){
-//    		LOGGER.info("Skipping test "+"testEtj"+"for class:"+this.getClass().getSimpleName());
-//    		return;
-//    	}
-//        deleteAll();
-//
-//        assertTrue(reader.getWorkspaces().isEmpty());
-//        assertTrue(publisher.createWorkspace(DEFAULT_WS));
-//
-//        insertStyles();
-//        insertExternalGeotiff();
-//        insertExternalShape();
-//
-//        boolean ok = publisher.publishDBLayer(DEFAULT_WS, "pg_kids", "easia_gaul_0_aggr", "EPSG:4326", "default_polygon");
-////        assertTrue(ok);
-//    }
 
     @Test
     public void insertStyles() throws FileNotFoundException, IOException {

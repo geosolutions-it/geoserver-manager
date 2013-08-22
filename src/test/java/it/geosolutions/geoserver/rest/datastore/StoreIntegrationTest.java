@@ -35,6 +35,8 @@ import it.geosolutions.geoserver.rest.manager.GeoServerRESTStoreManager;
 import java.net.MalformedURLException;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

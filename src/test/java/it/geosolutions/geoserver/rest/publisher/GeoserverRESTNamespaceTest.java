@@ -30,6 +30,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTNamespace;
 import java.net.URI;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Testcase for namespace management.
