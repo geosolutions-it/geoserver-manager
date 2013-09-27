@@ -36,7 +36,6 @@ import org.springframework.core.io.ClassPathResource;
 
 /**
  * @author DamianoG
- * @author eblondel
  *
  */
 public class MetadataDecoderTest {
@@ -69,23 +68,4 @@ public class MetadataDecoderTest {
         } 
     }
     
-    @Test
-    public void testMetadataLinkInfo() throws IOException{
-    	File coverageFile = new ClassPathResource("testdata/coverageExample.xml").getFile();
-        String coverageString = FileUtils.readFileToString(coverageFile);
-        RESTCoverage coverage = RESTCoverage.build(coverageString);
-            
-        List<GSMetadataLinkInfoEncoder> list = coverage.getEncodedMetadataLinkInfoList();
-            
-        GSMetadataLinkInfoEncoder metadataLinkInfo1 = list.get(0);
-        Assert.assertEquals("text/xml", metadataLinkInfo1.getType());
-        Assert.assertEquals("ISO19115:2003", metadataLinkInfo1.getMetadataType());
-        Assert.assertEquals("http://www.organization.org/metadata1", metadataLinkInfo1.getContent());
-    
-        GSMetadataLinkInfoEncoder metadataLinkInfo2 = list.get(1);
-        Assert.assertEquals("text/html",metadataLinkInfo2.getType());
-        Assert.assertEquals("ISO19115:2003",metadataLinkInfo2.getMetadataType());
-        Assert.assertEquals("http://www.organization.org/metadata2",metadataLinkInfo2.getContent());
-            
-   } 
 }
