@@ -74,6 +74,23 @@ public class RESTResource {
         return rootElem.getChildText("abstract");
     }
 
+    public List<String> getKeywords(){
+    	List<String> kwdsList = null;
+    	
+    	final Element keywordsRoot = rootElem.getChild("keywords");
+    	if(keywordsRoot != null){
+    		final List<Element> keywords = keywordsRoot.getChildren();
+    		if(keywords != null){
+    			kwdsList = new ArrayList<String>(keywords.size());
+    			for(Element keyword : keywords){
+    				kwdsList.add(keyword.getValue());
+    			}
+    		}
+    	}
+    	return kwdsList;
+    }
+    
+    
     public String getNameSpace() {
         return rootElem.getChild("namespace").getChildText("name");
     }
