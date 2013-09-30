@@ -136,47 +136,22 @@ public class RESTResource {
         return getLatLonEdge("maxy");
     }
 
+    /**
+     * @deprecated use {@link RESTFeatureType#getAttributeList()}
+     * @return
+     * @throws UnsupportedOperationException
+     */
     public List<Map<FeatureTypeAttribute, String>> getAttributeList() {
-        List<Map<FeatureTypeAttribute, String>> attrsList = null;
-
-        final Element attrsRoot = rootElem.getChild("attributes");
-        if(attrsRoot!=null){
-            final List<Element> attrs = attrsRoot.getChildren();
-            if (attrs != null) {
-                attrsList = new ArrayList<Map<FeatureTypeAttribute, String>>(attrs.size());
-                for (Element attr : attrs) {
-                    Map<FeatureTypeAttribute, String> attrsMap = new HashMap<FeatureTypeAttribute, String>();
-                    attrsList.add(attrsMap);
-                    for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
-                        String key = at.toString();
-                        attrsMap.put(at, attr.getChildText(key));
-                    }
-                }
-            }
-        }
-        return attrsList;
+        throw new UnsupportedOperationException("This method is specific for RESTFeatureType");
     }
 
+    /**
+     * @deprecated use {@link RESTFeatureType#getEncodedAttributeList()}
+     * @return
+     * @throws UnsupportedOperationException
+     */
     public List<GSAttributeEncoder> getEncodedAttributeList() {
-        List<GSAttributeEncoder> attrsList = null;
-
-        final Element attrsRoot = rootElem.getChild("attributes");
-        if(attrsRoot!=null){
-            final List<Element> attrs = attrsRoot.getChildren();
-            if (attrs != null) {
-                attrsList = new ArrayList<GSAttributeEncoder>(attrs.size());
-                for (Element attr : attrs) {
-                    final GSAttributeEncoder attrEnc = new GSAttributeEncoder();
-                    for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
-                        String key = at.toString();
-                        attrEnc.setAttribute(at, attr.getChildText(key));
-                    }
-                    attrsList.add(attrEnc);
-                }
-    
-            }
-        }
-        return attrsList;
+        throw new UnsupportedOperationException("This method is specific for RESTFeatureType");
     }
 
 	/**
@@ -208,43 +183,4 @@ public class RESTResource {
 		return metaLinksList;
 	}
     
-    // /**
-    // * @return the list of available attribute names
-    // */
-    // public List<String> getAttributeNames() {
-    // return getAttributes("name");
-    // }
-    //
-    // /**
-    // * @return a list of object which are String representation of Classes
-    // */
-    // public List<String> getAttributeBinding() {
-    // return getAttributes("binding");
-    // }
-
-    // /**
-    // * <attribute><br>
-    // * <name>NATION</name><br>
-    // * <minOccurs>0</minOccurs><br>
-    // * <maxOccurs>1</maxOccurs><br>
-    // * <nillable>true</nillable><br>
-    // * <binding>java.lang.Integer</binding><br>
-    // * <length>3</length><br>
-    // * </attribute><br>
-    // *
-    // * @param name
-    // * @return
-    // */
-    // private List<String> getAttributes(String name) {
-    // final Element attrsRoot = rootElem.getChild("attributes");
-    // final List<Element> attrs = attrsRoot.getChildren();
-    // List<String> attrNames = null;
-    // if (attrs != null) {
-    // attrNames = new ArrayList<String>(attrs.size());
-    // for (Element attr : attrs) {
-    // attrNames.add(attr.getChildText(name));
-    // }
-    // }
-    // return attrNames;
-    // }
 }
