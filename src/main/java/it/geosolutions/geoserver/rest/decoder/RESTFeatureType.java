@@ -27,8 +27,14 @@ package it.geosolutions.geoserver.rest.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMListIterator;
+import it.geosolutions.geoserver.rest.encoder.feature.FeatureTypeAttribute;
+import it.geosolutions.geoserver.rest.encoder.feature.GSAttributeEncoder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.jdom.Element;
 
@@ -244,5 +250,51 @@ public class RESTFeatureType extends RESTResource {
                 return ret;
             }
         };
+    }
+    
+    /**
+     * @return
+     */
+    public List<Map<FeatureTypeAttribute, String>> getAttributeList() {
+        List<Map<FeatureTypeAttribute, String>> attrsList = null;
+
+        final Element attrsRoot = rootElem.getChild("attributes");
+        if(attrsRoot!=null){
+            final List<Element> attrs = attrsRoot.getChildren();
+            if (attrs != null) {
+                attrsList = new ArrayList<Map<FeatureTypeAttribute, String>>(attrs.size());
+                for (Element attr : attrs) {
+                    Map<FeatureTypeAttribute, String> attrsMap = new HashMap<FeatureTypeAttribute, String>();
+                    attrsList.add(attrsMap);
+                    for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
+                        String key = at.toString();
+                        attrsMap.put(at, attr.getChildText(key));
+                    }
+                }
+            }
+        }
+        return attrsList;
+    }
+
+    public List<GSAttributeEncoder> getEncodedAttributeList() {
+        List<GSAttributeEncoder> attrsList = null;
+
+        final Element attrsRoot = rootElem.getChild("attributes");
+        if(attrsRoot!=null){
+            final List<Element> attrs = attrsRoot.getChildren();
+            if (attrs != null) {
+                attrsList = new ArrayList<GSAttributeEncoder>(attrs.size());
+                for (Element attr : attrs) {
+                    final GSAttributeEncoder attrEnc = new GSAttributeEncoder();
+                    for (FeatureTypeAttribute at : FeatureTypeAttribute.values()) {
+                        String key = at.toString();
+                        attrEnc.setAttribute(at, attr.getChildText(key));
+                    }
+                    attrsList.add(attrEnc);
+                }
+    
+            }
+        }
+        return attrsList;
     }
 }
