@@ -2,11 +2,17 @@
 <coverage>
   <name>granuleTestMosaic</name>
   <nativeName>granuleTestMosaic</nativeName>
+  <abstract>this is an abstract</abstract>
   <namespace>
     <name>topp</name>
     <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/namespaces/topp.xml" type="application/xml"/>
   </namespace>
   <title>granuleTestMosaic</title>
+  <keywords>
+  	<string>keyword1</string>
+  	<string>keyword2</string>
+  	<string>keyword3</string>
+  </keywords>
   <metadataLinks>
   	<metadataLink>
   		<type>text/xml</type>
