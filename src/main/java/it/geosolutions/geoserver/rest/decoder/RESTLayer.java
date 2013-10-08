@@ -114,6 +114,11 @@ public class RESTLayer {
 		return defaultStyle == null? null : defaultStyle.getChildText("name");
   	}
 
+	public String getDefaultStyleWorkspace() {
+		Element defaultStyle = layerElem.getChild("defaultStyle");
+		return defaultStyle == null? null : defaultStyle.getChildText("workspace");
+  	}
+
 	public String getTitle() {
 		Element resource = layerElem.getChild("resource");
 		return resource.getChildText("title");
