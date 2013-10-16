@@ -32,6 +32,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTCoverageStoreList;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
 import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
+import it.geosolutions.geoserver.rest.decoder.RESTFeatureTypeList;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroupList;
@@ -506,6 +507,19 @@ public class GeoServerRESTReader {
             LOGGER.debug("### Retrieving layers from " + url);
         }
         return RESTLayerList.build(load(url));
+    }
+	
+	/**
+     * Get summary info about all FeatureTypes of a workspace.
+     *
+     * @return summary info about Layers as a {@link RESTLayerList}
+     */
+    public RESTFeatureTypeList getFeatureTypes(String workspace) {
+        String url = "/rest/workspaces/" + workspace + "/featuretypes.xml";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving featuretypes from " + url);
+        }
+        return RESTFeatureTypeList.build(load(url));
     }
 
     /**
