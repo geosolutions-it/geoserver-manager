@@ -34,21 +34,19 @@ import org.jdom.Element;
  * Parses list of summary data about FeatureTypes.
  *
  *
- * Layer summary info.
+ * FeatureType summary info.
  * <BR>This is an XML fragment:
  * <PRE>
  *{@code
-<layer>
+<featureType>
     <name>states</name>
-    <atom:link
-        xmlns:atom="http://www.w3.org/2005/Atom"
-        rel="alternate"
-        href="http://localhost:8080/geoserver/rest/layers/states.xml"
-        type="application/xml"/>
-</layer>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" 
+	   href="http://localhost:8080/geoserver/rest/workspaces/topp/featuretypes/states.xml" 
+	   type="application/xml"/>
+</featureType>
  * }
  * </PRE>
-
+ *
  * @author wumpz
  */
 public class RESTFeatureTypeList extends RESTAbstractList<NameLinkElem> {
