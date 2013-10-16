@@ -1,0 +1,22 @@
+<featureTypes>
+  <featureType>
+    <name>states</name>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/workspaces/topp/featuretypes/states.xml" type="application/xml"/>
+  </featureType>
+  <featureType>
+    <name>tasmania_cities</name>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/workspaces/topp/featuretypes/tasmania_cities.xml" type="application/xml"/>
+  </featureType>
+  <featureType>
+    <name>tasmania_roads</name>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/workspaces/topp/featuretypes/tasmania_roads.xml" type="application/xml"/>
+  </featureType>
+  <featureType>
+    <name>tasmania_state_boundaries</name>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/workspaces/topp/featuretypes/tasmania_state_boundaries.xml" type="application/xml"/>
+  </featureType>
+  <featureType>
+    <name>tasmania_water_bodies</name>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/workspaces/topp/featuretypes/tasmania_water_bodies.xml" type="application/xml"/>
+  </featureType>
+</featureTypes>
