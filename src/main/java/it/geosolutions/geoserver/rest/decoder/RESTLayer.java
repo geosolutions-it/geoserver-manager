@@ -79,9 +79,10 @@ import org.jdom.Namespace;
 </layer>
  * }</PRE>
  * @author etj
+ * @author eblondel
  */
 public class RESTLayer {
-	private final Element layerElem;
+	protected final Element layerElem;
 
 	public enum Type {
 		VECTOR("VECTOR"),
