@@ -65,28 +65,28 @@ public class GSLayerEncoder21Test {
 			}else if(key.matches("authorityURLs")){
 				String content = el.getValue();
 				content = content.substring(2);
-				content = content.substring(0, content.length()-2);
+				content = content.substring(0, content.length()-3);
 				String[] props = content.split(",");
 				for(String prop : props){
-					String[] kvp = prop.split(":");
-					if(kvp[0].matches(AuthorityURLInfo.name.name())){
-						Assert.assertEquals("authority1", kvp[1]);
-					}else if(kvp[0].matches(AuthorityURLInfo.href.name())){
-						Assert.assertEquals("http://www.authority1.org", kvp[1]);
+					String[] kvp = prop.split("\":");
+					if(kvp[0].replace("\"", "").matches(AuthorityURLInfo.name.name())){
+						Assert.assertEquals("authority1", kvp[1].replace("\"", ""));
+					}else if(kvp[0].replaceAll("\"", "").matches(AuthorityURLInfo.href.name())){
+						Assert.assertEquals("http://www.authority1.org", kvp[1].replace("\"", ""));
 					}
 				}
 				
 			}else if(key.matches("identifiers")){
 				String content = el.getValue();
 				content = content.substring(2);
-				content = content.substring(0, content.length()-2);
+				content = content.substring(0, content.length()-3);
 				String[] props = content.split(",");
 				for(String prop : props){
-					String[] kvp = prop.split(":");
-					if(kvp[0].matches(IdentifierInfo.authority.name())){
-						Assert.assertEquals("authority1", kvp[1]);
-					}else if(kvp[0].matches(IdentifierInfo.identifier.name())){
-						Assert.assertEquals("identifier1", kvp[1]);
+					String[] kvp = prop.split("\":");
+					if(kvp[0].replace("\"", "").matches(IdentifierInfo.authority.name())){
+						Assert.assertEquals("authority1", kvp[1].replace("\"", ""));
+					}else if(kvp[0].replace("\"", "").matches(IdentifierInfo.identifier.name())){
+						Assert.assertEquals("identifier1", kvp[1].replace("\"", ""));
 					}
 				}
 			}
