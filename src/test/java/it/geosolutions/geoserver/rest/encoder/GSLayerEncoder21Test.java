@@ -19,6 +19,7 @@
  */
 package it.geosolutions.geoserver.rest.encoder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import it.geosolutions.geoserver.rest.encoder.authorityurl.AuthorityURLInfo;
@@ -49,6 +50,10 @@ public class GSLayerEncoder21Test {
 				"authority1", "http://www.authority1.org"));
 		layerEncoder.addIdentifier(new GSIdentifierInfoEncoder("authority1",
 				"identifier1"));
+		layerEncoder.addAuthorityURL(new GSAuthorityURLInfoEncoder(
+				"authority2", "http://www.authority2.org"));
+		layerEncoder.addIdentifier(new GSIdentifierInfoEncoder("authority2",
+				"identifier2"));
 	}
 
 	
@@ -63,32 +68,54 @@ public class GSLayerEncoder21Test {
 						Boolean.parseBoolean(el.getValue()));
 				
 			}else if(key.matches("authorityURLs")){
-				String content = el.getValue();
-				content = content.substring(2);
-				content = content.substring(0, content.length()-3);
-				String[] props = content.split(",");
-				for(String prop : props){
-					String[] kvp = prop.split("\":");
-					if(kvp[0].replace("\"", "").matches(AuthorityURLInfo.name.name())){
-						Assert.assertEquals("authority1", kvp[1].replace("\"", ""));
-					}else if(kvp[0].replaceAll("\"", "").matches(AuthorityURLInfo.href.name())){
-						Assert.assertEquals("http://www.authority1.org", kvp[1].replace("\"", ""));
-					}
-				}
+				String jsonStr = el.getValue();
+				jsonStr = jsonStr.substring(2);
+				jsonStr = jsonStr.substring(0,
+						jsonStr.length() - 3);
+
+				String[] items = jsonStr.split("\\}(,)\\{");
+
+				String[] props1 = items[0].split(",");
+				String[] kvp1_1 = props1[0].split("\":");
+				String[] kvp1_2 = props1[1].split("\":");
+				Assert.assertEquals(AuthorityURLInfo.name.name(), kvp1_1[0].replace("\"", ""));
+				Assert.assertEquals("authority1", kvp1_1[1].replace("\"", ""));
+				Assert.assertEquals(AuthorityURLInfo.href.name(), kvp1_2[0].replace("\"", ""));
+				Assert.assertEquals("http://www.authority1.org", kvp1_2[1].replace("\"", ""));
+				
+				String[] props2 = items[1].split(",");
+				String[] kvp2_1 = props2[0].split("\":");
+				String[] kvp2_2 = props2[1].split("\":");
+				Assert.assertEquals(AuthorityURLInfo.name.name(), kvp2_1[0].replace("\"", ""));
+				Assert.assertEquals("authority2", kvp2_1[1].replace("\"", ""));
+				Assert.assertEquals(AuthorityURLInfo.href.name(), kvp2_2[0].replace("\"", ""));
+				Assert.assertEquals("http://www.authority2.org", kvp2_2[1].replace("\"", ""));
+
 				
 			}else if(key.matches("identifiers")){
-				String content = el.getValue();
-				content = content.substring(2);
-				content = content.substring(0, content.length()-3);
-				String[] props = content.split(",");
-				for(String prop : props){
-					String[] kvp = prop.split("\":");
-					if(kvp[0].replace("\"", "").matches(IdentifierInfo.authority.name())){
-						Assert.assertEquals("authority1", kvp[1].replace("\"", ""));
-					}else if(kvp[0].replace("\"", "").matches(IdentifierInfo.identifier.name())){
-						Assert.assertEquals("identifier1", kvp[1].replace("\"", ""));
-					}
-				}
+				String jsonStr = el.getValue();
+				jsonStr = jsonStr.substring(2);
+				jsonStr = jsonStr.substring(0,
+						jsonStr.length() - 3);
+
+				String[] items = jsonStr.split("\\}(,)\\{");
+
+				String[] props1 = items[0].split(",");
+				String[] kvp1_1 = props1[0].split("\":");
+				String[] kvp1_2 = props1[1].split("\":");
+				Assert.assertEquals(IdentifierInfo.authority.name(), kvp1_1[0].replace("\"", ""));
+				Assert.assertEquals("authority2", kvp1_1[1].replace("\"", ""));
+				Assert.assertEquals(IdentifierInfo.identifier.name(), kvp1_2[0].replace("\"", ""));
+				Assert.assertEquals("identifier2", kvp1_2[1].replace("\"", ""));
+				
+				String[] props2 = items[1].split(",");
+				String[] kvp2_1 = props2[0].split("\":");
+				String[] kvp2_2 = props2[1].split("\":");
+				Assert.assertEquals(IdentifierInfo.authority.name(), kvp2_1[0].replace("\"", ""));
+				Assert.assertEquals("authority1", kvp2_1[1].replace("\"", ""));
+				Assert.assertEquals(IdentifierInfo.identifier.name(), kvp2_2[0].replace("\"", ""));
+				Assert.assertEquals("identifier1", kvp2_2[1].replace("\"", ""));
+
 			}
 		}
 	}
