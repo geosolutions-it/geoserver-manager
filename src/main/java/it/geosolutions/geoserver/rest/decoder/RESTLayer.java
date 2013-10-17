@@ -25,7 +25,16 @@
 
 package it.geosolutions.geoserver.rest.decoder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+import it.geosolutions.geoserver.rest.encoder.authorityurl.AuthorityURLInfo;
+import it.geosolutions.geoserver.rest.encoder.authorityurl.GSAuthorityURLInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.identifier.IdentifierInfo;
+import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadatalink.ResourceMetadataLinkInfo;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -97,6 +106,18 @@ public class RESTLayer {
 		this.layerElem = layerElem;
 	}
 
+	public boolean getEnabled(){
+		return Boolean.parseBoolean(layerElem.getChildText("enabled"));
+	}
+	
+	public boolean getQueryable(){
+		return Boolean.parseBoolean(layerElem.getChildText("queryable"));
+	}
+	
+	public boolean getAdvertised(){
+		return Boolean.parseBoolean(layerElem.getChildText("advertised"));
+	}
+	
 	public String getName() {
 		return layerElem.getChildText("name");
 	}
@@ -164,6 +185,62 @@ public class RESTLayer {
         Element atom = resource.getChild("link", Namespace.getNamespace("atom", "http://www.w3.org/2005/Atom"));
         return atom.getAttributeValue("href");
     }
+    
+    
+	/**
+	 * Decodes the list of AuthorityURLInfo from the GeoServer Layer
+	 * 
+	 * @return the list of GSAuthorityURLInfoEncoder
+	 */
+	public List<GSAuthorityURLInfoEncoder> getEncodedAuthorityURLInfoList() {
+		List<GSAuthorityURLInfoEncoder> authorityURLList = null;
+
+		final Element authorityURLsRoot = layerElem.getChild("authorityURLs");
+		if (authorityURLsRoot != null) {
+			final List<Element> authorityURLs = authorityURLsRoot.getChildren();
+			if (authorityURLs != null) {
+				authorityURLList = new ArrayList<GSAuthorityURLInfoEncoder>(
+						authorityURLs.size());
+				for (Element authorityURL : authorityURLs) {
+					final GSAuthorityURLInfoEncoder authEnc = new GSAuthorityURLInfoEncoder();
+					authEnc.setName(authorityURL
+							.getChildText(AuthorityURLInfo.name.name()));
+					authEnc.setHref(authorityURL
+							.getChildText(AuthorityURLInfo.href.name()));
+					authorityURLList.add(authEnc);
+				}
+			}
+		}
+		return authorityURLList;
+	}
+
+	/**
+	 * Decodes the list of IdentifierInfo from the GeoServer Layer
+	 * 
+	 * @return the list of IdentifierInfoEncoder
+	 */
+	public List<GSIdentifierInfoEncoder> getEncodedIdentifierInfoList() {
+		List<GSIdentifierInfoEncoder> idList = null;
+
+		final Element idRoot = layerElem.getChild("identifiers");
+		if (idRoot != null) {
+			final List<Element> identifiers = idRoot.getChildren();
+			if (identifiers != null) {
+				idList = new ArrayList<GSIdentifierInfoEncoder>(
+						identifiers.size());
+				for (Element identifier : identifiers) {
+					final GSIdentifierInfoEncoder idEnc = new GSIdentifierInfoEncoder();
+					idEnc.setAuthority(identifier
+							.getChildText(IdentifierInfo.authority.name()));
+					idEnc.setIdentifier(identifier
+							.getChildText(IdentifierInfo.identifier.name()));
+					idList.add(idEnc);
+				}
+			}
+		}
+		return idList;
+	}
+    
 
 //	protected double getLatLonEdge(String edge) {
 //		Element resource = layerElem.getChild("resource");
