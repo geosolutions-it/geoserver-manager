@@ -24,6 +24,7 @@ import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder21;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.authorityurl.GSAuthorityURLInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder;
@@ -133,6 +134,64 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
     }
 
+    
+    @Test
+    public void testIntegration_21() throws IOException {
+
+        if (!enabled())
+            return;
+        deleteAll();
+
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
+
+        String storeName = "resttestshp";
+        String layerName = "cities";
+
+        GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+        fte.setNativeName(layerName);
+        fte.setName(layerName + "_NEW2");
+        fte.setTitle("title");
+        fte.setNativeCRS("EPSG:4326");
+        fte.setDescription("desc");
+        fte.setEnabled(true);
+
+        //metadataLink
+		GSMetadataLinkInfoEncoder metadatalink = new GSMetadataLinkInfoEncoder(
+				"text/xml", "ISO19115:2003",
+				"http://www.organization.org/metadata1");
+        fte.addMetadataLinkInfo(metadatalink);
+        
+        //use of GSLayerEncoder specific to GS 2.1
+        GSLayerEncoder21 layerEncoder = new GSLayerEncoder21();
+        layerEncoder.setEnabled(true);
+        layerEncoder.setQueryable(true);
+        layerEncoder.setAdvertised(true);
+
+        layerEncoder.setDefaultStyle("point");
+        layerEncoder.addStyle("point2");
+        layerEncoder.addStyle("point3");
+        
+		// authorityURL
+		GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
+				"authority1", "http://www.authority1.org");
+		GSAuthorityURLInfoEncoder authorityURL2 = new GSAuthorityURLInfoEncoder(
+				"authority2", "http://www.authority2.org");
+		layerEncoder.addAuthorityURL(authorityURL);
+		layerEncoder.addAuthorityURL(authorityURL2);
+
+		// identifier
+		GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
+				"authority1", "identifier1");
+		GSIdentifierInfoEncoder identifier2 = new GSIdentifierInfoEncoder(
+				"authority2", "identifier2");
+		layerEncoder.addIdentifier(identifier);
+		layerEncoder.addIdentifier(identifier2);
+        
+        publisher.createWorkspace(DEFAULT_WS);
+        assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
+    }
+    
+    
     @Test
     public void testFeatureTypeEncoder() {
 
