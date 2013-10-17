@@ -58,10 +58,24 @@ import org.jdom.Namespace;
         <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/workspaces/topp/datastores/taz_shapes/featuretypes/tasmania_cities.xml" type="application/xml"/>
     </resource>
     <enabled>true</enabled>
+    <queryable>true</queryable>
+    <advertised>true</advertised>
     <attribution>
         <logoWidth>0</logoWidth>
         <logoHeight>0</logoHeight>
     </attribution>
+    <authorityURLs>
+		<AuthorityURL>
+			<name>authority1</name>
+			<href>http://www.authority1.org</href>
+		</AuthorityURL>
+	</authorityURLs>
+	<identifiers>
+		<Identifier>
+			<authority>authority1</authority>
+			<identifier>identifier1</identifier>
+		</Identifier>
+	</identifiers>
 </layer>
  * }</PRE>
  * @author etj
