@@ -25,6 +25,8 @@ import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
+import it.geosolutions.geoserver.rest.encoder.authorityurl.GSAuthorityURLInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
@@ -73,6 +75,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         String layerName = "cities";
 
         GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+        fte.setNativeName(layerName);
         fte.setName(layerName + "_NEW");
         fte.setTitle("title");
         // fte.addKeyword("TODO");
@@ -89,10 +92,22 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         GSLayerEncoder layerEncoder = new GSLayerEncoder();
         layerEncoder.setEnabled(true);
         layerEncoder.setQueryable(true);
+        layerEncoder.setAdvertised(true);
 
         layerEncoder.setDefaultStyle("point");
         layerEncoder.addStyle("point2");
         layerEncoder.addStyle("point3");
+        
+		// authorityURL
+		GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
+				"authority1", "http://www.authority1.org");
+		layerEncoder.addAuthorityURL(authorityURL);
+
+		// identifier
+		GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
+				"authority1", "identifier1");
+		layerEncoder.addIdentifier(identifier);
+        
 
         publisher.createWorkspace(DEFAULT_WS);
 
