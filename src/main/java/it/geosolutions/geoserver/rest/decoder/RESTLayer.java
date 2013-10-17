@@ -113,6 +113,14 @@ public class RESTLayer {
 		return defaultStyle == null? null : defaultStyle.getChildText("name");
   	}
 
+    /**
+     * @see <a href="https://github.com/geosolutions-it/geoserver-manager/issues/100">this issue</a>
+     */
+	public String getDefaultStyleWorkspace() {
+		Element defaultStyle = layerElem.getChild("defaultStyle");
+		return defaultStyle == null? null : defaultStyle.getChildText("workspace");
+  	}
+
 	public String getTitle() {
 		Element resource = layerElem.getChild("resource");
 		return resource.getChildText("title");
