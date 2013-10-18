@@ -90,53 +90,57 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
 				"http://www.organization.org/metadata1");
         fte.addMetadataLinkInfo(metadatalink);
         
-        GSLayerEncoder layerEncoder = new GSLayerEncoder();
-        layerEncoder.setEnabled(true);
-        layerEncoder.setQueryable(true);
-        layerEncoder.setAdvertised(true);
+        GSLayerEncoder layerEncoder = null;
+        if(GeoserverRESTTest.VERSION != null){
+        	layerEncoder = new GSLayerEncoder();
+        	layerEncoder.setEnabled(true);
+            layerEncoder.setQueryable(true);
+            layerEncoder.setAdvertised(true);
 
-        layerEncoder.setDefaultStyle("point");
-        layerEncoder.addStyle("point2");
-        layerEncoder.addStyle("point3");
-        
-		// authorityURL
-		GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
-				"authority1", "http://www.authority1.org");
-		layerEncoder.addAuthorityURL(authorityURL);
+            layerEncoder.setDefaultStyle("point");
+            layerEncoder.addStyle("point2");
+            layerEncoder.addStyle("point3");
+            
+    		// authorityURL
+    		GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
+    				"authority1", "http://www.authority1.org");
+    		layerEncoder.addAuthorityURL(authorityURL);
 
-		// identifier
-		GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
-				"authority1", "identifier1");
-		layerEncoder.addIdentifier(identifier);
-        
+    		// identifier
+    		GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
+    				"authority1", "identifier1");
+    		layerEncoder.addIdentifier(identifier);
+            
 
-        publisher.createWorkspace(DEFAULT_WS);
+            publisher.createWorkspace(DEFAULT_WS);
 
-        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+            File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
 
-        // test insert
-        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
-        assertTrue("publish() failed", published);
-        assertTrue(existsLayer(layerName));
+            // test insert
+            boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
+            assertTrue("publish() failed", published);
+            assertTrue(existsLayer(layerName));
 
-        publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),
-                "default_point.sld"));
+            publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),
+                    "default_point.sld"));
 
-        // optionally select the attributes to publish
-        RESTLayer layer = reader.getLayer(layerName);
-        RESTResource resource = reader.getResource(layer);
-        List<GSAttributeEncoder> attrs = resource.getEncodedAttributeList();
-        assertNotNull(attrs);
-        for (GSAttributeEncoder enc : attrs) {
-            fte.setAttribute(enc);
+            // optionally select the attributes to publish
+            RESTLayer layer = reader.getLayer(layerName);
+            RESTResource resource = reader.getResource(layer);
+            List<GSAttributeEncoder> attrs = resource.getEncodedAttributeList();
+            assertNotNull(attrs);
+            for (GSAttributeEncoder enc : attrs) {
+                fte.setAttribute(enc);
+            }
+
+            assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
         }
-
-        assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
+  
     }
 
     
     @Test
-    public void testIntegration_21() throws IOException {
+    public void testIntegration1() throws IOException {
 
         if (!enabled())
             return;
@@ -161,34 +165,37 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
 				"http://www.organization.org/metadata1");
         fte.addMetadataLinkInfo(metadatalink);
         
-        //use of GSLayerEncoder specific to GS 2.1
-        GSLayerEncoder21 layerEncoder = new GSLayerEncoder21();
-        layerEncoder.setEnabled(true);
-        layerEncoder.setQueryable(true);
-        layerEncoder.setAdvertised(true);
-
-        layerEncoder.setDefaultStyle("point");
-        layerEncoder.addStyle("point2");
-        layerEncoder.addStyle("point3");
-        
-		// authorityURL
-		GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
-				"authority1", "http://www.authority1.org");
-		GSAuthorityURLInfoEncoder authorityURL2 = new GSAuthorityURLInfoEncoder(
-				"authority2", "http://www.authority2.org");
-		layerEncoder.addAuthorityURL(authorityURL);
-		layerEncoder.addAuthorityURL(authorityURL2);
-
-		// identifier
-		GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
-				"authority1", "identifier1");
-		GSIdentifierInfoEncoder identifier2 = new GSIdentifierInfoEncoder(
-				"authority2", "identifier2");
-		layerEncoder.addIdentifier(identifier);
-		layerEncoder.addIdentifier(identifier2);
-        
-        publisher.createWorkspace(DEFAULT_WS);
-        assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
+        //use of GSLayerEncoder for GS 2.1 & before
+        GSLayerEncoder21 layerEncoder = null;
+        if(GeoserverRESTTest.VERSION == null){
+	        layerEncoder = new GSLayerEncoder21();
+	        layerEncoder.setEnabled(true);
+	        layerEncoder.setQueryable(true);
+	        layerEncoder.setAdvertised(true);
+	
+	        layerEncoder.setDefaultStyle("point");
+	        layerEncoder.addStyle("point2");
+	        layerEncoder.addStyle("point3");
+	        
+			// authorityURL
+			GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
+					"authority1", "http://www.authority1.org");
+			GSAuthorityURLInfoEncoder authorityURL2 = new GSAuthorityURLInfoEncoder(
+					"authority2", "http://www.authority2.org");
+			layerEncoder.addAuthorityURL(authorityURL);
+			layerEncoder.addAuthorityURL(authorityURL2);
+	
+			// identifier
+			GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
+					"authority1", "identifier1");
+			GSIdentifierInfoEncoder identifier2 = new GSIdentifierInfoEncoder(
+					"authority2", "identifier2");
+			layerEncoder.addIdentifier(identifier);
+			layerEncoder.addIdentifier(identifier2);
+	        
+	        publisher.createWorkspace(DEFAULT_WS);
+	        assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
+        }
     }
     
     
