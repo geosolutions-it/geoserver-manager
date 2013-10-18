@@ -119,7 +119,7 @@ public class GSVersionDecoder extends XmlElement {
     }
 
     public enum VERSION {
-        BEFORE(0), v21(21), v22(22), v23(23), v24(24), v25(25), ABOVE(9999), URECOGNIZED(-1);
+        v22(22), v23(23), v24(24), v25(25), ABOVE(9999), UNRECOGNIZED(-1);
 
         final private int version;
 
@@ -136,10 +136,8 @@ public class GSVersionDecoder extends XmlElement {
         }
 
         public static VERSION getVersion(String v) {
-            if (v.matches("2\\.0.*") || v.matches("1\\..*")) {
-                return BEFORE;
-            } else if (v.matches("2\\.1.*")) {
-                return v21;
+            if (v==null) {
+                return UNRECOGNIZED;
             } else if (v.matches("2\\.2.*")) {
                 return v22;
             } else if (v.matches("2\\.3.*")) {
@@ -151,12 +149,12 @@ public class GSVersionDecoder extends XmlElement {
             } else if (v.matches("2\\..+")) {
                 return ABOVE;
             } else {
-                return URECOGNIZED;
+                return UNRECOGNIZED;
             }
         }
         
         public static String print(){
-            return "["+BEFORE+", "+v21+", "+v22+", "+v23+", "+v24+", "+v25+", "+ABOVE+"]";
+            return "["+v22+", "+v23+", "+v24+", "+v25+", "+ABOVE+", "+UNRECOGNIZED+"]";
         }
     }
 

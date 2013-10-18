@@ -138,7 +138,7 @@ public abstract class GeoserverRESTTest {
             }
             
             GSVersionDecoder v=reader.getGeoserverVersion();
-            if (v.getVersion().equals(GSVersionDecoder.VERSION.getVersion(VERSION))){
+            if (!v.getVersion().equals(GSVersionDecoder.VERSION.getVersion(VERSION))){
                 System.out.println("Failing tests  : geoserver version does not match.\nAccepted versions: "+GSVersionDecoder.VERSION.print());
                 fail("GeoServer version ("+v.getVersion()+") does not match the desired one (+VERSION+)");
             }
