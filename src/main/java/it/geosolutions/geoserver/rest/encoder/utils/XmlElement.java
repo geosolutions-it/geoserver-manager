@@ -48,7 +48,11 @@ public class XmlElement{
 	public XmlElement(final String name){
 		root=new Element(name);
 	}
-	
+
+    public XmlElement(final Element e) {
+        root = e;
+    }
+
 	public Element getRoot(){
 		return root;
 	}

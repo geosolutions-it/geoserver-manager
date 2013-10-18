@@ -44,6 +44,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageIndexSchema;
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
 import it.geosolutions.geoserver.rest.decoder.RESTWorkspaceList;
+import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStyleManager;
 
@@ -51,6 +52,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -168,6 +170,21 @@ public class GeoServerRESTReader {
      */
     public boolean existGeoserver() {
         return HTTPUtils.httpPing(baseurl + "/rest/", username, password);
+    }
+    
+    /**
+     * Return the version of the target GeoServer
+     */
+    public GSVersionDecoder getGeoserverVersion() {
+        final String url = baseurl + "/rest/about/version.xml";
+        String xml = load(url);
+        if (xml == null) {
+            GSVersionDecoder v = new GSVersionDecoder();
+            v.getGeoServer().setVersion(GSVersionDecoder.VERSION.BEFORE);
+            return v;
+        } else {
+            return GSVersionDecoder.build(load(url));
+        }
     }
 
     //==========================================================================
