@@ -172,11 +172,11 @@ public class GeoServerRESTReader {
      * Return the version of the target GeoServer
      */
     public GSVersionDecoder getGeoserverVersion() {
-        final String url = baseurl + "/rest/about/version.xml";
+        final String url = "/rest/about/version.xml";
         String xml = load(url);
         if (xml == null) {
             GSVersionDecoder v = new GSVersionDecoder();
-            v.getGeoServer().setVersion(GSVersionDecoder.VERSION.BEFORE);
+            v.getGeoServer().setVersion(GSVersionDecoder.VERSION.UNRECOGNIZED.toString());
             return v;
         } else {
             return GSVersionDecoder.build(load(url));

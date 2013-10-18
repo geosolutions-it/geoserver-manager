@@ -21,6 +21,9 @@
  */
 package it.geosolutions.geoserver.decoder;
 
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.GeoServerRESTReader;
+import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
 import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder.VERSION;
 import junit.framework.Assert;
@@ -45,7 +48,7 @@ import org.junit.Test;
  * </about>
  * }
  */
-public class VersionDecoderTest {
+public class VersionDecoderTest extends GeoserverRESTTest {
 
     private final String version = "<about><resource name=\"GeoServer\"><Build-Timestamp>10-Oct-2013 03:08</Build-Timestamp>"
             + "<Git-Revision>32db076555e57cc5f826b0361d1af4efe6d3f01b</Git-Revision><Version>2.2-ENTERPRISE-SNAPSHOT</Version></resource></about>";
@@ -54,16 +57,30 @@ public class VersionDecoderTest {
     public void testVersionDecoder() {
         
         GSVersionDecoder dec=new GSVersionDecoder(version);
-        Assert.assertEquals(VERSION.v22, dec.getVersion());
+        Assert.assertEquals(GSVersionDecoder.VERSION.v22, dec.getVersion());
         Assert.assertEquals("GeoServer", dec.getGeoServer().getName());
         
         GSVersionDecoder.GSAboutResource geoserver=dec.getGeoServer();
         geoserver.setVersion("2.3-SNAPSHOT");
         geoserver.setName("_CustomGeoServerName_");
-        Assert.assertEquals(VERSION.v23, dec.getVersion());
+        Assert.assertEquals(GSVersionDecoder.VERSION.v23, dec.getVersion());
         Assert.assertEquals("_CustomGeoServerName_", dec.getGeoServer().getName());
         
         //print(dec.getRoot());
+    }
+    
+    @Test
+    public void testIntegrationVersionDecoder() {
+        if (!enabled())
+            return;
+        GSVersionDecoder geoserver = reader.getGeoserverVersion();
+        if (GSVersionDecoder.VERSION.v22.equals(GSVersionDecoder.VERSION.getVersion(VERSION))) {
+            Assert.assertEquals(geoserver.getVersion(), GSVersionDecoder.VERSION.v22);
+        } else if (GSVersionDecoder.VERSION.UNRECOGNIZED.equals(GSVersionDecoder.VERSION
+                .getVersion(VERSION))) {
+            Assert.assertEquals(geoserver.getVersion(), GSVersionDecoder.VERSION.UNRECOGNIZED);
+        }
+        // print(dec.getRoot());
     }
     
     public String print(Element e){
