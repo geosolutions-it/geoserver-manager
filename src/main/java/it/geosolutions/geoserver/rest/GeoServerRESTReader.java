@@ -41,6 +41,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTNamespaceList;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
 import it.geosolutions.geoserver.rest.decoder.RESTWorkspaceList;
+import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -165,6 +166,21 @@ public class GeoServerRESTReader {
      */
     public boolean existGeoserver() {
         return HTTPUtils.httpPing(baseurl + "/rest/", username, password);
+    }
+    
+    /**
+     * Return the version of the target GeoServer
+     */
+    public GSVersionDecoder getGeoserverVersion() {
+        final String url = baseurl + "/rest/about/version.xml";
+        String xml = load(url);
+        if (xml == null) {
+            GSVersionDecoder v = new GSVersionDecoder();
+            v.getGeoServer().setVersion(GSVersionDecoder.VERSION.BEFORE);
+            return v;
+        } else {
+            return GSVersionDecoder.build(load(url));
+        }
     }
 
     //==========================================================================
