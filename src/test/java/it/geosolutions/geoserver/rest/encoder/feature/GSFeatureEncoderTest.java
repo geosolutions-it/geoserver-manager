@@ -23,6 +23,7 @@ import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
+import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder21;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
@@ -90,50 +91,54 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
 				"http://www.organization.org/metadata1");
         fte.addMetadataLinkInfo(metadatalink);
         
-        GSLayerEncoder layerEncoder = null;
-        if(GeoserverRESTTest.VERSION != null){
-        	layerEncoder = new GSLayerEncoder();
-        	layerEncoder.setEnabled(true);
-            layerEncoder.setQueryable(true);
-            layerEncoder.setAdvertised(true);
+		GSLayerEncoder layerEncoder = null;
+		if (!GSVersionDecoder.VERSION.getVersion(VERSION).equals(
+				GSVersionDecoder.VERSION.UNRECOGNIZED)) {
+			layerEncoder = new GSLayerEncoder();
+			layerEncoder = new GSLayerEncoder();
+			layerEncoder.setEnabled(true);
+			layerEncoder.setQueryable(true);
+			layerEncoder.setAdvertised(true);
 
-            layerEncoder.setDefaultStyle("point");
-            layerEncoder.addStyle("point2");
-            layerEncoder.addStyle("point3");
-            
-    		// authorityURL
-    		GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
-    				"authority1", "http://www.authority1.org");
-    		layerEncoder.addAuthorityURL(authorityURL);
+			layerEncoder.setDefaultStyle("point");
+			layerEncoder.addStyle("point2");
+			layerEncoder.addStyle("point3");
 
-    		// identifier
-    		GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
-    				"authority1", "identifier1");
-    		layerEncoder.addIdentifier(identifier);
-            
+			// authorityURL
+			GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
+					"authority1", "http://www.authority1.org");
+			layerEncoder.addAuthorityURL(authorityURL);
 
-            publisher.createWorkspace(DEFAULT_WS);
+			// identifier
+			GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
+					"authority1", "identifier1");
+			layerEncoder.addIdentifier(identifier);
 
-            File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+			publisher.createWorkspace(DEFAULT_WS);
 
-            // test insert
-            boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
-            assertTrue("publish() failed", published);
-            assertTrue(existsLayer(layerName));
+			File zipFile = new ClassPathResource("testdata/resttestshp.zip")
+					.getFile();
 
-            publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),
-                    "default_point.sld"));
+			// test insert
+			boolean published = publisher.publishShp(DEFAULT_WS, storeName,
+					layerName, zipFile);
+			assertTrue("publish() failed", published);
+			assertTrue(existsLayer(layerName));
 
-            // optionally select the attributes to publish
-            RESTLayer layer = reader.getLayer(layerName);
-            RESTResource resource = reader.getResource(layer);
-            List<GSAttributeEncoder> attrs = resource.getEncodedAttributeList();
-            assertNotNull(attrs);
-            for (GSAttributeEncoder enc : attrs) {
-                fte.setAttribute(enc);
-            }
+			publisher.publishStyle(new File(new ClassPathResource("testdata")
+					.getFile(), "default_point.sld"));
 
-            assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
+			// optionally select the attributes to publish
+			RESTLayer layer = reader.getLayer(layerName);
+			RESTResource resource = reader.getResource(layer);
+			List<GSAttributeEncoder> attrs = resource.getEncodedAttributeList();
+			assertNotNull(attrs);
+			for (GSAttributeEncoder enc : attrs) {
+				fte.setAttribute(enc);
+			}
+
+			assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte,
+					layerEncoder));
         }
   
     }
@@ -167,16 +172,17 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         
         //use of GSLayerEncoder for GS 2.1 & before
         GSLayerEncoder21 layerEncoder = null;
-        if(GeoserverRESTTest.VERSION == null){
-	        layerEncoder = new GSLayerEncoder21();
-	        layerEncoder.setEnabled(true);
-	        layerEncoder.setQueryable(true);
-	        layerEncoder.setAdvertised(true);
-	
-	        layerEncoder.setDefaultStyle("point");
-	        layerEncoder.addStyle("point2");
-	        layerEncoder.addStyle("point3");
-	        
+		if (GSVersionDecoder.VERSION.getVersion(VERSION).equals(
+				GSVersionDecoder.VERSION.UNRECOGNIZED)) {
+			layerEncoder = new GSLayerEncoder21();
+			layerEncoder.setEnabled(true);
+			layerEncoder.setQueryable(true);
+			layerEncoder.setAdvertised(true);
+
+			layerEncoder.setDefaultStyle("point");
+			layerEncoder.addStyle("point2");
+			layerEncoder.addStyle("point3");
+
 			// authorityURL
 			GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
 					"authority1", "http://www.authority1.org");
@@ -184,7 +190,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
 					"authority2", "http://www.authority2.org");
 			layerEncoder.addAuthorityURL(authorityURL);
 			layerEncoder.addAuthorityURL(authorityURL2);
-	
+
 			// identifier
 			GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
 					"authority1", "identifier1");
@@ -192,10 +198,11 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
 					"authority2", "identifier2");
 			layerEncoder.addIdentifier(identifier);
 			layerEncoder.addIdentifier(identifier2);
-	        
-	        publisher.createWorkspace(DEFAULT_WS);
-	        assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
-        }
+
+			publisher.createWorkspace(DEFAULT_WS);
+			assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte,
+					layerEncoder));
+		}
     }
     
     
