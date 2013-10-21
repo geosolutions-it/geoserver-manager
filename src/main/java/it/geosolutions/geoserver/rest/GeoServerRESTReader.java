@@ -34,6 +34,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
 import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTFeatureTypeList;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import it.geosolutions.geoserver.rest.decoder.RESTLayer21;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroupList;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerList;
@@ -536,7 +537,15 @@ public class GeoServerRESTReader {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("### Retrieving layer from " + url);
         }
-        return RESTLayer.build(load(url));
+        
+		RESTLayer layer = null;
+		if (this.getGeoserverVersion().getVersion()
+				.equals(GSVersionDecoder.VERSION.UNRECOGNIZED)) {
+			layer = RESTLayer21.build(load(url));
+		} else {
+			layer = RESTLayer.build(load(url));
+		}
+		return layer;
     }
 
     //==========================================================================

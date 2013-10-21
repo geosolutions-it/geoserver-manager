@@ -19,6 +19,8 @@
  */
 package it.geosolutions.geoserver.rest.encoder;
 
+import it.geosolutions.geoserver.rest.encoder.authorityurl.GSAuthorityURLInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder;
 import junit.framework.Assert;
 
 import org.jdom.Element;
@@ -40,9 +42,17 @@ public class GSLayerEncoderTest {
 		layerEncoder = new GSLayerEncoder();
 		layerEncoder.setEnabled(true);
 		layerEncoder.setQueryable(true);
+		layerEncoder.setAdvertised(true);
+		
 		layerEncoder.setDefaultStyle("point");
 		layerEncoder.addStyle("additional_style1");
 		layerEncoder.addStyle("additional_style2");
+		
+		layerEncoder.addAuthorityURL(new GSAuthorityURLInfoEncoder(
+				"authority1", "http://www.authority1.org"));
+		layerEncoder.addIdentifier(new GSIdentifierInfoEncoder("authority1",
+				"identifier1"));
+				     
 	}
 
 	@Test
@@ -55,6 +65,10 @@ public class GSLayerEncoderTest {
 				true,
 				Boolean.parseBoolean(layerEncoder.getRoot()
 						.getChild("queryable").getValue()));
+		Assert.assertEquals(
+				true,
+				Boolean.parseBoolean(layerEncoder.getRoot()
+						.getChild("advertised").getValue()));
 	}
 
 	@Test
@@ -80,6 +94,23 @@ public class GSLayerEncoderTest {
 				.getChildren().size());
 		Assert.assertEquals("additional_style2", ((Element) layerEncoder
 				.getRoot().getChild("styles").getChildren().get(0)).getText());
+	}
+
+	@Test
+	public void testAuthorityURL() {
+		Element el = (Element) layerEncoder.getRoot().getChild("authorityURLs")
+				.getChildren().get(0);
+		Assert.assertEquals("authority1", el.getChild("name").getValue());
+		Assert.assertEquals("http://www.authority1.org", el.getChild("href")
+				.getValue());
+	}
+
+	@Test
+	public void testIdentifier() {
+		Element el = (Element) layerEncoder.getRoot().getChild("identifiers")
+				.getChildren().get(0);
+		Assert.assertEquals("authority1", el.getChild("authority").getValue());
+		Assert.assertEquals("identifier1", el.getChild("identifier").getValue());
 	}
 
 }

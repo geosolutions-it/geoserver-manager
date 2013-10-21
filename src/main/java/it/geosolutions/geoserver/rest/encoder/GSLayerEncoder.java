@@ -28,12 +28,17 @@ package it.geosolutions.geoserver.rest.encoder;
 import org.jdom.Element;
 import org.jdom.filter.Filter;
 
+import it.geosolutions.geoserver.rest.encoder.authorityurl.GSAuthorityURLInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 
 /**
- *
+ * Layer encoder for Geoserver >= 2.2
+ * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com |
+ *         emmanuel.blondel@fao.org
  * 
  * The layer encoder is enabled by default
  * 
@@ -41,12 +46,19 @@ import it.geosolutions.geoserver.rest.encoder.utils.PropertyXMLEncoder;
 public class GSLayerEncoder extends PropertyXMLEncoder {
 	
 	public final static String STYLES = "styles";
+	public final static String AUTHORITY_URLS="authorityURLs";
+	public final static String IDENTIFIERS="identifiers";  
+	
 	final private Element stylesEncoder = new Element(STYLES);
+	final private Element authorityURLListEncoder = new Element(AUTHORITY_URLS);
+	final private Element identifierListEncoder = new Element(IDENTIFIERS); 
 
     public GSLayerEncoder() {
         super("layer");
         addEnabled();
         addContent(stylesEncoder);
+        addContent(authorityURLListEncoder);
+        addContent(identifierListEncoder); 
     }
     
     /**
@@ -166,5 +178,59 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
 				return false;
 			}
 		})).size() == 0 ? false : true;
+	}
+	
+	/**
+	 * 
+	 * @param advertised
+	 *            true if the layer should be advertised
+	 */
+	public void setAdvertised(boolean advertised) {
+		if (advertised)
+			set("advertised", "true");
+		else
+			set("advertised", "false");
+	}
+
+	/**
+	 * Add an authorityURLInfo to the GeoServer layer
+	 * 
+	 * @param authorityURLInfo
+	 */
+	public void addAuthorityURL(GSAuthorityURLInfoEncoder authorityURLInfo) {
+		authorityURLListEncoder.addContent(authorityURLInfo.getRoot());
+	}
+
+	/**
+	 * Deletes a AuthorityURLInfo from the list using the authorityURL
+	 * (AuthorityURLInfo href)
+	 * 
+	 * @param authorityURL
+	 * @return true if something is removed, false otherwise
+	 */
+	public boolean delAuthorityURL(final String authorityURL) {
+		return (authorityURLListEncoder.removeContent(GSAuthorityURLInfoEncoder
+				.getFilterByHref(authorityURL))).size() == 0 ? false : true;
+	}
+
+	/**
+	 * Add an identifierInfo to the GeoServer layer
+	 * 
+	 * @param identifierInfo
+	 */
+	public void addIdentifier(GSIdentifierInfoEncoder identifierInfo) {
+		identifierListEncoder.addContent(identifierInfo.getRoot());
+	}
+
+	/**
+	 * Deletes a IdentifierInfo from the list using the authority name
+	 * (IdentifierInfo authority)
+	 * 
+	 * @param authority
+	 * @return true if something is removed, false otherwise
+	 */
+	public boolean delIdentifier(final String authority) {
+		return (identifierListEncoder.removeContent(GSIdentifierInfoEncoder
+				.getFilterByHref(authority))).size() == 0 ? false : true;
 	}
 }
