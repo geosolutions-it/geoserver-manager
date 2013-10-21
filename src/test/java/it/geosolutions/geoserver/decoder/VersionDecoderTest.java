@@ -66,6 +66,10 @@ public class VersionDecoderTest extends GeoserverRESTTest {
         Assert.assertEquals(GSVersionDecoder.VERSION.v23, dec.getVersion());
         Assert.assertEquals("_CustomGeoServerName_", dec.getGeoServer().getName());
         
+        dec=new GSVersionDecoder(null);
+        Assert.assertEquals(GSVersionDecoder.VERSION.UNRECOGNIZED, dec.getVersion());
+        Assert.assertEquals(null, dec.getGeoServer().getName());
+        
         //print(dec.getRoot());
     }
     
