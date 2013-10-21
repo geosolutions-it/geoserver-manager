@@ -39,9 +39,10 @@ import org.jdom.output.XMLOutputter;
  */
 public class XmlElement{
 	
-	private final Element root;
+	private Element root;
 	
-	private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = 1L;
 	
 	private final static XMLOutputter OUTPUTTER = new XMLOutputter(Format.getCompactFormat());
 	
@@ -52,13 +53,33 @@ public class XmlElement{
     public XmlElement(final Element e) {
         root = e;
     }
+    
+    /**
+     * Empty constructor:<br/>
+     * Use {@link #setRoot()} to initialize the root
+     */
+    protected XmlElement() {
+    }
+
+    /**
+     * update the root of this node
+     * @param root
+     */
+    protected void setRoot(final Element root) {
+        this.root = root;
+    }
+    
+    /**
+     * update the root of this node
+     * @param name is the name of the root node
+     */
+    protected void setRoot(final String name){
+        root=new Element(name);
+    }
 
 	public Element getRoot(){
 		return root;
 	}
-	
-	@SuppressWarnings("unused")
-	private XmlElement(){root=null;};
 	
 	protected void add(final String nodename, final String nodetext) {
     	add(nodename,new Text(nodetext));

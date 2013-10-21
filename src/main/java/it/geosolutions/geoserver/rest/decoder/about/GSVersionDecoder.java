@@ -43,7 +43,7 @@ import org.jdom.Element;
 public class GSVersionDecoder extends XmlElement {
     public final static String ABOUT = "about";
 
-    final private GSAboutResource geoserver;
+    private GSAboutResource geoserver;
 
     public class GSAboutResource extends XmlElement {
         public final static String RESOURCE = "resource";
@@ -52,10 +52,14 @@ public class GSVersionDecoder extends XmlElement {
 
         public final static String VERSION = "Version";
 
-        final private Element version;
+        private Element version;
 
         public GSAboutResource() {
-            super(RESOURCE);
+            create();
+        }
+        
+        private void create(){
+            setRoot(RESOURCE);
             version = new Element(VERSION);
             addContent(version);
         }
@@ -78,8 +82,14 @@ public class GSVersionDecoder extends XmlElement {
         }
 
         public GSAboutResource(Element el) {
-            super(el);
-            version = ElementUtils.contains(el, GSAboutResource.VERSION);
+            super();
+            if (el!=null){
+                setRoot(el);
+                version = ElementUtils.contains(el, GSAboutResource.VERSION);
+            } else {
+                create();
+                setVersion(GSVersionDecoder.VERSION.UNRECOGNIZED.toString());
+            }
         }
         
         public void setVersion(String v){
@@ -94,13 +104,22 @@ public class GSVersionDecoder extends XmlElement {
      * @param document
      */
     public GSVersionDecoder(String document) {
-        super(JDOMBuilder.buildElement(document));
-        geoserver = new GSAboutResource(ElementUtils.contains(this.getRoot(),
-                GSAboutResource.RESOURCE));
+        Element root=JDOMBuilder.buildElement(document);
+        if (root!=null){
+            setRoot(root);
+            geoserver = new GSAboutResource(ElementUtils.contains(this.getRoot(),
+                    GSAboutResource.RESOURCE));
+        }else {
+            create();
+        }
     }
 
     public GSVersionDecoder() {
-        super("about");
+        create();
+    }
+    
+    private void create(){
+        setRoot("about");
         geoserver = new GSAboutResource();
         addContent(geoserver.getRoot());
     }
