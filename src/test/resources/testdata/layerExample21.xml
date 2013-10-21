@@ -1,0 +1,28 @@
+<layer>
+	<name>tasmania_cities</name>
+	<path>/</path>
+	<type>VECTOR</type>
+	<defaultStyle>
+		<name>capitals</name>
+		<atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate"
+			href="http://localhost:8080/geoserver/rest/styles/capitals.xml" type="application/xml" />
+	</defaultStyle>
+	<resource class="featureType">
+		<name>tasmania_cities</name>
+		<atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate"
+			href="http://localhost:8080/geoserver/rest/workspaces/topp/datastores/taz_shapes/featuretypes/tasmania_cities.xml"
+			type="application/xml" />
+	</resource>
+	<enabled>true</enabled>
+	<queryable>true</queryable>
+	<advertised>true</advertised>
+	<attribution>
+		<logoWidth>0</logoWidth>
+		<logoHeight>0</logoHeight>
+	</attribution>
+	<metadata>
+		<entry key="identifiers">[{"authority":"authority1","identifier":"identifier1"},{"authority":"authority2","identifier":"identifier2"},]</entry>
+		<entry key="authorityURLs">[{"name":"authority1","href":"http://www.authority1.org"},{"name":"authority2","href":"http://www.authority2.org"},]</entry>
+		<entry key="advertised">true</entry>
+	</metadata>
+</layer>
