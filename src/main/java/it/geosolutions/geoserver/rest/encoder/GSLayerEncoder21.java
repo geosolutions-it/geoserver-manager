@@ -25,7 +25,9 @@
 
 package it.geosolutions.geoserver.rest.encoder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -50,7 +52,7 @@ public class GSLayerEncoder21 extends GSLayerEncoder {
 	public final static String METADATA = "metadata";
 	final private GSMetadataEncoder metadata = new GSMetadataEncoder();
 	public Map<String,String> authorityURLList;
-	public Map<String,String> identifierList;
+	public Map<String,List<String>> identifierList;
 
 	private class GSMetadataEncoder extends NestedElementEncoder{
 		public GSMetadataEncoder() {
@@ -125,11 +127,14 @@ public class GSLayerEncoder21 extends GSLayerEncoder {
 			if(authorityURLList.containsKey(authorityURL)){
 				identifierList.remove(authorityURL);
 				String jsonStr = "";
-				for(Entry<String, String> entry : identifierList.entrySet()){
-					jsonStr += "{"+
-							"\""+AuthorityURLInfo.name.name()+"\":\""+entry.getValue()+"\","+
-							"\""+AuthorityURLInfo.href.name()+"\":\""+entry.getKey()+"\""+
-							"},";
+				for (Entry<String, List<String>> entry : identifierList
+						.entrySet()) {
+					for (String value : entry.getValue()) {
+						jsonStr += "{" + "\"" + AuthorityURLInfo.name.name()
+								+ "\":\"" + entry.getValue() + "\"," + "\""
+								+ AuthorityURLInfo.href.name() + "\":\""
+								+ value + "\"" + "},";
+					}
 				}
 				metadata.set("identifiers", "["+jsonStr+"]");
 				delete = true;
@@ -145,15 +150,29 @@ public class GSLayerEncoder21 extends GSLayerEncoder {
 	 */
 	public void addIdentifier(GSIdentifierInfoEncoder identifierInfo){
 		if(identifierList == null){
-			identifierList = new HashMap<String,String>();
+			identifierList = new HashMap<String,List<String>>();
 		}
-		identifierList.put(identifierInfo.getAuthority(), identifierInfo.getIdentifier());
+		
+		String authority = identifierInfo.getAuthority();
+
+		if (!identifierList.containsKey(authority)) {
+			List<String> ids = new ArrayList<String>();
+			ids.add(identifierInfo.getIdentifier());
+			identifierList.put(authority, ids);
+		} else {
+			List<String> ids = identifierList.get(authority);
+			ids.add(identifierInfo.getIdentifier());
+			identifierList.put(authority, ids);
+		}
+		
 		String jsonStr = "";
-		for(Entry<String, String> entry : identifierList.entrySet()){
-			jsonStr += "{"+
-					"\""+IdentifierInfo.authority.name()+"\":\""+entry.getKey()+"\","+
-					"\""+IdentifierInfo.identifier.name()+"\":\""+entry.getValue()+"\""+
-					"},";
+		for (Entry<String, List<String>> entry : identifierList.entrySet()) {
+			for (String value : entry.getValue()) {
+				jsonStr += "{" + "\"" + IdentifierInfo.authority.name()
+						+ "\":\"" + entry.getKey() + "\"," + "\""
+						+ IdentifierInfo.identifier.name() + "\":\"" + value
+						+ "\"" + "},";
+			}
 		}
 		metadata.set("identifiers", "["+jsonStr+"]");
 	}
@@ -171,11 +190,14 @@ public class GSLayerEncoder21 extends GSLayerEncoder {
 			if(identifierList.containsKey(authority)){
 				identifierList.remove(authority);
 				String jsonStr = "";
-				for(Entry<String, String> entry : identifierList.entrySet()){
-					jsonStr += "{"+
-							"\""+IdentifierInfo.authority.name()+"\":\""+entry.getKey()+"\","+
-							"\""+IdentifierInfo.identifier.name()+"\":\""+entry.getValue()+"\""+
-							"},";
+				for (Entry<String, List<String>> entry : identifierList
+						.entrySet()) {
+					for (String value : entry.getValue()) {
+						jsonStr += "{" + "\"" + IdentifierInfo.authority.name()
+								+ "\":\"" + entry.getKey() + "\"," + "\""
+								+ IdentifierInfo.identifier.name() + "\":\""
+								+ value + "\"" + "},";
+					}
 				}
 				metadata.set("identifiers", "["+jsonStr+"]");
 				delete = true;
