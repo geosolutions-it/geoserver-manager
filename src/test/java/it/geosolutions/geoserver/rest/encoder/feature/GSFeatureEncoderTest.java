@@ -113,9 +113,12 @@ public class GSFeatureEncoderTest extends GeoserverRESTPublisherTest {
 		layerEncoder.addAuthorityURL(authorityURL);
 
 		// identifier
-		GSIdentifierInfoEncoder identifier = new GSIdentifierInfoEncoder(
+		GSIdentifierInfoEncoder identifier1 = new GSIdentifierInfoEncoder(
 				"authority1", "identifier1");
-		layerEncoder.addIdentifier(identifier);
+		GSIdentifierInfoEncoder identifier2 = new GSIdentifierInfoEncoder(
+				"authority1", "another_identifier");
+		layerEncoder.addIdentifier(identifier1);
+		layerEncoder.addIdentifier(identifier2);
         
         publisher.createWorkspace(DEFAULT_WS);
 
