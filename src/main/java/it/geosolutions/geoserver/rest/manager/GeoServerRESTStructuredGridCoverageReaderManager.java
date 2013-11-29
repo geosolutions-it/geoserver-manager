@@ -184,7 +184,7 @@ public class GeoServerRESTStructuredGridCoverageReaderManager extends GeoServerR
                 coverageStore, "/", UploadMethod.EXTERNAL.toString(), ".", format).toString();
 
         // POST request
-        String result = HTTPUtils.post(sUrl, "file:/" + path, "text/plain", gsuser, gspass);
+        String result = HTTPUtils.post(sUrl, "file://" + path, "text/plain", gsuser, gspass);
         return result != null;
     }
 
