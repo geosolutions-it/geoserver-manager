@@ -1,7 +1,7 @@
 package it.geosolutions.geoserver.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
-import it.geosolutions.geoserver.rest.encoder.feature.GSAttributeEncoder;
+import it.geosolutions.geoserver.rest.encoder.dimensions.GSCoverageDimensionEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
 
 import java.io.File;
@@ -18,6 +18,7 @@ import org.springframework.core.io.ClassPathResource;
  * ResourceDecoderTest
  * 
  * @author eblondel
+ * @author Henry Rotzoll (henry.rotzoll@dlr.de)
  *
  */
 public class ResourceDecoderTest {
@@ -109,6 +110,20 @@ public class ResourceDecoderTest {
         Assert.assertEquals("ISO19115:2003",metadataLinkInfo2.getMetadataType());
         Assert.assertEquals("http://www.organization.org/metadata2",metadataLinkInfo2.getContent());
             
+   } 
+	
+	@Test
+    public void testCoverageDimension() throws IOException{
+         
+        List<GSCoverageDimensionEncoder> list = coverage.getEncodedDimensionsInfoList();
+            
+        GSCoverageDimensionEncoder coverageDimension1 = list.get(0);
+        Assert.assertEquals("GRAY_INDEX", coverageDimension1.getName());
+        Assert.assertEquals("GridSampleDimension[-Infinity,Infinity]", coverageDimension1.getDescription());
+        Assert.assertEquals("-inf", coverageDimension1.getRangeMin());
+        Assert.assertEquals("inf", coverageDimension1.getRangeMax());
+        Assert.assertEquals("dobson units³", coverageDimension1.getUnit());
+        Assert.assertEquals("REAL_32BITS", coverageDimension1.getDimensionTypeName());
    } 
 	
 	

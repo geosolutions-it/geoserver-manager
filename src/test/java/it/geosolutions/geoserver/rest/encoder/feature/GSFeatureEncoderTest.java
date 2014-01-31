@@ -28,6 +28,7 @@ import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder21;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.authorityurl.GSAuthorityURLInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.dimensions.GSCoverageDimensionEncoder;
 import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
@@ -60,6 +61,7 @@ import org.springframework.core.io.ClassPathResource;
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com |
  *         emmanuel.blondel@fao.org
+ * @author Henry Rotzoll (henry.rotzoll@dlr.de)
  */
 public class GSFeatureEncoderTest extends GeoserverRESTTest {
     protected final static Logger LOGGER = LoggerFactory.getLogger(GSFeatureEncoderTest.class);
@@ -90,6 +92,9 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
 				"text/xml", "ISO19115:2003",
 				"http://www.organization.org/metadata1");
         fte.addMetadataLinkInfo(metadatalink);
+        
+        GSCoverageDimensionEncoder gsCoverageDimensionEncoder = new GSCoverageDimensionEncoder("GRAY_INDEX", "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf", "dobson units³", "REAL_32BITS");
+        fte.addCoverageDimensionInfo(gsCoverageDimensionEncoder);
         
 		GSLayerEncoder layerEncoder = null;
 		if (!GSVersionDecoder.VERSION.getVersion(VERSION).equals(
@@ -146,6 +151,24 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
 		assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte,
 				layerEncoder));
 
+    }
+    
+    @Test
+    public void testCoverageDimension() throws IOException {
+    	 GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+         fte.setNativeName("testlayer");
+         fte.setName("testlayer" + "_NEW");
+         fte.setTitle("title");
+         fte.setNativeCRS("EPSG:4326");
+         fte.setDescription("desc");
+         fte.setEnabled(true);
+         
+         assertFalse(fte.toString().contains("<dimensions><coverageDimension><name>GRAY_INDEX</name><description>GridSampleDimension[-Infinity,Infinity]</description><range><min>-inf</min><max>inf</max></range><unit>dobson units³</unit><dimensionType><name>REAL_32BITS</name></dimensionType></coverageDimension></dimensions>"));
+         
+         GSCoverageDimensionEncoder gsCoverageDimensionEncoder = new GSCoverageDimensionEncoder("GRAY_INDEX", "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf", "dobson units³", "REAL_32BITS");
+         fte.addCoverageDimensionInfo(gsCoverageDimensionEncoder);
+         LOGGER.debug("fte.toString() :" + fte.toString());
+         assertTrue(fte.toString().contains("<dimensions><coverageDimension><name>GRAY_INDEX</name><description>GridSampleDimension[-Infinity,Infinity]</description><range><min>-inf</min><max>inf</max></range><unit>dobson units³</unit><dimensionType><name>REAL_32BITS</name></dimensionType></coverageDimension></dimensions>"));
     }
 
     

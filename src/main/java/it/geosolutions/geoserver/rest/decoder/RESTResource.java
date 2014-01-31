@@ -26,13 +26,13 @@
 package it.geosolutions.geoserver.rest.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+import it.geosolutions.geoserver.rest.encoder.dimensions.GSCoverageDimensionEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.FeatureTypeAttribute;
 import it.geosolutions.geoserver.rest.encoder.feature.GSAttributeEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadatalink.ResourceMetadataLinkInfo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -182,5 +182,51 @@ public class RESTResource {
 	        }
 		return metaLinksList;
 	}
+	
+	/**
+	 * Decodes the list of GSCoverageDimensionEncoder from the GeoServer Resource
+	 * 
+	 * @author Henry Rotzoll
+	 * 
+	 * @return the list of GSCoverageDimensionEncoder
+	 */
+	public List<GSCoverageDimensionEncoder> getEncodedDimensionsInfoList() 
+	{
+		List<GSCoverageDimensionEncoder> dimensionList = null;
+		final Element dimensionsRoot = rootElem.getChild("dimensions");
+		
+        if(dimensionsRoot!=null)
+        {
+    		final List<Element> dimensions = dimensionsRoot.getChildren();
+    		if (dimensions != null) 
+    		{
+    			dimensionList = new ArrayList<GSCoverageDimensionEncoder>(dimensions.size());
+    			for (Element coverageDimension : dimensions) 
+    			{
+    				final String name = coverageDimension.getChildText("name");
+    				final String description = coverageDimension.getChildText("description");
+    				String rangeMin = null;
+    				String rangeMax = null;
+    				final Element rangeElement = coverageDimension.getChild("range");
+    				if(rangeElement != null)
+    				{
+    					rangeMin = rangeElement.getChildText("min");
+    					rangeMax = rangeElement.getChildText("max");
+    				}
+    				final String unit = coverageDimension.getChildText("unit");
+    				String dimensionTypeName = null;
+    				final Element dimensionTypeElement = coverageDimension.getChild("dimensionType");
+    				if(dimensionTypeElement != null)
+    				{
+    					dimensionTypeName = dimensionTypeElement.getChildText("name");
+    				}
+    				final GSCoverageDimensionEncoder coverageDimensionEncoder = new GSCoverageDimensionEncoder(name, description, rangeMin, rangeMax, unit, dimensionTypeName);
+    				dimensionList.add(coverageDimensionEncoder);
+    			}
     
+    		}
+        }
+        
+		return dimensionList;
+	}
 }
