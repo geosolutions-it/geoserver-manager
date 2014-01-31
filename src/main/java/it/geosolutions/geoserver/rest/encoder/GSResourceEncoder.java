@@ -26,6 +26,7 @@
 package it.geosolutions.geoserver.rest.encoder;
 
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
+import it.geosolutions.geoserver.rest.encoder.dimensions.GSCoverageDimensionEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSFeatureDimensionInfoEncoder;
@@ -57,10 +58,12 @@ public abstract class GSResourceEncoder
 	public final static String METADATA="metadata";
 	public final static String KEYWORDS="keywords";
 	public final static String METADATALINKS="metadataLinks";
+	public final static String DIMENSIONS="dimensions";
 
 	final private GSMetadataEncoder metadata = new GSMetadataEncoder();
 	final private Element keywordsListEncoder = new Element(KEYWORDS);
 	final private Element metadataLinksListEncoder = new Element(METADATALINKS);
+	final private Element dimensionsEncoder = new Element(DIMENSIONS);
 	
 	private class GSMetadataEncoder extends NestedElementEncoder{
 		public GSMetadataEncoder() {
@@ -69,7 +72,7 @@ public abstract class GSResourceEncoder
 	}
 
 	/**
-	 * @param rootName
+	 * @param rootName	
 	 *            Actually 'feature' or 'coverage'
 	 * @see GSFeatureTypeEncoder
 	 * @see GSCoverageEncoder
@@ -131,6 +134,10 @@ public abstract class GSResourceEncoder
 
     public void setMetadataDimension(String key, GSDimensionInfoEncoder dimensionInfo) {
        setMetadataDimension(key, dimensionInfo, false);
+    }
+
+    public void setMetadataString(String key, String value) {
+       metadata.set(key, value);
     }	
 
     /**
@@ -224,6 +231,52 @@ public abstract class GSResourceEncoder
 		return (metadataLinksListEncoder
 				.removeContent(GSMetadataLinkInfoEncoder
 						.getFilterByContent(metadataURL))).size() == 0 ? false
+				: true;
+	}
+	
+	/**
+	 * Adds a CoverageDimensionInfo to the GeoServer Resource
+	 * 
+	 * @param coverageDimensionInfo
+	 * 
+	 * @author Henry Rotzoll
+	 */
+	public void addCoverageDimensionInfo (GSCoverageDimensionEncoder coverageDimensionInfo) {
+		if(ElementUtils.contains(getRoot(), DIMENSIONS) == null)addContent(dimensionsEncoder);
+		dimensionsEncoder.addContent(coverageDimensionInfo.getRoot());
+	}
+
+	/**
+	 * Adds quickly a CoverageDimensionInfo to the GeoServer Resource
+	 * 
+	 * @author Henry Rotzoll
+	 * 
+	 * @param name
+	 * @param description
+	 * @param rangeMin
+	 * @param rangeMax
+	 * @param unit
+	 * @param dimensionType
+	 */
+	public void addCoverageDimensionInfo(String name, String description, String rangeMin, String rangeMax, String unit, String dimensionType) {
+		final GSCoverageDimensionEncoder coverageDimensionEncoder = new GSCoverageDimensionEncoder(
+				name, description, rangeMin, rangeMax, unit, dimensionType);
+		addCoverageDimensionInfo(coverageDimensionEncoder);
+	}
+
+	/**
+	 * Deletes a CoverageDimensionInfo from the list using the CoverageDimension Name
+	 * (CoverageDimensionInfo content)
+	 * 
+	 * @author Henry Rotzoll
+	 * 
+	 * @param coverageDimensionName
+	 * @return true if something is removed, false otherwise
+	 */
+	public boolean delCoverageDimensionInfo(final String coverageDimensionName) {
+		return (dimensionsEncoder
+				.removeContent(GSCoverageDimensionEncoder
+						.getFilterByContent(coverageDimensionName))).size() == 0 ? false
 				: true;
 	}
 	
