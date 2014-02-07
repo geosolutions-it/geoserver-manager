@@ -90,10 +90,10 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         fte.addMetadataLinkInfo(metadatalink);
 
         GSLayerEncoder layerEncoder = null;
-        if (!GSVersionDecoder.VERSION.getVersion(VERSION).equals(
+        if (!GSVersionDecoder.VERSION.getVersion(GS_VERSION).equals(
                 GSVersionDecoder.VERSION.UNRECOGNIZED)) {
             layerEncoder = new GSLayerEncoder();
-        } else if (GSVersionDecoder.VERSION.getVersion(VERSION).equals(
+        } else if (GSVersionDecoder.VERSION.getVersion(GS_VERSION).equals(
                 GSVersionDecoder.VERSION.UNRECOGNIZED)) {
             layerEncoder = new GSLayerEncoder21();
         }
@@ -224,12 +224,16 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
     public void testModifyFeature() {
         GSFeatureTypeEncoder encoder = new GSFeatureTypeEncoder();
         encoder.addKeyword("KEYWORD_1");
-        encoder.addKeyword("KEYWORD_2");
+        encoder.addKeyword("KEYWORD_1","LAN_1","VOCAB_1");
+        assertTrue(encoder.delKeyword("KEYWORD_1","LAN_1","VOCAB_1"));
+        
         encoder.addKeyword("...");
         encoder.addKeyword("KEYWORD_N");
-
-        assertTrue(encoder.delKeyword("KEYWORD_2"));
         assertFalse(encoder.delKeyword("KEYWORD_M"));
+        
+        encoder.addKeyword("KEYWORD_2");
+        assertFalse(encoder.delKeyword("KEYWORD_2","LAN_1","VOCAB_1"));
+        assertTrue(encoder.delKeyword("KEYWORD_2"));
 
         // metadataLinkInfo
         encoder.addMetadataLinkInfo("text/xml", "ISO19115:2003",

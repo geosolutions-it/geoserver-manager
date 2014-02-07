@@ -78,10 +78,10 @@ public class VersionDecoderTest extends GeoserverRESTTest {
         if (!enabled())
             return;
         GSVersionDecoder geoserver = reader.getGeoserverVersion();
-        if (GSVersionDecoder.VERSION.v22.equals(GSVersionDecoder.VERSION.getVersion(VERSION))) {
+        if (GSVersionDecoder.VERSION.v22.equals(GSVersionDecoder.VERSION.getVersion(GS_VERSION))) {
             Assert.assertEquals(geoserver.getVersion(), GSVersionDecoder.VERSION.v22);
         } else if (GSVersionDecoder.VERSION.UNRECOGNIZED.equals(GSVersionDecoder.VERSION
-                .getVersion(VERSION))) {
+                .getVersion(GS_VERSION))) {
             Assert.assertEquals(geoserver.getVersion(), GSVersionDecoder.VERSION.UNRECOGNIZED);
         }
         // print(dec.getRoot());

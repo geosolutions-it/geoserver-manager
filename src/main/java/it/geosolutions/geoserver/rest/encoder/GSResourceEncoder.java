@@ -166,9 +166,25 @@ public abstract class GSResourceEncoder extends PropertyXMLEncoder {
     }
 
     public void addKeyword(String keyword) {
-        final Element el = new Element("string");
-        el.setText(keyword);
-        keywordsListEncoder.addContent(el);
+        checkKeyword(keyword);
+        putKeyword(keyword);
+    }
+
+    /**
+     * {@code
+     * <keywords>
+     *          <string>WCS</string>
+     *          <string>ImageMosaic</string>
+     *          <string>srtm30</string> <string> KEYWORD}\@language={LANGUAGE}\;\@vocabulary={VOCABULARY}\;</string>
+     * <string>{KEYWORD_2}\@vocabulary={VOCABULARY_2}\;</string> <string>{KEYWORD_3}\@language={LANGUAGE_3}\;</string> </keywords> }
+     * 
+     * @param keyword mandatory keyword ('\' characters are not permitted)
+     * @param language optional parameter
+     * @param vocabulary optional parameter
+     */
+    public void addKeyword(final String keyword, final String language, final String vocabulary) {
+        checkKeyword(keyword);
+        putKeyword(buildKeyword(keyword, language, vocabulary));
     }
 
     /**
@@ -178,18 +194,58 @@ public abstract class GSResourceEncoder extends PropertyXMLEncoder {
      * @return true if something is removed, false otherwise
      */
     public boolean delKeyword(final String keyword) {
-        final Element el = new Element("string");
-        el.setText(keyword);
+        return removeKeyword(keyword, null, null);
+    }
+
+    /**
+     * delete a keyword from the list
+     * 
+     * @param keyword
+     * @return true if something is removed, false otherwise
+     */
+    public boolean delKeyword(final String keyword, final String language, final String vocabulary) {
+        return removeKeyword(keyword, language, vocabulary);
+    }
+
+    private boolean removeKeyword(final String keyword, final String language,
+            final String vocabulary) {
+        checkKeyword(keyword);
+        final String text = buildKeyword(keyword, language, vocabulary);
         return (keywordsListEncoder.removeContent(new Filter() {
             private static final long serialVersionUID = 1L;
 
             public boolean matches(Object obj) {
-                if (((Element) obj).getText().equals(keyword)) {
+                if (((Element) obj).getText().equals(text)) {
                     return true;
                 }
                 return false;
             }
         })).size() == 0 ? false : true;
+    }
+
+    private void putKeyword(String keyword) {
+        final Element el = new Element("string");
+        el.setText(keyword);
+        keywordsListEncoder.addContent(el);
+    }
+
+    private void checkKeyword(String keyword) {
+        if (keyword == null || keyword.isEmpty() || keyword.contains("\\")) {
+            throw new IllegalArgumentException("keyword may not be null, empty or contains '\'");
+        }
+    }
+
+    private String buildKeyword(final String keyword, final String language, final String vocabulary) {
+        StringBuilder sb = new StringBuilder(keyword);
+        // \@language={LANGUAGE_3}\;
+        if (language != null && !language.isEmpty()) {
+            sb.append("\\@language=").append(language).append("\\;");
+        }
+        // \@vocabulary={VOCABULARY}\;
+        if (vocabulary != null && !vocabulary.isEmpty()) {
+            sb.append("\\@vocabulary=").append(vocabulary).append("\\;");
+        }
+        return sb.toString();
     }
 
     /**

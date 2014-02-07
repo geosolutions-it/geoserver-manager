@@ -32,6 +32,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
 import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
+import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder.VERSION;
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 
 import java.net.MalformedURLException;
@@ -77,7 +78,7 @@ public abstract class GeoserverRESTTest {
     public static final String RESTPW;
 
     // geoserver target version
-    public static final String VERSION;
+    public static final String GS_VERSION;
 
     public static URL URL;
 
@@ -95,7 +96,7 @@ public abstract class GeoserverRESTTest {
         RESTURL = getenv("gsmgr_resturl", "http://localhost:8080/geoserver");
         RESTUSER = getenv("gsmgr_restuser", "admin");
         RESTPW = getenv("gsmgr_restpw", "geoserver");
-        VERSION = getenv("gsmgr_version", "2.4");
+        GS_VERSION = getenv("gsmgr_version", "2.4");
 
         // These tests will destroy data, so let's make sure we do want to run them
         enabled = getenv("gsmgr_resttest", "false").equalsIgnoreCase("true");
@@ -138,9 +139,9 @@ public abstract class GeoserverRESTTest {
             }
             
             GSVersionDecoder v=reader.getGeoserverVersion();
-            if (!v.getVersion().equals(GSVersionDecoder.VERSION.getVersion(VERSION))){
-                System.out.println("Failing tests  : geoserver version does not match.\nAccepted versions: "+GSVersionDecoder.VERSION.print());
-                fail("GeoServer version ("+v.getVersion()+") does not match the desired one (+VERSION+)");
+            if (v.compareTo(VERSION.getVersion(GS_VERSION))!=0){
+                System.out.println("Failing tests  : geoserver version does not match.\nAccepted versions: "+VERSION.print());
+                fail("GeoServer version ("+v.getVersion()+") does not match the desired one ("+GS_VERSION+")");
             }
         } else {
             System.out.println("Skipping tests ");

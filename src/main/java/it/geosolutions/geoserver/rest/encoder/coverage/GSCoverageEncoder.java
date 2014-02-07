@@ -47,7 +47,6 @@ public class GSCoverageEncoder extends GSResourceEncoder {
     
     public GSCoverageEncoder() {
         super("coverage");
-        addContent(dimensionsEncoder);
     }
 
     /**

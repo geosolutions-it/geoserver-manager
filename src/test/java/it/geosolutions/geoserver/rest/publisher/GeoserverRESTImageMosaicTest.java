@@ -110,7 +110,7 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
         coverageEncoder.setUSE_JAI_IMAGEREAD(true);
 
         GSVersionDecoder v=reader.getGeoserverVersion();
-        if (v.getVersion().equals(GSVersionDecoder.VERSION.getVersion(GSVersionDecoder.VERSION.v24.toString()))){
+        if (v.compareTo(GSVersionDecoder.VERSION.v24)>=0){
             // New style dimensions (since gs-2.4.x)
             GSCoverageDimensionEncoder gsCoverageDimensionEncoder = new GSCoverageDimensionEncoder(
                     "GRAY_INDEX", "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf",
