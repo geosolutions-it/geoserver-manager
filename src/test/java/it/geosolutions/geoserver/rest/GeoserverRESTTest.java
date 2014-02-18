@@ -32,6 +32,7 @@ import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
 import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
+import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder.VERSION;
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 
 import java.net.MalformedURLException;
@@ -39,6 +40,8 @@ import java.net.URL;
 import java.util.List;
 
 import static org.junit.Assert.*;
+
+import org.jdom.output.EscapeStrategy;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -77,7 +80,7 @@ public abstract class GeoserverRESTTest {
     public static final String RESTPW;
 
     // geoserver target version
-    public static final String VERSION;
+    public static final String GS_VERSION;
 
     public static URL URL;
 
@@ -95,7 +98,7 @@ public abstract class GeoserverRESTTest {
         RESTURL = getenv("gsmgr_resturl", "http://localhost:8080/geoserver");
         RESTUSER = getenv("gsmgr_restuser", "admin");
         RESTPW = getenv("gsmgr_restpw", "geoserver");
-        VERSION = getenv("gsmgr_version", "2.4");
+        GS_VERSION = getenv("gsmgr_version", "2.4");
 
         // These tests will destroy data, so let's make sure we do want to run them
         enabled = getenv("gsmgr_resttest", "false").equalsIgnoreCase("true");
@@ -132,15 +135,15 @@ public abstract class GeoserverRESTTest {
                     LOGGER.info("Using geoserver instance " + RESTUSER + ":" + RESTPW + " @ "
                             + RESTURL);
                 }
-            } else {
+            } else if (existgs == false){
                 System.out.println("Failing tests  : geoserver not found");
                 fail("GeoServer not found");
             }
             
             GSVersionDecoder v=reader.getGeoserverVersion();
-            if (!v.getVersion().equals(GSVersionDecoder.VERSION.getVersion(VERSION))){
-                System.out.println("Failing tests  : geoserver version does not match.\nAccepted versions: "+GSVersionDecoder.VERSION.print());
-                fail("GeoServer version ("+v.getVersion()+") does not match the desired one (+VERSION+)");
+            if (v.compareTo(VERSION.getVersion(GS_VERSION))!=0){
+                System.out.println("Failing tests  : geoserver version does not match.\nAccepted versions: "+VERSION.print());
+                fail("GeoServer version ("+v.getVersion()+") does not match the desired one ("+GS_VERSION+")");
             }
         } else {
             System.out.println("Skipping tests ");
@@ -186,30 +189,32 @@ public abstract class GeoserverRESTTest {
         LOGGER.info("Found " + groups.size() + " layerGroups");
         for (String groupName : groups) {
             RESTLayerGroup group = reader.getLayerGroup(groupName);
-            StringBuilder sb = new StringBuilder("Group: ").append(groupName).append(":");
-            for (NameLinkElem layer : group.getLayerList()) {
-                sb.append(" ").append(layer);
+            if (groups != null) {
+                StringBuilder sb = new StringBuilder("Group: ").append(groupName).append(":");
+                for (NameLinkElem layer : group.getLayerList()) {
+                    sb.append(" ").append(layer);
+                }
+
+                boolean removed = publisher.removeLayerGroup(groupName);
+                LOGGER.info(sb.toString() + ": removed: " + removed);
+                assertTrue("LayerGroup not removed: " + groupName, removed);
             }
-
-            boolean removed = publisher.removeLayerGroup(groupName);
-            LOGGER.info(sb.toString() + ": removed: " + removed);
-            assertTrue("LayerGroup not removed: " + groupName, removed);
         }
-
     }
 
     private void deleteAllLayers() {
         List<String> layers = reader.getLayers().getNames();
-        for (String layerName : layers) {
-            RESTLayer layer = reader.getLayer(layerName);
-            if (layer.getType() == RESTLayer.Type.VECTOR)
-                deleteFeatureType(layer);
-            else if (layer.getType() == RESTLayer.Type.RASTER)
-                deleteCoverage(layer);
-            else
-                LOGGER.error("Unknown layer type " + layer.getType());
+        if (layers != null) {
+            for (String layerName : layers) {
+                RESTLayer layer = reader.getLayer(layerName);
+                if (layer.getType() == RESTLayer.Type.VECTOR)
+                    deleteFeatureType(layer);
+                else if (layer.getType() == RESTLayer.Type.RASTER)
+                    deleteCoverage(layer);
+                else
+                    LOGGER.error("Unknown layer type " + layer.getType());
+            }
         }
-
     }
 
     private void deleteAllCoverageStores() {
@@ -269,11 +274,12 @@ public abstract class GeoserverRESTTest {
 
     protected void deleteAllStyles() {
         List<String> styles = reader.getStyles().getNames();
-        for (String style : styles) {
-            LOGGER.warn("Deleting Style " + style);
-            boolean removed = publisher.removeStyle(style,true);
-            assertTrue("Style not removed " + style, removed);
-
+        if (styles != null) {
+            for (String style : styles) {
+                LOGGER.warn("Deleting Style " + style);
+                boolean removed = publisher.removeStyle(style, true);
+                assertTrue("Style not removed " + style, removed);
+            }
         }
     }
 

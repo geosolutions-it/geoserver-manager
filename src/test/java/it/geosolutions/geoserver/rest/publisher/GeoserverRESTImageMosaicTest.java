@@ -29,9 +29,11 @@ package it.geosolutions.geoserver.rest.publisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.ParameterConfigure;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSImageMosaicEncoder;
+import it.geosolutions.geoserver.rest.encoder.dimensions.GSCoverageDimensionEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 
@@ -42,6 +44,7 @@ import java.io.IOException;
 import org.apache.commons.httpclient.NameValuePair;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -91,7 +94,7 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
          * or create a new one from an existing store:
          * publisher.createCoverage(ce, wsname, csname);
          */
-        coverageEncoder.setName("CoverageName");
+//        coverageEncoder.setName("time_geotiff");
         
         coverageEncoder.setAllowMultithreading(true);
         coverageEncoder.setBackgroundValues("");
@@ -105,13 +108,24 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
         coverageEncoder.setSRS("EPSG:4326");
         coverageEncoder.setSUGGESTED_TILE_SIZE("256,256");
         coverageEncoder.setUSE_JAI_IMAGEREAD(true);
-        // activate time
-        final GSDimensionInfoEncoder time=new GSDimensionInfoEncoder(true);
-        time.setPresentation(Presentation.LIST);
-        // set time metadata
-        coverageEncoder.setMetadata("time", time);
-        // not active elevation
-        coverageEncoder.setMetadata("elevation", new GSDimensionInfoEncoder());
+
+        GSVersionDecoder v=reader.getGeoserverVersion();
+        if (v.compareTo(GSVersionDecoder.VERSION.v24)>=0){
+            GSCoverageDimensionEncoder gsCoverageDimensionEncoder = new GSCoverageDimensionEncoder(
+                    "GRAY_INDEX", "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf",
+                    "dobson units³", "REAL_32BITS");
+            coverageEncoder.addCoverageDimensionInfo(gsCoverageDimensionEncoder);            
+        }
+
+            // activate time
+            final GSDimensionInfoEncoder time=new GSDimensionInfoEncoder(true);
+            time.setPresentation(Presentation.LIST);
+            // set time metadata
+            coverageEncoder.setMetadata("time", time);
+            // not active elevation
+            coverageEncoder.setMetadata("elevation", new GSDimensionInfoEncoder());
+
+        
         
         assertTrue(publisher.createWorkspace(wsName));
         

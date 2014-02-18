@@ -21,13 +21,16 @@ package it.geosolutions.geoserver.rest.encoder.feature;
 
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
 import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
+import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder.VERSION;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder21;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.authorityurl.GSAuthorityURLInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.dimensions.GSCoverageDimensionEncoder;
 import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
@@ -52,14 +55,12 @@ import org.springframework.core.io.ClassPathResource;
 
 /**
  * 
- * Note on adding multiple available styles to the GSLayerEncoder: - to run the
- * testIntegration(), 2 clones of the "point" style, named "point2" and "point3"
- * have to be created.
+ * Note on adding multiple available styles to the GSLayerEncoder: - to run the testIntegration(), 2 clones of the "point" style, named "point2" and
+ * "point3" have to be created.
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
- * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com |
- *         emmanuel.blondel@fao.org
+ * @author Emmanuel Blondel - emmanuel.blondel1@gmail.com | emmanuel.blondel@fao.org
  */
 public class GSFeatureEncoderTest extends GeoserverRESTTest {
     protected final static Logger LOGGER = LoggerFactory.getLogger(GSFeatureEncoderTest.class);
@@ -72,9 +73,21 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         deleteAll();
 
         GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
-
+                            
         String storeName = "resttestshp";
         String layerName = "cities";
+        
+        publisher.createWorkspace(DEFAULT_WS);
+
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+
+        // test insert
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
+        assertTrue("publish() failed", published);
+        assertTrue(existsLayer(layerName));
+
+        publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),
+                "default_point.sld"));
 
         GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
         fte.setNativeName(layerName);
@@ -85,70 +98,52 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         fte.setDescription("desc");
         fte.setEnabled(true);
 
-        //metadataLink
-		GSMetadataLinkInfoEncoder metadatalink = new GSMetadataLinkInfoEncoder(
-				"text/xml", "ISO19115:2003",
-				"http://www.organization.org/metadata1");
+        // metadataLink
+        GSMetadataLinkInfoEncoder metadatalink = new GSMetadataLinkInfoEncoder("text/xml",
+                "ISO19115:2003", "http://www.organization.org/metadata1");
         fte.addMetadataLinkInfo(metadatalink);
-        
-		GSLayerEncoder layerEncoder = null;
-		if (!GSVersionDecoder.VERSION.getVersion(VERSION).equals(
-				GSVersionDecoder.VERSION.UNRECOGNIZED)) {
-			layerEncoder = new GSLayerEncoder();
-		} else if (GSVersionDecoder.VERSION.getVersion(VERSION).equals(
-				GSVersionDecoder.VERSION.UNRECOGNIZED)) {
-			layerEncoder = new GSLayerEncoder21();
-		}
-		layerEncoder.setEnabled(true);
-		layerEncoder.setQueryable(true);
-		layerEncoder.setAdvertised(true);
 
-		layerEncoder.setDefaultStyle("point");
-		layerEncoder.addStyle("point2");
-		layerEncoder.addStyle("point3");
+        GSLayerEncoder layerEncoder = null;
+        if (VERSION.getVersion(GS_VERSION).compareTo(VERSION.UNRECOGNIZED) > 0) {
+            layerEncoder = new GSLayerEncoder();
+        } else if (VERSION.getVersion(GS_VERSION).compareTo(VERSION.UNRECOGNIZED) == 0) {
+            layerEncoder = new GSLayerEncoder21();
+        }
+        layerEncoder.setEnabled(true);
+        layerEncoder.setQueryable(true);
+        layerEncoder.setAdvertised(true);
 
-		// authorityURL
-		GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder(
-				"authority1", "http://www.authority1.org");
-		layerEncoder.addAuthorityURL(authorityURL);
+        layerEncoder.setDefaultStyle("point");
+        layerEncoder.addStyle("point2");
+        layerEncoder.addStyle("point3");
 
-		// identifier
-		GSIdentifierInfoEncoder identifier1 = new GSIdentifierInfoEncoder(
-				"authority1", "identifier1");
-		GSIdentifierInfoEncoder identifier2 = new GSIdentifierInfoEncoder(
-				"authority1", "another_identifier");
-		layerEncoder.addIdentifier(identifier1);
-		layerEncoder.addIdentifier(identifier2);
+        // authorityURL
+        GSAuthorityURLInfoEncoder authorityURL = new GSAuthorityURLInfoEncoder("authority1",
+                "http://www.authority1.org");
+        layerEncoder.addAuthorityURL(authorityURL);
 
-		publisher.createWorkspace(DEFAULT_WS);
+        // identifier
+        GSIdentifierInfoEncoder identifier1 = new GSIdentifierInfoEncoder("authority1",
+                "identifier1");
+        GSIdentifierInfoEncoder identifier2 = new GSIdentifierInfoEncoder("authority1",
+                "another_identifier");
+        layerEncoder.addIdentifier(identifier1);
+        layerEncoder.addIdentifier(identifier2);
 
-		File zipFile = new ClassPathResource("testdata/resttestshp.zip")
-				.getFile();
 
-		// test insert
-		boolean published = publisher.publishShp(DEFAULT_WS, storeName,
-				layerName, zipFile);
-		assertTrue("publish() failed", published);
-		assertTrue(existsLayer(layerName));
+        // optionally select the attributes to publish
+        RESTLayer layer = reader.getLayer(DEFAULT_WS, layerName);
+        RESTFeatureType resource = reader.getFeatureType(layer);
+        List<GSAttributeEncoder> attrs = resource.getEncodedAttributeList();
+        assertNotNull(attrs);
+        for (GSAttributeEncoder enc : attrs) {
+            fte.setAttribute(enc);
+        }
 
-		publisher.publishStyle(new File(new ClassPathResource("testdata")
-				.getFile(), "default_point.sld"));
-
-		// optionally select the attributes to publish
-		RESTLayer layer = reader.getLayer(layerName);
-		RESTResource resource = reader.getResource(layer);
-		List<GSAttributeEncoder> attrs = resource.getEncodedAttributeList();
-		assertNotNull(attrs);
-		for (GSAttributeEncoder enc : attrs) {
-			fte.setAttribute(enc);
-		}
-
-		assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte,
-				layerEncoder));
+        assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
 
     }
 
-    
     @Test
     public void testFeatureTypeEncoder() {
 
@@ -157,9 +152,9 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         encoder.addKeyword("KEYWORD_2");
         encoder.addKeyword("...");
         encoder.addKeyword("KEYWORD_N");
-        
+
         encoder.setName("Layername");
-        
+
         encoder.setTitle("title");
         encoder.addKeyword("TODO");
         encoder.setNativeCRS("EPSG:4326");
@@ -172,24 +167,24 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         attribute.setAttribute(FeatureTypeAttribute.maxOccurs, "1");
         attribute.setAttribute(FeatureTypeAttribute.minOccurs, "0");
         attribute.setAttribute(FeatureTypeAttribute.nillable, "true");
-        
+
         encoder.setAttribute(attribute);
-        
+
         encoder.delAttribute("NAME");
-        
+
         attribute.setAttribute(FeatureTypeAttribute.name, "NEW_NAME");
-        
+
         encoder.setAttribute(attribute);
-        
+
         // TODO encoder.getAttribute("NAME");
-        
+
         GSFeatureDimensionInfoEncoder dim2 = new GSFeatureDimensionInfoEncoder("ELE");
-        
+
         encoder.setMetadataDimension("elevation", dim2);
         dim2.setPresentation(Presentation.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
         Element el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
         assertNotNull(el);
-        
+
         LOGGER.info("contains_key:" + el.toString());
 
         dim2.setPresentation(Presentation.DISCRETE_INTERVAL, BigDecimal.valueOf(12));
@@ -198,7 +193,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         assertEquals("12", el.getText());
 
         dim2.setPresentation(Presentation.CONTINUOUS_INTERVAL);
-        
+
         encoder.setMetadataDimension("time", new GSFeatureDimensionInfoEncoder("time"));
         el = ElementUtils.contains(encoder.getRoot(), GSDimensionInfoEncoder.PRESENTATION);
         assertNotNull(el);
@@ -217,32 +212,38 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         assertNull(el);
         if (el == null)
             LOGGER.info("REMOVED");
-        
+
         if (LOGGER.isInfoEnabled())
             LOGGER.info(encoder.toString());
 
-        assertEquals(encoder.getName(),"Layername");
+        assertEquals(encoder.getName(), "Layername");
     }
 
     @Test
     public void testModifyFeature() {
         GSFeatureTypeEncoder encoder = new GSFeatureTypeEncoder();
         encoder.addKeyword("KEYWORD_1");
-        encoder.addKeyword("KEYWORD_2");
+        encoder.addKeyword("KEYWORD_1", "LAN_1", "VOCAB_1");
+        assertTrue(encoder.delKeyword("KEYWORD_1", "LAN_1", "VOCAB_1"));
+
         encoder.addKeyword("...");
         encoder.addKeyword("KEYWORD_N");
-
-        assertTrue(encoder.delKeyword("KEYWORD_2"));
         assertFalse(encoder.delKeyword("KEYWORD_M"));
 
-        //metadataLinkInfo
-        encoder.addMetadataLinkInfo("text/xml", "ISO19115:2003","http://www.organization.org/metadata1");
-        encoder.addMetadataLinkInfo("text/html", "ISO19115:2003","http://www.organization.org/metadata2");
-        
+        encoder.addKeyword("KEYWORD_2");
+        assertFalse(encoder.delKeyword("KEYWORD_2", "LAN_1", "VOCAB_1"));
+        assertTrue(encoder.delKeyword("KEYWORD_2"));
+
+        // metadataLinkInfo
+        encoder.addMetadataLinkInfo("text/xml", "ISO19115:2003",
+                "http://www.organization.org/metadata1");
+        encoder.addMetadataLinkInfo("text/html", "ISO19115:2003",
+                "http://www.organization.org/metadata2");
+
         assertTrue(encoder.delMetadataLinkInfo("http://www.organization.org/metadata2"));
         assertFalse(encoder.delMetadataLinkInfo("http://www.organization.org/metadata3"));
-        
-        //dimensions
+
+        // dimensions
         final GSFeatureDimensionInfoEncoder elevationDimension = new GSFeatureDimensionInfoEncoder(
                 "elevation_field");
 
@@ -252,8 +253,7 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         final String metadata = "elevation";
         encoder.setMetadataDimension(metadata, elevationDimension);
 
-        elevationDimension.setPresentation(Presentation.DISCRETE_INTERVAL,
-                BigDecimal.valueOf(10));
+        elevationDimension.setPresentation(Presentation.DISCRETE_INTERVAL, BigDecimal.valueOf(10));
 
         if (LOGGER.isInfoEnabled())
             LOGGER.info(encoder.toString());
@@ -270,82 +270,96 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
             LOGGER.info("REMOVED");
 
     }
-    
+
     /**
      * Test method for virtual table encoding / SQL view layer integration
      * 
-     * Settings information for integration tests
-     * - test is based on the data used in http://docs.geoserver.org/latest/en/user/data/database/sqlview.html#parameterizing-sql-views
-     *   (states shapefile - available in testdata/states.zip)
-     * - create a postgis db
-     * - import the states shapefile (using shp2pgsql or Postgis shapefile uploader)
-     * - In Geoserver, create a postgis datastore for this DB, with the name "statesdb" 
+     * Settings information for integration tests - test is based on the data used in
+     * http://docs.geoserver.org/latest/en/user/data/database/sqlview.html#parameterizing-sql-views (states shapefile - available in
+     * testdata/states.zip) - create a postgis db - import the states shapefile (using shp2pgsql or Postgis shapefile uploader) - In Geoserver, create
+     * a postgis datastore for this DB, with the name "statesdb"
+     * 
+     * @throws IOException
      * 
      */
     @Test
-    public void testSQLViewIntegration(){
-    	
-    	if (!enabled())
+    public void testSQLViewIntegration() throws IOException {
+
+        if (!enabled())
             return;
         deleteAll();
+        
         GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
-        
-        
-        String storeName = "statesdb"; //name of the datastore setup for tests
-        String layerName = "my_sqlviewlayer";
-        String nativeName = "popstates";
 
+        String storeName = "resttestshp";
+        String layerName = "cities";
+        
+        // build the store
+        publisher.createWorkspace(DEFAULT_WS);
+        
+        // test insert
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
+        assertTrue("publish() failed", published);
+
+        publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),
+                "default_point.sld"));
+
+        String nativeName = layerName;
+        layerName=layerName+"_NEW";
+        
         GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
         fte.setName(layerName);
         fte.setNativeName(nativeName);
         fte.setTitle("title");
-        
+
         fte.addKeyword("keyword1");
         fte.addKeyword("keyword2");
         fte.setNativeCRS("EPSG:4326");
         fte.setDescription("desc");
         fte.setEnabled(true);
 
-        //virtual table
-        //-------------
+        // virtual table
+        // -------------
         // Set-up the vtGeom
         final VTGeometryEncoder vtGeom = new VTGeometryEncoder("the_geom", "Point", "4326");
-         
+
         // Set-up 2 virtual table parameters
         final VTParameterEncoder vtParam1 = new VTParameterEncoder("high", "100000000", "^[\\d]+$");
         final VTParameterEncoder vtParam2 = new VTParameterEncoder("low", "0", "^[\\d]+$");
-         
+
         // sql
         String sql = "select gid, state_name, the_geom from pgstates where persons between %low% and %high% and state_abbr = '%state%'";
-        
-        //set-up the virtual table
+
+        // set-up the virtual table
         final GSVirtualTableEncoder vte = new GSVirtualTableEncoder();
         vte.setName(nativeName);
         vte.setSql(sql);
         vte.addVirtualTableGeometry(vtGeom);
         vte.addVirtualTableParameter(vtParam1);
         vte.addVirtualTableParameter(vtParam2);
-        fte.setMetadataVirtualTable(vte); //Set the virtual table 
-        
-        //modif the vte
+
+        // modif the vte
         vte.delVirtualTableGeometry("the_geom");
         vte.addVirtualTableGeometry("the_geom", "MultiPolygon", "4326");
-        
+
         final VTParameterEncoder vtParam3 = new VTParameterEncoder("state", "FL", "^[\\w\\d\\s]+$");
         vte.addVirtualTableParameter(vtParam3);
         vte.addKeyColumn("gid");
-        
-        //Layer encoder
-        //-------------
+
+        fte.setMetadataVirtualTable(vte); // Set the virtual table
+
+        // Layer encoder
+        // -------------
         GSLayerEncoder layerEncoder = new GSLayerEncoder();
         layerEncoder.setEnabled(true);
         layerEncoder.setQueryable(true);
         layerEncoder.setDefaultStyle("polygon");
-
+        
         // test insert
-        //------------
+        // ------------
         publisher.createWorkspace(DEFAULT_WS);
-        boolean published = publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder);
+        published = publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder);
         assertTrue("Publication unsuccessful", published);
         assertTrue("Layer does not exist", existsLayer(layerName));
 

@@ -25,38 +25,85 @@
 
 package it.geosolutions.geoserver.rest.encoder.coverage;
 
-import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
-import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
+import org.jdom.Element;
 
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
+import it.geosolutions.geoserver.rest.encoder.dimensions.GSCoverageDimensionEncoder;
+import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
+import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
 
 /**
- * Creates an XML 
+ * Creates an XML
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  * 
  */
 public class GSCoverageEncoder extends GSResourceEncoder {
+
+    public final static String DIMENSIONS = "dimensions";
     
-	public GSCoverageEncoder() {
+    final private Element dimensionsEncoder = new Element(DIMENSIONS);
+    
+    public GSCoverageEncoder() {
         super("coverage");
-	}
-	
+    }
+
     /**
      * @param key
      * @param dimensionInfo
      * @deprecated Use {@link GSResourceEncoder#addMetadataDimension(String, GSDimensionInfoEncoder)} this method will be removed soon
      */
-	protected void addMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
-		super.addMetadata(key, dimensionInfo);
-	}
+    protected void addMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
+        super.addMetadata(key, dimensionInfo);
+    }
 
     /**
      * @deprecated Use {@link GSResourceEncoder#setMetadataDimension(String, GSDimensionInfoEncoder)} this method will be removed soon
      * @param key
      * @param dimensionInfo
      */
-	public void setMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
-		super.setMetadata(key, dimensionInfo);
-	}
+    public void setMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
+        super.setMetadata(key, dimensionInfo);
+    }
+
+    /**
+     * Adds a CoverageDimensionInfo to the GeoServer Resource
+     * 
+     * @param coverageDimensionInfo
+     * 
+     */
+    public void addCoverageDimensionInfo(GSCoverageDimensionEncoder coverageDimensionInfo) {
+        if (ElementUtils.contains(getRoot(), DIMENSIONS) == null)
+            addContent(dimensionsEncoder);
+        dimensionsEncoder.addContent(coverageDimensionInfo.getRoot());
+    }
+
+    /**
+     * Adds quickly a CoverageDimensionInfo to the GeoServer Resource
+     * 
+     * @param name
+     * @param description
+     * @param rangeMin
+     * @param rangeMax
+     * @param unit
+     * @param dimensionType
+     */
+    public void addCoverageDimensionInfo(String name, String description, String rangeMin,
+            String rangeMax, String unit, String dimensionType) {
+        final GSCoverageDimensionEncoder coverageDimensionEncoder = new GSCoverageDimensionEncoder(
+                name, description, rangeMin, rangeMax, unit, dimensionType);
+        addCoverageDimensionInfo(coverageDimensionEncoder);
+    }
+
+    /**
+     * Deletes a CoverageDimensionInfo from the list using the CoverageDimension Name (CoverageDimensionInfo content)
+     * 
+     * @param coverageDimensionName
+     * @return true if something is removed, false otherwise
+     */
+    public boolean delCoverageDimensionInfo(final String coverageDimensionName) {
+        return (dimensionsEncoder.removeContent(GSCoverageDimensionEncoder
+                .getFilterByContent(coverageDimensionName))).size() == 0 ? false : true;
+    }
 }

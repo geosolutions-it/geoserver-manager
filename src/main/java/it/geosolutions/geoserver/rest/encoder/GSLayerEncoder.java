@@ -41,6 +41,34 @@ import org.jdom.filter.Filter;
  * 
  * The layer encoder is enabled by default
  * 
+ * {@code
+ * <layer>
+ *      <name>{LAYERNAME}</name>
+ *      <type>RASTER</type>
+ *      <defaultStyle>
+ *              <name>{STYLE_NAME}</name>
+ *              <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://{GSURL}/rest/styles/{STYLE}xml" type="application/xml"/>
+ *      </defaultStyle>
+ *      <resource class="coverage">
+ *            <name>{RESOURCE_NAME}</name>
+ *              <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" 
+ *                      href="http://{GSURL}/rest/workspaces/{WS}/coveragestores/{STORE}/coverages/{LAYER}.xml" type="application/xml"/>
+ *      </resource>
+ *      <attribution>
+ *              <title>test</title>
+ *              <href>http://www.fao.org/fileadmin/templates/faoweb/images/FAO-logo.png</href>
+ *              <logoURL>http://www.fao.org/fileadmin/templates/faoweb/images/FAO-logo.png</logoURL>
+ *              <logoWidth>412</logoWidth>
+ *              <logoHeight>77</logoHeight>
+ *              <logoType>image/png</logoType>
+ *      </attribution>
+ *      ...
+ *      
+ * </layer>
+ * }
+ * 
+ * 
+ * @since gs-2.2.x
  */
 public class GSLayerEncoder extends PropertyXMLEncoder {
 	
@@ -50,7 +78,7 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
 	
 	final private Element stylesEncoder = new Element(STYLES);
 	final private Element authorityURLListEncoder = new Element(AUTHORITY_URLS);
-	final private Element identifierListEncoder = new Element(IDENTIFIERS); 
+	final private Element identifierListEncoder = new Element(IDENTIFIERS);
 	
     public GSLayerEncoder() {
         super("layer");

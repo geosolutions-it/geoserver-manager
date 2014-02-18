@@ -1,115 +1,136 @@
-
 <coverage>
-  <name>granuleTestMosaic</name>
-  <nativeName>granuleTestMosaic</nativeName>
-  <abstract>this is an abstract</abstract>
-  <namespace>
-    <name>topp</name>
-    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/namespaces/topp.xml" type="application/xml"/>
-  </namespace>
-  <title>granuleTestMosaic</title>
-  <keywords>
-  	<string>keyword1</string>
-  	<string>keyword2</string>
-  	<string>keyword3</string>
-  </keywords>
-  <metadataLinks>
-  	<metadataLink>
-  		<type>text/xml</type>
-  		<metadataType>ISO19115:2003</metadataType>
-  		<content>http://www.organization.org/metadata1</content>
-  	</metadataLink>
-  	<metadataLink>
-  		<type>text/html</type>
-  		<metadataType>ISO19115:2003</metadataType>
-  		<content>http://www.organization.org/metadata2</content>
-  	</metadataLink>
-  </metadataLinks>
-  <nativeCRS>GEOGCS[&quot;WGS 84&quot;, &#xd;
-  DATUM[&quot;World Geodetic System 1984&quot;, &#xd;
-    SPHEROID[&quot;WGS 84&quot;, 6378137.0, 298.257223563, AUTHORITY[&quot;EPSG&quot;,&quot;7030&quot;]], &#xd;
-    AUTHORITY[&quot;EPSG&quot;,&quot;6326&quot;]], &#xd;
-  PRIMEM[&quot;Greenwich&quot;, 0.0, AUTHORITY[&quot;EPSG&quot;,&quot;8901&quot;]], &#xd;
-  UNIT[&quot;degree&quot;, 0.017453292519943295], &#xd;
-  AXIS[&quot;Geodetic longitude&quot;, EAST], &#xd;
-  AXIS[&quot;Geodetic latitude&quot;, NORTH], &#xd;
-  AUTHORITY[&quot;EPSG&quot;,&quot;4326&quot;]]</nativeCRS>
-  <srs>EPSG:4326</srs>
-  <nativeBoundingBox>
-    <minx>-180.0</minx>
-    <maxx>180.0</maxx>
-    <miny>-90.0</miny>
-    <maxy>90.0</maxy>
-    <crs>EPSG:4326</crs>
-  </nativeBoundingBox>
-  <latLonBoundingBox>
-    <minx>-180.0</minx>
-    <maxx>180.0</maxx>
-    <miny>-90.0</miny>
-    <maxy>90.0</maxy>
-    <crs>EPSG:4326</crs>
-  </latLonBoundingBox>
-  <projectionPolicy>NONE</projectionPolicy>
-  <enabled>true</enabled>
-  <advertised>true</advertised>
-  <metadata>
-    <entry key="time">
-      <dimensionInfo>
-        <enabled>true</enabled>
-        <presentation>LIST</presentation>
-      </dimensionInfo>
-    </entry>
-    <entry key="elevation">
-      <dimensionInfo>
-        <enabled>true</enabled>
-        <presentation>DISCRETE_INTERVAL</presentation>
-        <resolution>2</resolution>
-      </dimensionInfo>
-    </entry>
-  </metadata>
-  <store class="coverageStore">
-    <name>granuleTestMosaic</name>
-    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/workspaces/topp/coveragestores/granuleTestMosaic.xml" type="application/xml"/>
-  </store>
-  <grid dimension="2">
-    <range>
-      <low>0 0</low>
-      <high>540 270</high>
-    </range>
-    <transform>
-      <scaleX>0.6666666666666666</scaleX>
-      <scaleY>-0.6666666666666666</scaleY>
-      <shearX>0.0</shearX>
-      <shearY>0.0</shearY>
-      <translateX>-179.66666666666666</translateX>
-      <translateY>89.66666666666667</translateY>
-    </transform>
-    <crs>EPSG:4326</crs>
-  </grid>
-  <parameters>
-    <entry>
-      <string>AllowMultithreading</string>
-      <string>false</string>
-    </entry>
-    <entry>
-      <string>MaxAllowedTiles</string>
-      <string>2147483647</string>
-    </entry>
-    <entry>
-      <string>InputTransparentColor</string>
-      <string></string>
-    </entry>
-    <entry>
-      <string>SUGGESTED_TILE_SIZE</string>
-      <string>256,256</string>
-    </entry>
-    <entry>
-      <string>USE_JAI_IMAGEREAD</string>
-      <string>false</string>
-    </entry>
-    <entry>
-      <string>BackgroundValues</string>
-      <string>-1.0</string>
-    </entry>
-  </parameters>
+	<name>granuleTestMosaic</name>
+	<nativeName>granuleTestMosaic</nativeName>
+	<abstract>this is an abstract</abstract>
+	<namespace>
+		<name>topp</name>
+		<atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate"
+			href="http://localhost:8080/geoserver/rest/namespaces/topp.xml" type="application/xml" />
+	</namespace>
+	<title>granuleTestMosaic</title>
+	<keywords>
+		<string>keyword1</string>
+		<string>keyword2</string>
+		<string>keyword3</string>
+	</keywords>
+	<metadataLinks>
+		<metadataLink>
+			<type>text/xml</type>
+			<metadataType>ISO19115:2003</metadataType>
+			<content>http://www.organization.org/metadata1</content>
+		</metadataLink>
+		<metadataLink>
+			<type>text/html</type>
+			<metadataType>ISO19115:2003</metadataType>
+			<content>http://www.organization.org/metadata2</content>
+		</metadataLink>
+	</metadataLinks>
+	<nativeCRS>GEOGCS[&quot;WGS 84&quot;, &#xd;
+		DATUM[&quot;World Geodetic
+		System 1984&quot;, &#xd;
+		SPHEROID[&quot;WGS 84&quot;, 6378137.0,
+		298.257223563,
+		AUTHORITY[&quot;EPSG&quot;,&quot;7030&quot;]], &#xd;
+		AUTHORITY[&quot;EPSG&quot;,&quot;6326&quot;]], &#xd;
+		PRIMEM[&quot;Greenwich&quot;, 0.0,
+		AUTHORITY[&quot;EPSG&quot;,&quot;8901&quot;]], &#xd;
+		UNIT[&quot;degree&quot;, 0.017453292519943295], &#xd;
+		AXIS[&quot;Geodetic longitude&quot;, EAST], &#xd;
+		AXIS[&quot;Geodetic
+		latitude&quot;, NORTH], &#xd;
+		AUTHORITY[&quot;EPSG&quot;,&quot;4326&quot;]]</nativeCRS>
+	<srs>EPSG:4326</srs>
+	<nativeBoundingBox>
+		<minx>-180.0</minx>
+		<maxx>180.0</maxx>
+		<miny>-90.0</miny>
+		<maxy>90.0</maxy>
+		<crs>EPSG:4326</crs>
+	</nativeBoundingBox>
+	<latLonBoundingBox>
+		<minx>-180.0</minx>
+		<maxx>180.0</maxx>
+		<miny>-90.0</miny>
+		<maxy>90.0</maxy>
+		<crs>EPSG:4326</crs>
+	</latLonBoundingBox>
+	<projectionPolicy>NONE</projectionPolicy>
+	<enabled>true</enabled>
+	<advertised>true</advertised>
+	<metadata>
+		<entry key="time">
+			<dimensionInfo>
+				<enabled>true</enabled>
+				<presentation>LIST</presentation>
+			</dimensionInfo>
+		</entry>
+		<entry key="elevation">
+			<dimensionInfo>
+				<enabled>true</enabled>
+				<presentation>DISCRETE_INTERVAL</presentation>
+				<resolution>2</resolution>
+			</dimensionInfo>
+		</entry>
+	</metadata>
+	<store class="coverageStore">
+		<name>granuleTestMosaic</name>
+		<atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate"
+			href="http://localhost:8080/geoserver/rest/workspaces/topp/coveragestores/granuleTestMosaic.xml"
+			type="application/xml" />
+	</store>
+	<grid dimension="2">
+		<range>
+			<low>0 0</low>
+			<high>540 270</high>
+		</range>
+		<transform>
+			<scaleX>0.6666666666666666</scaleX>
+			<scaleY>-0.6666666666666666</scaleY>
+			<shearX>0.0</shearX>
+			<shearY>0.0</shearY>
+			<translateX>-179.66666666666666</translateX>
+			<translateY>89.66666666666667</translateY>
+		</transform>
+		<crs>EPSG:4326</crs>
+	</grid>
+	<dimensions>
+		<coverageDimension>
+			<name>GRAY_INDEX</name>
+			<description>GridSampleDimension[-Infinity,Infinity]</description>
+			<range>
+				<min>-inf</min>
+				<max>inf</max>
+			</range>
+			<unit>dobson units³</unit>
+			<dimensionType>
+				<name>REAL_32BITS</name>
+			</dimensionType>
+		</coverageDimension>
+	</dimensions>
+	<parameters>
+		<entry>
+			<string>AllowMultithreading</string>
+			<string>false</string>
+		</entry>
+		<entry>
+			<string>MaxAllowedTiles</string>
+			<string>2147483647</string>
+		</entry>
+		<entry>
+			<string>InputTransparentColor</string>
+			<string></string>
+		</entry>
+		<entry>
+			<string>SUGGESTED_TILE_SIZE</string>
+			<string>256,256</string>
+		</entry>
+		<entry>
+			<string>USE_JAI_IMAGEREAD</string>
+			<string>false</string>
+		</entry>
+		<entry>
+			<string>BackgroundValues</string>
+			<string>-1.0</string>
+		</entry>
+	</parameters>
 </coverage>

@@ -316,7 +316,9 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
         if(styleName.contains(":"))
             LOGGER.warn("Style name is going to be changed ["+styleName+"]");
         styleName = styleName.replaceAll(":", "_");
-        styleName = URLEncoder.encode(styleName);
+        
+        // currently REST interface does't support URLencoded URL 
+//        styleName = URLEncoder.encode(styleName);
 
         String sUrl = buildUrl(null, styleName, null);
         if (purge) {

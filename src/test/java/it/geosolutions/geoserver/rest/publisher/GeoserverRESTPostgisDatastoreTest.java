@@ -62,7 +62,7 @@ public class GeoserverRESTPostgisDatastoreTest extends StoreIntegrationTest {
 
     public GeoserverRESTPostgisDatastoreTest()
             throws IllegalArgumentException, MalformedURLException {
-        super(System.getProperty("pgIgnore", "false").equalsIgnoreCase("true"));
+        super(System.getProperty("pgIgnore", "true").equalsIgnoreCase("true"));
     }
 
         

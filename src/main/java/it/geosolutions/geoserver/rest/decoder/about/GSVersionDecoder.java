@@ -132,13 +132,22 @@ public class GSVersionDecoder extends XmlElement {
         Element e = ElementUtils.contains(geoserver.version, GSAboutResource.VERSION);
         return VERSION.getVersion(e.getTextTrim());
     }
+    
+    /**
+     * @see {@link Enum#compareTo(Enum)}
+     * @param v
+     * @return
+     */
+    public int compareTo(VERSION v) {
+        return getVersion().compareTo(v);
+    }
 
     public static GSVersionDecoder build(String response) {
         return new GSVersionDecoder(response);
     }
 
     public enum VERSION {
-        v22(22), v23(23), v24(24), v25(25), ABOVE(9999), UNRECOGNIZED(-1);
+        UNRECOGNIZED(-1), v22(22), v23(23), v24(24), v25(25), ABOVE(9999);
 
         final private int version;
 

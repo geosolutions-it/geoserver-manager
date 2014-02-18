@@ -108,7 +108,7 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         assertTrue("publish() failed", pub);
         
         double[] bbox = {-103.85, 44.38, -103.62, 44.50};
-        pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another_complex", "layername_complex", geotiff, "EPSG:4326", ProjectionPolicy.REPROJECT_TO_DECLARED, "raster", bbox);
+        pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another_complex", storeName+"another_complex", geotiff, "EPSG:4326", ProjectionPolicy.REPROJECT_TO_DECLARED, "raster", bbox);
         
         assertTrue("publish() failed", pub);
 

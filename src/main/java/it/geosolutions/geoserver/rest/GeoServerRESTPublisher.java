@@ -1821,12 +1821,9 @@ public class GeoServerRESTPublisher {
             throw new IllegalArgumentException("no coverageEncoder provided for mosaic "
                     + mosaicDir);
         }
-        // override name to match the FIRST configured coverage
-        String coverageName = coverageEncoder.getName();
 
         if (layerEncoder == null) {
-            throw new IllegalArgumentException("no layerEncoder provided for " + workspace + ":"
-                    + coverageName);
+            throw new IllegalArgumentException("no layerEncoder provided for " + mosaicDir);
         }
 
         RESTCoverageStore store = createExternaMosaicDatastore(workspace, storeName, mosaicDir,
@@ -1834,6 +1831,13 @@ public class GeoServerRESTPublisher {
 
         if (store == null) {
             return false;
+        }
+        
+        // override name to match the FIRST configured coverage
+        String coverageName = coverageEncoder.getName();
+        if (coverageName==null){
+            coverageName=mosaicDir.getName();
+            coverageEncoder.setName(coverageName);
         }
         if (!createCoverage(workspace, storeName, coverageEncoder)) {
             if (LOGGER.isErrorEnabled())
@@ -2129,6 +2133,8 @@ public class GeoServerRESTPublisher {
      */
     private void deleteStylesForWorkspace(String workspace) {
         RESTStyleList styles = styleManager.getStyles(workspace);
+        if (styles==null)
+            return;
         for (NameLinkElem nameLinkElem : styles) {
             removeStyleInWorkspace(workspace, nameLinkElem.getName(), true);
         }

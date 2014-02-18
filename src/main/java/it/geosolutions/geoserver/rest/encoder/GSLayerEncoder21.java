@@ -45,6 +45,8 @@ import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
  * 
  * The layer encoder is enabled by default
  * 
+ * @since gs-2.1.x
+ * 
  */
 public class GSLayerEncoder21 extends GSLayerEncoder {
 	
