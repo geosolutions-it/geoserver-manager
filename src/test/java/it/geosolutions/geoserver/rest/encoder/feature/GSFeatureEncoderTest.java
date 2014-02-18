@@ -21,9 +21,11 @@ package it.geosolutions.geoserver.rest.encoder.feature;
 
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTResource;
 import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
+import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder.VERSION;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder21;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
@@ -71,9 +73,21 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         deleteAll();
 
         GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
-
+                            
         String storeName = "resttestshp";
         String layerName = "cities";
+        
+        publisher.createWorkspace(DEFAULT_WS);
+
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+
+        // test insert
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
+        assertTrue("publish() failed", published);
+        assertTrue(existsLayer(layerName));
+
+        publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),
+                "default_point.sld"));
 
         GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
         fte.setNativeName(layerName);
@@ -90,11 +104,9 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         fte.addMetadataLinkInfo(metadatalink);
 
         GSLayerEncoder layerEncoder = null;
-        if (!GSVersionDecoder.VERSION.getVersion(GS_VERSION).equals(
-                GSVersionDecoder.VERSION.UNRECOGNIZED)) {
+        if (VERSION.getVersion(GS_VERSION).compareTo(VERSION.UNRECOGNIZED) > 0) {
             layerEncoder = new GSLayerEncoder();
-        } else if (GSVersionDecoder.VERSION.getVersion(GS_VERSION).equals(
-                GSVersionDecoder.VERSION.UNRECOGNIZED)) {
+        } else if (VERSION.getVersion(GS_VERSION).compareTo(VERSION.UNRECOGNIZED) == 0) {
             layerEncoder = new GSLayerEncoder21();
         }
         layerEncoder.setEnabled(true);
@@ -118,21 +130,10 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         layerEncoder.addIdentifier(identifier1);
         layerEncoder.addIdentifier(identifier2);
 
-        publisher.createWorkspace(DEFAULT_WS);
-
-        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
-
-        // test insert
-        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
-        assertTrue("publish() failed", published);
-        assertTrue(existsLayer(layerName));
-
-        publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),
-                "default_point.sld"));
 
         // optionally select the attributes to publish
-        RESTLayer layer = reader.getLayer(layerName);
-        RESTResource resource = reader.getResource(layer);
+        RESTLayer layer = reader.getLayer(DEFAULT_WS, layerName);
+        RESTFeatureType resource = reader.getFeatureType(layer);
         List<GSAttributeEncoder> attrs = resource.getEncodedAttributeList();
         assertNotNull(attrs);
         for (GSAttributeEncoder enc : attrs) {
@@ -142,8 +143,6 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         assertTrue(publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder));
 
     }
-
-    
 
     @Test
     public void testFeatureTypeEncoder() {
@@ -224,15 +223,15 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
     public void testModifyFeature() {
         GSFeatureTypeEncoder encoder = new GSFeatureTypeEncoder();
         encoder.addKeyword("KEYWORD_1");
-        encoder.addKeyword("KEYWORD_1","LAN_1","VOCAB_1");
-        assertTrue(encoder.delKeyword("KEYWORD_1","LAN_1","VOCAB_1"));
-        
+        encoder.addKeyword("KEYWORD_1", "LAN_1", "VOCAB_1");
+        assertTrue(encoder.delKeyword("KEYWORD_1", "LAN_1", "VOCAB_1"));
+
         encoder.addKeyword("...");
         encoder.addKeyword("KEYWORD_N");
         assertFalse(encoder.delKeyword("KEYWORD_M"));
-        
+
         encoder.addKeyword("KEYWORD_2");
-        assertFalse(encoder.delKeyword("KEYWORD_2","LAN_1","VOCAB_1"));
+        assertFalse(encoder.delKeyword("KEYWORD_2", "LAN_1", "VOCAB_1"));
         assertTrue(encoder.delKeyword("KEYWORD_2"));
 
         // metadataLinkInfo
@@ -280,19 +279,35 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
      * testdata/states.zip) - create a postgis db - import the states shapefile (using shp2pgsql or Postgis shapefile uploader) - In Geoserver, create
      * a postgis datastore for this DB, with the name "statesdb"
      * 
+     * @throws IOException
+     * 
      */
     @Test
-    public void testSQLViewIntegration() {
+    public void testSQLViewIntegration() throws IOException {
 
         if (!enabled())
             return;
         deleteAll();
+        
         GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
 
-        String storeName = "statesdb"; // name of the datastore setup for tests
-        String layerName = "my_sqlviewlayer";
-        String nativeName = "popstates";
+        String storeName = "resttestshp";
+        String layerName = "cities";
+        
+        // build the store
+        publisher.createWorkspace(DEFAULT_WS);
+        
+        // test insert
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+        boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
+        assertTrue("publish() failed", published);
 
+        publisher.publishStyle(new File(new ClassPathResource("testdata").getFile(),
+                "default_point.sld"));
+
+        String nativeName = layerName;
+        layerName=layerName+"_NEW";
+        
         GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
         fte.setName(layerName);
         fte.setNativeName(nativeName);
@@ -323,7 +338,6 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         vte.addVirtualTableGeometry(vtGeom);
         vte.addVirtualTableParameter(vtParam1);
         vte.addVirtualTableParameter(vtParam2);
-        fte.setMetadataVirtualTable(vte); // Set the virtual table
 
         // modif the vte
         vte.delVirtualTableGeometry("the_geom");
@@ -333,17 +347,19 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         vte.addVirtualTableParameter(vtParam3);
         vte.addKeyColumn("gid");
 
+        fte.setMetadataVirtualTable(vte); // Set the virtual table
+
         // Layer encoder
         // -------------
         GSLayerEncoder layerEncoder = new GSLayerEncoder();
         layerEncoder.setEnabled(true);
         layerEncoder.setQueryable(true);
         layerEncoder.setDefaultStyle("polygon");
-
+        
         // test insert
         // ------------
         publisher.createWorkspace(DEFAULT_WS);
-        boolean published = publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder);
+        published = publisher.publishDBLayer(DEFAULT_WS, storeName, fte, layerEncoder);
         assertTrue("Publication unsuccessful", published);
         assertTrue("Layer does not exist", existsLayer(layerName));
 

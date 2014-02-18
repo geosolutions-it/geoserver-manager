@@ -107,7 +107,7 @@ public class GSCoverageEncoderTest extends TestCase {
     	encoder.addKeyword("KEYWORD_N");
     	
     	
-    	// Old style dimensions (into metadata)
+    	// setting dimensions (into metadata)
     	final GSDimensionInfoEncoder timeDimension=new GSDimensionInfoEncoder(true);
     	timeDimension.setPresentation(Presentation.CONTINUOUS_INTERVAL);
     	encoder.setMetadata("time", timeDimension);
@@ -123,7 +123,7 @@ public class GSCoverageEncoderTest extends TestCase {
     	elevationDimension.setPresentation(Presentation.LIST);
     	encoder.setMetadata("elevation", elevationDimension);
     	
-        // New style dimensions (since gs-2.4.x)    	
+        // setting dimensions (since gs-2.4.x)
     	GSCoverageDimensionEncoder gsCoverageDimensionEncoder = new GSCoverageDimensionEncoder(
                 "GRAY_INDEX", "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf",
                 "dobson units³", "REAL_32BITS");

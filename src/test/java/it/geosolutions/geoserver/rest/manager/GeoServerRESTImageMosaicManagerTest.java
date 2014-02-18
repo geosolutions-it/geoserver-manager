@@ -39,27 +39,28 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         if (!enabled()) {
             return;
         }
+        deleteAll();
+        
+        publisher.createWorkspace(DEFAULT_WS);
+        
         // crea the manager
         GeoServerRESTStructuredGridCoverageReaderManager manager = 
             new GeoServerRESTStructuredGridCoverageReaderManager(new URL(RESTURL), RESTUSER, RESTPW);
         
         // create mosaic
-        final String workspaceName = "it.geosolutions";
         final String coverageStoreName = "mosaic";
         final String coverageName = "mosaic";
         final String format = "imagemosaic";
         
         // upload the mosaic
-        boolean create=manager.create(workspaceName, coverageStoreName,new ClassPathResource("testdata/granules/mosaic.zip").getFile().getAbsolutePath());
+        boolean create=manager.create(DEFAULT_WS, coverageStoreName,new ClassPathResource("testdata/granules/mosaic.zip").getFile().getAbsolutePath());
         assertTrue(create);
         
         // enable dimension
-        fixDimensions(workspaceName, coverageStoreName, coverageName);
+        fixDimensions(DEFAULT_WS, coverageStoreName, coverageName);
         
         // check index format
-        RESTStructuredCoverageIndexSchema indexFormat = manager.getGranuleIndexSchema(workspaceName, coverageName,coverageName);
-        assertTrue(create);
-        
+        RESTStructuredCoverageIndexSchema indexFormat = manager.getGranuleIndexSchema(DEFAULT_WS, coverageName,coverageName);
         assertNotNull(indexFormat);
         assertFalse(indexFormat.isEmpty());
         assertEquals(5, indexFormat.size());
@@ -95,14 +96,14 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         
         
         // get with paging
-        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName , null, 0, 1);
+        granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName , null, 0, 1);
         assertNotNull(granulesList);
         assertEquals(1, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule);       
         
-        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, null, null, 2);
+        granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName, null, null, 2);
         assertNotNull(granulesList);
         assertEquals(2, granulesList.size());
         assertFalse(granulesList.isEmpty());
@@ -110,7 +111,7 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         assertNotNull(granule);
         
         // get with no paging
-        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName);
+        granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName);
         assertNotNull(granulesList);
         assertEquals(4, granulesList.size());
         assertFalse(granulesList.isEmpty());
@@ -118,21 +119,21 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         assertNotNull(granule);   
         
         // examples of filtering with CQL
-        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, "depth = 100", null, null);
+        granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName, "depth = 100", null, null);
         assertNotNull(granulesList);
         assertEquals(2, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule); 
         
-        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, "depth = 100 AND date='20081101T0000000'", null, null);
+        granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName, "depth = 100 AND date='20081101T0000000'", null, null);
         assertNotNull(granulesList);
         assertEquals(1, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule); 
         
-        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, "location LIKE 'NCOM_wattemp%'", 0, 1);
+        granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName, "location LIKE 'NCOM_wattemp%'", 0, 1);
         assertNotNull(granulesList);
         assertEquals(1, granulesList.size());
         assertFalse(granulesList.isEmpty());
@@ -141,21 +142,21 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         
         // remove by filter
         final String fileLocation = "NCOM_wattemp_100_20081101T0000000_12.tiff";
-        boolean result = manager.removeGranulesByCQL(workspaceName, coverageStoreName, coverageName, "location = '" + fileLocation + "'");
+        boolean result = manager.removeGranulesByCQL(DEFAULT_WS, coverageStoreName, coverageName, "location = '" + fileLocation + "'");
         Assert.assertTrue(result);
         
-        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName);
+        granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName);
         assertNotNull(granulesList);
-        assertEquals(3, granulesList.size());
         assertFalse(granulesList.isEmpty());
+        assertEquals(4, granulesList.size());
         granule = granulesList.get(0);
         assertNotNull(granule);
         
         // Readding that granule with harvest
-        result = manager.harvestExternal(workspaceName, coverageStoreName, format, new ClassPathResource("testdata/granules/NCOM_wattemp_100_20081101T0000000_12.tiff").getFile().getAbsolutePath() );
+        result = manager.harvestExternal(DEFAULT_WS, coverageStoreName, format, new ClassPathResource("testdata/granules/NCOM_wattemp_100_20081101T0000000_12.tiff").getFile().getAbsolutePath() );
         Assert.assertTrue(result);
         
-        granulesList = manager.getGranules(workspaceName, coverageStoreName, coverageName, null, null, null);
+        granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName, null, null, null);
         assertNotNull(granulesList);
         assertEquals(4, granulesList.size());
         assertFalse(granulesList.isEmpty());
@@ -164,7 +165,7 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         
         
         // delete
-        delete(workspaceName, coverageStoreName);
+        delete(DEFAULT_WS, coverageStoreName);
     }
 
 
@@ -218,6 +219,8 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
             String csname) throws NumberFormatException {
         // get current config for the coverage to extract the params we want to set again
         final RESTCoverage coverage = reader.getCoverage(wsName, coverageStoreName, csname);
+        if (coverage==null)
+            return null;
         final Map<String, String> params = coverage.getParametersList();     
         
         // prepare and fill the encoder 

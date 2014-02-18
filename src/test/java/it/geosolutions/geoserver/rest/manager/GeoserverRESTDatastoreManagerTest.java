@@ -79,8 +79,8 @@ public class GeoserverRESTDatastoreManagerTest extends StoreIntegrationTest {
     private static URL LOCATION_2;
 
     public GeoserverRESTDatastoreManagerTest() throws Exception {
-        super(true);
-        LOCATION_1 = new URL("file:data/1");
+        super(false);
+        LOCATION_1 = new URL("file:data/shapefiles/");
         LOCATION_2 = new URL("file:data/2");
     }
 

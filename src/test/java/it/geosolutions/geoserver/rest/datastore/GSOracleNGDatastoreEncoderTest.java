@@ -61,7 +61,7 @@ public class GSOracleNGDatastoreEncoderTest extends StoreIntegrationTest {
 //    private final static Logger LOGGER = LoggerFactory.getLogger(GSOracleNGDatastoreEncoderTest.class);
     
     public GSOracleNGDatastoreEncoderTest() throws IllegalArgumentException, MalformedURLException {
-        super(System.getProperty("pgIgnore", "false").equalsIgnoreCase("true"));
+        super(System.getProperty("pgIgnore", "true").equalsIgnoreCase("true"));
          
     }
 

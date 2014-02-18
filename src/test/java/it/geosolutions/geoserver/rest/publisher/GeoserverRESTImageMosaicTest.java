@@ -94,7 +94,7 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
          * or create a new one from an existing store:
          * publisher.createCoverage(ce, wsname, csname);
          */
-        coverageEncoder.setName("CoverageName");
+//        coverageEncoder.setName("time_geotiff");
         
         coverageEncoder.setAllowMultithreading(true);
         coverageEncoder.setBackgroundValues("");
@@ -111,13 +111,12 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
 
         GSVersionDecoder v=reader.getGeoserverVersion();
         if (v.compareTo(GSVersionDecoder.VERSION.v24)>=0){
-            // New style dimensions (since gs-2.4.x)
             GSCoverageDimensionEncoder gsCoverageDimensionEncoder = new GSCoverageDimensionEncoder(
                     "GRAY_INDEX", "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf",
                     "dobson units³", "REAL_32BITS");
             coverageEncoder.addCoverageDimensionInfo(gsCoverageDimensionEncoder);            
-        } else {
-            // Old stile setting code
+        }
+
             // activate time
             final GSDimensionInfoEncoder time=new GSDimensionInfoEncoder(true);
             time.setPresentation(Presentation.LIST);
@@ -125,7 +124,6 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
             coverageEncoder.setMetadata("time", time);
             // not active elevation
             coverageEncoder.setMetadata("elevation", new GSDimensionInfoEncoder());
-        }
 
         
         

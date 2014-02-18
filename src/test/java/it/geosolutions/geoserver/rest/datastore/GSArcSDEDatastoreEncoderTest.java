@@ -60,7 +60,7 @@ public class GSArcSDEDatastoreEncoderTest extends StoreIntegrationTest {
 
     public GSArcSDEDatastoreEncoderTest() throws IllegalArgumentException, MalformedURLException {
 
-        super(System.getProperty("Ignore", "false").equalsIgnoreCase("true"));
+        super(System.getProperty("Ignore", "true").equalsIgnoreCase("true"));
     }
 
     @Override

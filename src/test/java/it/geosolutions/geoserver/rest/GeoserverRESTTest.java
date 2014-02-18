@@ -40,6 +40,8 @@ import java.net.URL;
 import java.util.List;
 
 import static org.junit.Assert.*;
+
+import org.jdom.output.EscapeStrategy;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -133,7 +135,7 @@ public abstract class GeoserverRESTTest {
                     LOGGER.info("Using geoserver instance " + RESTUSER + ":" + RESTPW + " @ "
                             + RESTURL);
                 }
-            } else {
+            } else if (existgs == false){
                 System.out.println("Failing tests  : geoserver not found");
                 fail("GeoServer not found");
             }
@@ -187,30 +189,32 @@ public abstract class GeoserverRESTTest {
         LOGGER.info("Found " + groups.size() + " layerGroups");
         for (String groupName : groups) {
             RESTLayerGroup group = reader.getLayerGroup(groupName);
-            StringBuilder sb = new StringBuilder("Group: ").append(groupName).append(":");
-            for (NameLinkElem layer : group.getLayerList()) {
-                sb.append(" ").append(layer);
+            if (groups != null) {
+                StringBuilder sb = new StringBuilder("Group: ").append(groupName).append(":");
+                for (NameLinkElem layer : group.getLayerList()) {
+                    sb.append(" ").append(layer);
+                }
+
+                boolean removed = publisher.removeLayerGroup(groupName);
+                LOGGER.info(sb.toString() + ": removed: " + removed);
+                assertTrue("LayerGroup not removed: " + groupName, removed);
             }
-
-            boolean removed = publisher.removeLayerGroup(groupName);
-            LOGGER.info(sb.toString() + ": removed: " + removed);
-            assertTrue("LayerGroup not removed: " + groupName, removed);
         }
-
     }
 
     private void deleteAllLayers() {
         List<String> layers = reader.getLayers().getNames();
-        for (String layerName : layers) {
-            RESTLayer layer = reader.getLayer(layerName);
-            if (layer.getType() == RESTLayer.Type.VECTOR)
-                deleteFeatureType(layer);
-            else if (layer.getType() == RESTLayer.Type.RASTER)
-                deleteCoverage(layer);
-            else
-                LOGGER.error("Unknown layer type " + layer.getType());
+        if (layers != null) {
+            for (String layerName : layers) {
+                RESTLayer layer = reader.getLayer(layerName);
+                if (layer.getType() == RESTLayer.Type.VECTOR)
+                    deleteFeatureType(layer);
+                else if (layer.getType() == RESTLayer.Type.RASTER)
+                    deleteCoverage(layer);
+                else
+                    LOGGER.error("Unknown layer type " + layer.getType());
+            }
         }
-
     }
 
     private void deleteAllCoverageStores() {
@@ -270,11 +274,12 @@ public abstract class GeoserverRESTTest {
 
     protected void deleteAllStyles() {
         List<String> styles = reader.getStyles().getNames();
-        for (String style : styles) {
-            LOGGER.warn("Deleting Style " + style);
-            boolean removed = publisher.removeStyle(style,true);
-            assertTrue("Style not removed " + style, removed);
-
+        if (styles != null) {
+            for (String style : styles) {
+                LOGGER.warn("Deleting Style " + style);
+                boolean removed = publisher.removeStyle(style, true);
+                assertTrue("Style not removed " + style, removed);
+            }
         }
     }
 
