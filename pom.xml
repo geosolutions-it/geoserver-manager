@@ -203,6 +203,7 @@
 
 	<properties>
 		<slf4j.version>1.5.11</slf4j.version>
+		<encoding>UTF-8</encoding>
 	</properties>
 
 	<dependencies>

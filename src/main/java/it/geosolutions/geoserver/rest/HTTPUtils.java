@@ -25,15 +25,6 @@
 
 package it.geosolutions.geoserver.rest;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
@@ -52,6 +43,17 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 /**
  * Low level HTTP utilities.
  */
@@ -60,7 +62,7 @@ public class HTTPUtils {
 
     /**
      * Performs an HTTP GET on the given URL.
-     * 
+     *
      * @param url The URL where to connect to.
      * @return The HTTP response as a String if the HTTP response code was 200
      *         (OK).
@@ -73,7 +75,7 @@ public class HTTPUtils {
     /**
      * Performs an HTTP GET on the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
-     * 
+     *
      * @param url The URL where to connect to.
      * @param username Basic auth credential. No basic auth if null.
      * @param pw Basic auth credential. No basic auth if null.
@@ -87,8 +89,9 @@ public class HTTPUtils {
         HttpClient client = new HttpClient();
         HttpConnectionManager connectionManager = client.getHttpConnectionManager();
         try {
-            setAuth(client, url, username, pw);
-            httpMethod = new GetMethod(url);
+            String encodedUrl = encodeUrl(url);
+            setAuth(client, encodedUrl, username, pw);
+            httpMethod = new GetMethod(encodedUrl);
             connectionManager.getParams().setConnectionTimeout(5000);
             int status = client.executeMethod(httpMethod);
             if (status == HttpStatus.SC_OK) {
@@ -117,10 +120,62 @@ public class HTTPUtils {
         return null;
     }
 
+    static String encodeUrl(String url) {
+        // perform some simple encoding to the path names.  This takes care of cases where
+        // layers or workspaces have illegal http characters.
+        // it cannot fix all
+        String protocol, authority, path, query, fragment = null;
+        String[] protocolPathParts = url.split("://", 2);
+        if (protocolPathParts.length == 1) {
+            // unexpected format so just try out url
+            return url;
+        }
+
+        protocol = protocolPathParts[0];
+        String[] pathQueryParts = protocolPathParts[1].split("\\?", 2);
+        path = pathQueryParts[0];
+        if (pathQueryParts.length == 1) {
+            query = null;
+        } else {
+            query = pathQueryParts[1];
+        }
+
+
+        if (query == null) {
+            String[] fragmentParts = path.split("#", 2);
+            if (fragmentParts.length > 1) {
+                path = fragmentParts[0];
+                fragment = fragmentParts[1];
+            }
+        } else {
+            String[] fragmentParts = query.split("#", 2);
+            if (fragmentParts.length > 1) {
+                query = fragmentParts[0];
+                fragment = fragmentParts[1];
+            }
+        }
+
+        int firstSlash = path.indexOf('/');
+        if (firstSlash > -1) {
+            authority = path.substring(0, firstSlash);
+            path = path.substring(firstSlash);
+        } else {
+            authority = path;
+            path = null;
+        }
+
+        try {
+            return new URI(protocol, authority, path, query, fragment).toString();
+        } catch (URISyntaxException e) {
+            // fallback to original string
+            return url;
+        }
+    }
+
     /**
      * PUTs a File to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
-     * 
+     *
      * @param url The URL where to connect to.
      * @param file The File to be sent.
      * @param contentType The content-type to advert in the PUT.
@@ -138,7 +193,7 @@ public class HTTPUtils {
     /**
      * PUTs a String to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
-     * 
+     *
      * @param url The URL where to connect to.
      * @param content The content to be sent as a String.
      * @param contentType The content-type to advert in the PUT.
@@ -161,7 +216,7 @@ public class HTTPUtils {
     /**
      * PUTs a String representing an XML document to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
-     * 
+     *
      * @param url The URL where to connect to.
      * @param content The XML content to be sent as a String.
      * @param username Basic auth credential. No basic auth if null.
@@ -178,7 +233,7 @@ public class HTTPUtils {
     /**
      * Performs a PUT to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
-     * 
+     *
      * @param url The URL where to connect to.
      * @param requestEntity The request to be sent.
      * @param username Basic auth credential. No basic auth if null.
@@ -195,7 +250,7 @@ public class HTTPUtils {
     /**
      * POSTs a File to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
-     * 
+     *
      * @param url The URL where to connect to.
      * @param file The File to be sent.
      * @param contentType The content-type to advert in the POST.
@@ -213,7 +268,7 @@ public class HTTPUtils {
     /**
      * POSTs a String to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
-     * 
+     *
      * @param url The URL where to connect to.
      * @param content The content to be sent as a String.
      * @param contentType The content-type to advert in the POST.
@@ -236,7 +291,7 @@ public class HTTPUtils {
     /**
      * POSTs a String representing an XML document to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
-     * 
+     *
      * @param url The URL where to connect to.
      * @param content The XML content to be sent as a String.
      * @param username Basic auth credential. No basic auth if null.
@@ -253,7 +308,7 @@ public class HTTPUtils {
     /**
      * Performs a POST to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
-     * 
+     *
      * @param url The URL where to connect to.
      * @param requestEntity The request to be sent.
      * @param username Basic auth credential. No basic auth if null.
@@ -279,15 +334,16 @@ public class HTTPUtils {
      * </UL>
      * are accepted as successful codes; in these cases the response string will
      * be returned.
-     * 
+     *
      * @return the HTTP response or <TT>null</TT> on errors.
      */
     private static String send(final EntityEnclosingMethod httpMethod, String url,
                                RequestEntity requestEntity, String username, String pw) {
         HttpClient client = new HttpClient();
         HttpConnectionManager connectionManager = client.getHttpConnectionManager();
+        String encodedUrl = encodeUrl(url);
         try {
-            setAuth(client, url, username, pw);
+            setAuth(client, encodedUrl, username, pw);
             connectionManager.getParams().setConnectionTimeout(5000);
             if (requestEntity != null)
                 httpMethod.setRequestEntity(requestEntity);
@@ -304,15 +360,15 @@ public class HTTPUtils {
                 return response;
             default:
                 LOGGER.warn("Bad response: code[" + status + "]" + " msg[" + httpMethod.getStatusText() + "]"
-                            + " url[" + url + "]" + " method[" + httpMethod.getClass().getSimpleName()
+                            + " url[" + encodedUrl + "]" + " method[" + httpMethod.getClass().getSimpleName()
                             + "]: " + IOUtils.toString(httpMethod.getResponseBodyAsStream()));
                 return null;
             }
         } catch (ConnectException e) {
-            LOGGER.info("Couldn't connect to [" + url + "]");
+            LOGGER.info("Couldn't connect to [" + encodedUrl + "]");
             return null;
         } catch (IOException e) {
-            LOGGER.error("Error talking to " + url + " : " + e.getLocalizedMessage());
+            LOGGER.error("Error talking to " + encodedUrl + " : " + e.getLocalizedMessage());
             return null;
         } finally {
             if (httpMethod != null)
@@ -326,9 +382,10 @@ public class HTTPUtils {
         DeleteMethod httpMethod = null;
         HttpClient client = new HttpClient();
         HttpConnectionManager connectionManager = client.getHttpConnectionManager();
+        String encodedUrl = encodeUrl(url);
         try {
-            setAuth(client, url, user, pw);
-            httpMethod = new DeleteMethod(url);
+            setAuth(client, encodedUrl, user, pw);
+            httpMethod = new DeleteMethod(encodedUrl);
             connectionManager.getParams().setConnectionTimeout(5000);
             int status = client.executeMethod(httpMethod);
             String response = "";
@@ -336,23 +393,23 @@ public class HTTPUtils {
                 InputStream is = httpMethod.getResponseBodyAsStream();
                 response = IOUtils.toString(is);
                 IOUtils.closeQuietly(is);
-                if (response.trim().equals("")) { 
+                if (response.trim().equals("")) {
                     if (LOGGER.isDebugEnabled())
                         LOGGER
                             .debug("ResponseBody is empty (this may be not an error since we just performed a DELETE call)");
                     return true;
                 }
                 if (LOGGER.isDebugEnabled())
-                    LOGGER.debug("(" + status + ") " + httpMethod.getStatusText() + " -- " + url);
+                    LOGGER.debug("(" + status + ") " + httpMethod.getStatusText() + " -- " + encodedUrl);
                 return true;
             } else {
-                LOGGER.info("(" + status + ") " + httpMethod.getStatusText() + " -- " + url);
+                LOGGER.info("(" + status + ") " + httpMethod.getStatusText() + " -- " + encodedUrl);
                 LOGGER.info("Response: '" + response + "'");
             }
         } catch (ConnectException e) {
-            LOGGER.info("Couldn't connect to [" + url + "]");
+            LOGGER.info("Couldn't connect to [" + encodedUrl + "]");
         } catch (IOException e) {
-            LOGGER.info("Error talking to [" + url + "]", e);
+            LOGGER.info("Error talking to [" + encodedUrl + "]", e);
         } finally {
             if (httpMethod != null)
                 httpMethod.releaseConnection();
@@ -375,12 +432,13 @@ public class HTTPUtils {
         HttpClient client = new HttpClient();
         HttpConnectionManager connectionManager = client.getHttpConnectionManager();
         try {
-            setAuth(client, url, username, pw);
-            httpMethod = new GetMethod(url);
+            String encodedUrl = encodeUrl(url);
+            setAuth(client, encodedUrl, username, pw);
+            httpMethod = new GetMethod(encodedUrl);
             connectionManager.getParams().setConnectionTimeout(2000);
             int status = client.executeMethod(httpMethod);
             if (status != HttpStatus.SC_OK) {
-                LOGGER.warn("PING failed at '" + url + "': (" + status + ") " + httpMethod.getStatusText());
+                LOGGER.warn("PING failed at '" + encodedUrl + "': (" + status + ") " + httpMethod.getStatusText());
                 return false;
             } else {
                 return true;
@@ -399,7 +457,7 @@ public class HTTPUtils {
 
     /**
      * Used to query for REST resources.
-     * 
+     *
      * @param url The URL of the REST resource to query about.
      * @param username
      * @param pw
@@ -412,8 +470,9 @@ public class HTTPUtils {
         HttpClient client = new HttpClient();
         HttpConnectionManager connectionManager = client.getHttpConnectionManager();
         try {
-            setAuth(client, url, username, pw);
-            httpMethod = new GetMethod(url);
+            String encodedUrl = encodeUrl(url);
+            setAuth(client, encodedUrl, username, pw);
+            httpMethod = new GetMethod(encodedUrl);
             connectionManager.getParams().setConnectionTimeout(2000);
             int status = client.executeMethod(httpMethod);
             switch (status) {
@@ -422,7 +481,7 @@ public class HTTPUtils {
             case HttpStatus.SC_NOT_FOUND:
                 return false;
             default:
-                throw new RuntimeException("Unhandled response status at '" + url + "': (" + status + ") "
+                throw new RuntimeException("Unhandled response status at '" + encodedUrl + "': (" + status + ") "
                                            + httpMethod.getStatusText());
             }
         } catch (ConnectException e) {
@@ -438,7 +497,9 @@ public class HTTPUtils {
 
     private static void setAuth(HttpClient client, String url, String username, String pw)
         throws MalformedURLException {
-        URL u = new URL(url);
+
+        String encodedUrl = encodeUrl(url);
+        URL u = new URL(encodedUrl);
         if (username != null && pw != null) {
             Credentials defaultcreds = new UsernamePasswordCredentials(username, pw);
             client.getState().setCredentials(new AuthScope(u.getHost(), u.getPort()), defaultcreds);
@@ -449,14 +510,14 @@ public class HTTPUtils {
                                                                   // authentication
         } else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Not setting credentials to access to " + url);
+                LOGGER.debug("Not setting credentials to access to " + encodedUrl);
             }
         }
     }
 
     /**
      * @param geoserverURL
-     * @return recursively remove ending slashes 
+     * @return recursively remove ending slashes
      */
     public static String decurtSlash(String geoserverURL) {
         if (geoserverURL!=null && geoserverURL.endsWith("/")) {
@@ -464,7 +525,7 @@ public class HTTPUtils {
         }
         return geoserverURL;
     }
-    
+
     /**
      * @param str a string array
      * @return create a StringBuilder appending all the passed arguments
@@ -473,7 +534,7 @@ public class HTTPUtils {
         if (str==null){
             return null;
         }
-        
+
         StringBuilder buf=new StringBuilder();
         for (String s: str){
             if (s!=null)
@@ -481,7 +542,7 @@ public class HTTPUtils {
         }
         return buf;
     }
-    
+
     /**
      * Wrapper for {@link #append(String...)}
      * @param base base URL
@@ -492,7 +553,7 @@ public class HTTPUtils {
         if (str==null){
             return append(base.toString());
         }
-        
+
         StringBuilder buf=new StringBuilder(base.toString());
         for (String s: str){
             if (s!=null)
