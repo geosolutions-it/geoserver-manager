@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2014 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -71,6 +71,7 @@ public class RESTDataStore {
     public enum DBType {
 
         POSTGIS("postgis"),
+        ORACLE("oracle"),
         SHP("shp"),
         UNKNOWN(null);
         private final String restName;
