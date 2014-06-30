@@ -109,6 +109,10 @@ public class RESTResource {
                 Namespace.getNamespace("atom", "http://www.w3.org/2005/Atom"));
         return atom.getAttributeValue("href");
     }
+    
+    public String getNativeCRS() {
+    	return rootElem.getChildText("nativeCRS");
+    }
 
     public String getCRS() {
         Element elBBox = rootElem.getChild("latLonBoundingBox");

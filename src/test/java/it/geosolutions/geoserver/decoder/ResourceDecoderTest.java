@@ -82,6 +82,17 @@ public class ResourceDecoderTest {
     }
 
     @Test
+    public void testNativeCRS() {
+    	String expectedCrs = "GEOGCS[\"WGS 84\", \r\n		DATUM[\"World Geodetic\n		System 1984\", \r\n"
+    			+"		SPHEROID[\"WGS 84\", 6378137.0,\n		298.257223563,\n		AUTHORITY[\"EPSG\",\"7030\"]], \r\n"
+    			+"		AUTHORITY[\"EPSG\",\"6326\"]], \r\n		PRIMEM[\"Greenwich\", 0.0,\n		AUTHORITY[\"EPSG\",\"8901\"]], \r\n"
+    			+"		UNIT[\"degree\", 0.017453292519943295], \r\n		AXIS[\"Geodetic longitude\", EAST], \r\n"
+    			+"		AXIS[\"Geodetic\n		latitude\", NORTH], \r\n		AUTHORITY[\"EPSG\",\"4326\"]]";
+
+    	Assert.assertEquals(expectedCrs, coverage.getNativeCRS());
+    }
+    
+    @Test
     public void testCRS() {
         Assert.assertEquals(coverage.getCRS(), "EPSG:4326");
     }
