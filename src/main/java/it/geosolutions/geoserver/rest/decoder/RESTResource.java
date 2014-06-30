@@ -109,31 +109,44 @@ public class RESTResource {
                 Namespace.getNamespace("atom", "http://www.w3.org/2005/Atom"));
         return atom.getAttributeValue("href");
     }
+    
+	public RESTBoundingBox getNativeBoundingBox() {
+		RESTBoundingBox bbox = null;
+		Element bboxElement = rootElem.getChild("nativeBoundingBox");
+		if (bboxElement != null) {
+			bbox = new RESTBoundingBox(bboxElement);
+		}
+		return bbox;
+	}
+	
+	public RESTBoundingBox getLatLonBoundingBox() {
+		RESTBoundingBox bbox = null;
+		Element bboxElement = rootElem.getChild("latLonBoundingBox");
+		if (bboxElement != null) {
+			bbox = new RESTBoundingBox(bboxElement);
+		}
+		return bbox;
+	}
 
     public String getCRS() {
-        Element elBBox = rootElem.getChild("latLonBoundingBox");
-        return elBBox.getChildText("crs");
-    }
-
-    protected double getLatLonEdge(String edge) {
-        Element elBBox = rootElem.getChild("latLonBoundingBox");
-        return Double.parseDouble(elBBox.getChildText(edge));
+    	RESTBoundingBox bbox = this.getLatLonBoundingBox();
+    	return bbox.getCRS();
     }
 
     public double getMinX() {
-        return getLatLonEdge("minx");
+        return this.getLatLonBoundingBox().getMinX();
     }
 
     public double getMaxX() {
-        return getLatLonEdge("maxx");
+    	return this.getLatLonBoundingBox().getMaxX();
     }
 
     public double getMinY() {
-        return getLatLonEdge("miny");
+    	return this.getLatLonBoundingBox().getMinY();
     }
 
     public double getMaxY() {
-        return getLatLonEdge("maxy");
+    	return this.getLatLonBoundingBox().getMaxY();
     }
 
     /**
