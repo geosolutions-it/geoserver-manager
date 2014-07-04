@@ -28,6 +28,7 @@ package it.geosolutions.geoserver.rest.encoder.metadata;
 
 public class GSFeatureDimensionInfoEncoder extends GSDimensionInfoEncoder {
 	public final static String ATTRIBUTE="attribute";
+	public final static String END_ATTRIBUTE="endAttribute";
 	
 	/**
 	 * if this dimension is enabled this constructor should be called.
@@ -46,6 +47,12 @@ public class GSFeatureDimensionInfoEncoder extends GSDimensionInfoEncoder {
 		set(ATTRIBUTE, attribute);
 	}
 	
-	
+	/**
+	 * Set the end attribute used in the dimension (optional)
+	 * @param endAttribute the dimension end attribute
+	 */
+	public void setEndAttribute(final String endAttribute){
+		set(END_ATTRIBUTE, endAttribute);
+	}
 
 }
