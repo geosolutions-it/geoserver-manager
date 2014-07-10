@@ -1,5 +1,6 @@
 package it.geosolutions.geoserver.decoder;
 
+import it.geosolutions.geoserver.rest.decoder.RESTBoundingBox;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverage;
 import it.geosolutions.geoserver.rest.encoder.dimensions.GSCoverageDimensionEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadatalink.GSMetadataLinkInfoEncoder;
@@ -94,6 +95,28 @@ public class ResourceDecoderTest {
         Assert.assertEquals(coverage.getMaxY(), 90, 0);
     }
 
+    @Test
+    public void testLatLonBoundingBox() {
+    	RESTBoundingBox bbox = coverage.getLatLonBoundingBox();
+    	Assert.assertTrue(bbox != null);
+    	Assert.assertEquals("EPSG:4326", bbox.getCRS());
+        Assert.assertEquals(-180.0, bbox.getMinX(), 0);
+        Assert.assertEquals(180.0, bbox.getMaxX(), 0);
+        Assert.assertEquals(-90, bbox.getMinY(), 0);
+        Assert.assertEquals(90, bbox.getMaxY(), 0); 	
+    }
+    
+    @Test
+    public void testNativeBoundingBox() {
+    	RESTBoundingBox bbox = coverage.getNativeBoundingBox();
+    	Assert.assertTrue(bbox != null);
+    	Assert.assertEquals("EPSG:4326", bbox.getCRS());
+        Assert.assertEquals(-180.0, bbox.getMinX(), 0);
+        Assert.assertEquals(180.0, bbox.getMaxX(), 0);
+        Assert.assertEquals(-90, bbox.getMinY(), 0);
+        Assert.assertEquals(90, bbox.getMaxY(), 0); 	
+    }
+    
     @Test
     public void testMetadataLinkInfo() throws IOException {
 
