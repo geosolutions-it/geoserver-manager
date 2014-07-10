@@ -53,6 +53,12 @@ import org.jdom.Namespace;
         <name>capitals</name>
         <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/styles/capitals.xml" type="application/xml"/>
     </defaultStyle>
+    <styles class="linked-hash-set">
+    	<style>
+      		<name>green</name>
+      		<atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/styles/green.xml" type="application/xml"/>
+    	</style>
+  	</styles>
     <resource class="featureType">
         <name>tasmania_cities</name>
         <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/workspaces/topp/datastores/taz_shapes/featuretypes/tasmania_cities.xml" type="application/xml"/>
@@ -149,6 +155,15 @@ public class RESTLayer {
 		Element defaultStyle = layerElem.getChild("defaultStyle");
 		return defaultStyle == null? null : defaultStyle.getChildText("name");
   	}
+	
+	public RESTStyleList getStyles() {
+		RESTStyleList styleList = null;
+		final Element stylesRoot = layerElem.getChild("styles");
+		if (stylesRoot != null) {
+			styleList = new RESTStyleList(stylesRoot);
+		}
+		return styleList;
+	}
 
 	public String getDefaultStyleWorkspace() {
 		Element defaultStyle = layerElem.getChild("defaultStyle");

@@ -1,6 +1,7 @@
 package it.geosolutions.geoserver.decoder;
 
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
 import it.geosolutions.geoserver.rest.encoder.authorityurl.GSAuthorityURLInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder;
 
@@ -65,6 +66,14 @@ public class LayerDecoderTest {
 	public void testDefaultStyle() {
 		Assert.assertEquals("capitals", layer.getDefaultStyle());
   	}
+	
+	@Test
+	public void testStyles() {
+		RESTStyleList styles = layer.getStyles();
+		Assert.assertTrue(styles.size() == 2);
+		Assert.assertEquals("green", styles.get(0).getName());
+		Assert.assertEquals("blue", styles.get(1).getName());
+	}
 	
 	@Test
 	public void testResourceUrl() {
