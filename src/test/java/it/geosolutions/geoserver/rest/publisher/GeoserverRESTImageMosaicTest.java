@@ -29,6 +29,7 @@ package it.geosolutions.geoserver.rest.publisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.ParameterConfigure;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
 import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
@@ -40,6 +41,8 @@ import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Pr
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.junit.Test;
@@ -77,7 +80,7 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTImageMosaicTest.class);
 
     @Test
-    public void testCreateDeleteImageMosaicDatastore() {
+    public void testCreateDeleteImageMosaicDatastore() throws MalformedURLException, UnsupportedEncodingException {
         if (!enabled()) {
             return;
         }
@@ -169,7 +172,14 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
 			e.printStackTrace();
 			fail(e.getLocalizedMessage());
 		}
-
+        // Get a Granule
+        String coverageName = "time_geotiff";
+        RESTStructuredCoverageGranulesList granules = reader.getGranules(wsName, coverageStoreName, coverageName, null, null, null);
+        String granuleId = granules.get(0).getFid();
+        // Test Granule Exists
+        assertTrue(reader.existsGranule(wsName, coverageStoreName, coverageName, granuleId));
+        // test a Granule does not exists
+        assertFalse(reader.existsGranule(wsName, coverageStoreName, coverageName, granuleId.substring(0, granuleId.indexOf(".")) + "." + granules.size() + 1));
 		
         // removing recursively coveragestore
         boolean removed = publisher.removeCoverageStore(coverageStore.getWorkspaceName(), coverageStore.getName(), true);

@@ -78,6 +78,8 @@ public class GeoserverRESTWorkspaceTest extends GeoserverRESTTest {
 
         assertTrue(reader.getWorkspaces().isEmpty());
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
+        // test exists
+        assertTrue(reader.existsWorkspace(DEFAULT_WS));
 
         File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
 
@@ -89,5 +91,7 @@ public class GeoserverRESTWorkspaceTest extends GeoserverRESTTest {
         
         // remove workspace and all of its contents
         assertTrue(publisher.removeWorkspace(DEFAULT_WS,true));
+        // Test not exists
+        assertFalse(reader.existsWorkspace(DEFAULT_WS));
     }
 }

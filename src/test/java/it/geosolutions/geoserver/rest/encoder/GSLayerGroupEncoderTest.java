@@ -92,6 +92,8 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
         groupWriter.addLayer("topp:boundaries");
         groupWriter.addLayer("topp:cities");
         assertTrue(publisher.createLayerGroup(groupName, groupWriter));
+        // Test exists
+        assertTrue(reader.existsLayerGroup(null, groupName));
         try {
             RESTLayerGroup groupReader = reader.getLayerGroup(groupName);
             assertNull(groupReader.getWorkspace());            
@@ -114,6 +116,8 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
             }
         } finally {
             assertTrue(publisher.removeLayerGroup(groupName));
+            // Test not exists
+            assertFalse(reader.existsLayerGroup(null, groupName));
         }
     }    
     
@@ -129,6 +133,8 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
         groupWriter.addLayer("topp:boundaries");
         groupWriter.addLayer("topp:cities");
         assertTrue(publisher.createLayerGroup("topp", groupName, groupWriter));
+        // Test exists
+        assertTrue(reader.existsLayerGroup("topp", groupName));
         try {
             RESTLayerGroup groupReader = reader.getLayerGroup("topp", groupName);
             assertEquals("topp", groupReader.getWorkspace());            
@@ -151,6 +157,8 @@ public class GSLayerGroupEncoderTest extends GeoserverRESTTest {
             }
         } finally {
             assertTrue(publisher.removeLayerGroup("topp", groupName));
+            // Test not exists
+            assertFalse(reader.existsLayerGroup("topp", groupName));
         }
     }
 
