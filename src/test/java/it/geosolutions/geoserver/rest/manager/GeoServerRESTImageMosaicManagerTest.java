@@ -148,7 +148,7 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName);
         assertNotNull(granulesList);
         assertFalse(granulesList.isEmpty());
-        assertEquals(4, granulesList.size());
+        assertEquals(3, granulesList.size());
         granule = granulesList.get(0);
         assertNotNull(granule);
         

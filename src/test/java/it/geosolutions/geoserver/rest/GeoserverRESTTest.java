@@ -191,7 +191,7 @@ public abstract class GeoserverRESTTest {
             RESTLayerGroup group = reader.getLayerGroup(groupName);
             if (groups != null) {
                 StringBuilder sb = new StringBuilder("Group: ").append(groupName).append(":");
-                for (NameLinkElem layer : group.getLayerList()) {
+                for (NameLinkElem layer : group.getPublishedList()) {
                     sb.append(" ").append(layer);
                 }
 
