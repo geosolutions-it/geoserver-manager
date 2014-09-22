@@ -67,11 +67,15 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
 
         // known state?
         assertFalse("Cleanup failed", existsLayer(layerName));
+        
+        // Test exists
+        assertFalse(reader.existsLayer(DEFAULT_WS, layerName));
 
         // test insert
         boolean pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, layerName,"EPSG:4326",ProjectionPolicy.FORCE_DECLARED,"raster");
         assertTrue("publish() failed", pc);
         assertTrue(existsLayer(layerName));
+        assertFalse(reader.existsLayer(DEFAULT_WS, layerName));
         LOGGER.info("Published "+pc);
         RESTCoverageStore reloadedCS = reader.getCoverageStore(DEFAULT_WS, storeName);
 
@@ -102,6 +106,9 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         boolean pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName, geotiff);
         
         assertNotNull("publish() failed", pub);
+        // Test exists
+        assertTrue(reader.existsCoveragestore(DEFAULT_WS, storeName));
+        assertTrue(reader.existsCoverage(DEFAULT_WS, storeName, storeName));
 
         pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another", "layername", geotiff);
         
@@ -114,6 +121,8 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
 
         //delete
         assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName,true));
+        // Test not exists
+        assertFalse(reader.existsCoveragestore(DEFAULT_WS, storeName));
     }
     
 

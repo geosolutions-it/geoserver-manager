@@ -58,6 +58,10 @@ public class GeoserverRESTNamespaceTest extends GeoserverRESTTest {
         assertTrue(publisher.createNamespace("NS2", URI.create("http://b.example.com")));
         assertEquals(2, reader.getNamespaces().size());
         
+        // Test Namespace exists
+        assertTrue(reader.existsNamespace("NS1"));
+        assertTrue(reader.existsNamespace("NS2"));
+        
         // When creating a namespace, its associated workspace will be automatically created:
         assertEquals(2, reader.getWorkspaces().size());
 
@@ -96,5 +100,7 @@ public class GeoserverRESTNamespaceTest extends GeoserverRESTTest {
 	
 		assertEquals(0, reader.getNamespaces().size());
 		assertEquals(0, reader.getWorkspaces().size());
+		// Test non existens
+		assertFalse(reader.existsNamespace("NS1"));
 	}
 }

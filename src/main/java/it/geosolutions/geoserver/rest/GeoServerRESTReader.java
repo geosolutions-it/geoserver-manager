@@ -54,7 +54,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -202,6 +201,17 @@ public class GeoServerRESTReader {
     public boolean existsStyle(String styleName) throws RuntimeException {
         return styleManager.existsStyle(styleName);
     }
+    
+    /**
+     * Check if a Style exists in the configured GeoServer instance.
+     * @param styleName the name of the style to check for.
+     * @param quietOnNotFound if true, mute exception if false is returned
+     * @return <TT>true</TT> on HTTP 200, <TT>false</TT> on HTTP 404
+     * @throws RuntimeException if any other HTTP code than 200 or 404 was retrieved.
+     */
+    public boolean existsStyle(String styleName, boolean quietOnNotFound) throws RuntimeException {
+        return styleManager.existsStyle(styleName, quietOnNotFound);
+    }
 
     /**
      * @see GeoServerRESTStyleManager#existsStyle(java.lang.String, java.lang.String) 
@@ -310,6 +320,31 @@ public class GeoServerRESTReader {
         String response = loadFullURL(url);
         return RESTDataStore.build(response);
     }
+    
+    /**
+     * Checks if the selected DataStore is present
+     * 
+     * @param workspace workspace of the datastore
+     * @param dsName name of the datastore
+     * @return boolean indicating if the datastore exists
+     */
+    public boolean existsDatastore(String workspace, String dsName){
+        return existsDatastore(workspace, dsName, Util.DEFAULT_QUIET_ON_NOT_FOUND);
+    }
+    
+    /**
+     * Checks if the selected DataStore is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param workspace workspace of the datastore
+     * @param dsName name of the datastore
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the datastore exists
+     */
+    public boolean existsDatastore(String workspace, String dsName, boolean quietOnNotFound){
+        String url = baseurl + "/rest/workspaces/" + workspace + "/datastores/" + dsName + ".xml";
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
 
     //==========================================================================
     //=== FEATURETYPES
@@ -328,6 +363,33 @@ public class GeoServerRESTReader {
 
         String response = loadFullURL(layer.getResourceUrl());
         return RESTFeatureType.build(response);
+    }
+
+    /**
+     * Checks if the selected FeatureType is present.
+     * 
+     * @param workspace workspace of the datastore
+     * @param dsName name of the datastore
+     * @param ftName name of the featuretype
+     * @return boolean indicating if the featuretype exists
+     */
+    public boolean existsFeatureType(String workspace, String dsName, String ftName){
+        return existsFeatureType(workspace, dsName, ftName, Util.DEFAULT_QUIET_ON_NOT_FOUND);
+    }
+
+    /**
+     * Checks if the selected FeatureType is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param workspace workspace of the datastore
+     * @param dsName name of the datastore
+     * @param ftName name of the featuretype
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the featuretype exists
+     */
+    public boolean existsFeatureType(String workspace, String dsName, String ftName, boolean quietOnNotFound){
+        String url = baseurl + "/rest/workspaces/" + workspace + "/datastores/" + dsName + "/featuretypes/" + ftName +".xml";
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
     }
 
     //==========================================================================
@@ -379,6 +441,31 @@ public class GeoServerRESTReader {
         String response = loadFullURL(url);
         return RESTCoverageStore.build(response);
     }
+    
+    /**
+     * Checks if the selected Coverage store is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param workspace workspace of the coveragestore
+     * @param dsName name of the coveragestore
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the coveragestore exists
+     */
+    public boolean existsCoveragestore(String workspace, String csName, boolean quietOnNotFound){
+        String url = baseurl + "/rest/workspaces/" + workspace + "/coveragestores/" + csName + ".xml";
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
+
+    /**
+     * Checks if the selected Coverage store is present.
+     * 
+     * @param workspace workspace of the coveragestore
+     * @param dsName name of the coveragestore
+     * @return boolean indicating if the coveragestore exists
+     */
+    public boolean existsCoveragestore(String workspace, String csName){
+        return existsCoveragestore(workspace, csName, Util.DEFAULT_QUIET_ON_NOT_FOUND);
+    }
 
     //==========================================================================
     //=== COVERAGES
@@ -414,6 +501,33 @@ public class GeoServerRESTReader {
             LOGGER.debug("### Retrieving Coverage from " + url);
         }
         return RESTCoverage.build(load(url));
+    }
+    
+    /**
+     * Checks if the selected Coverage is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param workspace workspace of the coveragestore
+     * @param dsName name of the coveragestore
+     * @param name name of the coverage
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the coverage exists
+     */
+    public boolean existsCoverage(String workspace, String store, String name, boolean quietOnNotFound){
+        String url = baseurl + "/rest/workspaces/" + workspace + "/coveragestores/" + store + "/coverages/"+name+".xml";
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
+
+    /**
+     * Checks if the selected Coverage is present.
+     * 
+     * @param workspace workspace of the coveragestore
+     * @param store name of the coveragestore
+     * @param name name of the coverage
+     * @return boolean indicating if the coverage exists
+     */
+    public boolean existsCoverage(String workspace, String store, String name){
+        return existsCoverage(workspace, store, name, Util.DEFAULT_QUIET_ON_NOT_FOUND);
     }
 
     /**
@@ -508,7 +622,35 @@ public class GeoServerRESTReader {
         return getLayerGroup(null, name);
     }
 
-    
+    /**
+     * Checks if the selected LayerGroup is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param workspace workspace of the LayerGroup
+     * @param name name of the LayerGroup
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the LayerGroup exists
+     */
+    public boolean existsLayerGroup(String workspace, String name, boolean quietOnNotFound){
+        String url;
+        if (workspace == null) {
+            url = baseurl + "/rest/layergroups/" + name + ".xml";
+        } else {
+            url = baseurl + "/rest/workspaces/" + workspace + "/layergroups/" + name + ".xml";
+        }  
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
+
+    /**
+     * Checks if the selected LayerGroup is present.
+     * 
+     * @param workspace workspace of the LayerGroup
+     * @param name name of the LayerGroup
+     * @return boolean indicating if the LayerGroup exists
+     */
+    public boolean existsLayerGroup(String workspace, String name){
+        return existsLayerGroup(workspace, name, Util.DEFAULT_QUIET_ON_NOT_FOUND);
+    }
     
     //==========================================================================
     //=== LAYERS
@@ -582,6 +724,36 @@ public class GeoServerRESTReader {
 		}
 		return layer;
     }
+    
+    /**
+     * Checks if the selected Layer is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param workspace workspace of the Layer
+     * @param name name of the Layer
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the Layer exists
+     */
+    public boolean existsLayer(String workspace, String name, boolean quietOnNotFound){
+        String url;
+        if (workspace == null) {
+            url = baseurl + "/rest/layers/" + name + ".xml";
+        } else {
+            url = baseurl + "/rest/layers/" + workspace + ":" + name + ".xml";
+        }  
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
+
+    /**
+     * Checks if the selected Layer is present.
+     * 
+     * @param workspace workspace of the Layer
+     * @param name name of the Layer
+     * @return boolean indicating if the Layer exists
+     */
+    public boolean existsLayer(String workspace, String name){
+        return existsLayerGroup(workspace, name, Util.DEFAULT_QUIET_ON_NOT_FOUND);
+    }
 
     //==========================================================================
     //=== NAMESPACES
@@ -634,6 +806,32 @@ public class GeoServerRESTReader {
         return names;
     }
 
+    /**
+     * Checks if the selected Namespace is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param prefix namespace prefix.
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the Namespace exists
+     */
+    public boolean existsNamespace(String prefix, boolean quietOnNotFound) {
+        if (prefix == null || prefix.isEmpty()) {
+            throw new IllegalArgumentException("Namespace prefix cannot be null or empty");
+        }
+        String url = baseurl + "/rest/namespaces/" + prefix + ".xml";
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
+
+    /**
+     * Checks if the selected Namespace is present.
+     * 
+     * @param prefix namespace prefix.
+     * @return boolean indicating if the Namespace exists
+     */
+    public boolean existsNamespace(String prefix){
+        return existsNamespace(prefix, Util.DEFAULT_QUIET_ON_NOT_FOUND);
+    }
+    
     //==========================================================================
     //=== WORKSPACES
     //==========================================================================
@@ -669,7 +867,37 @@ public class GeoServerRESTReader {
         }
         return names;
     }
+    
+    /**
+     * Checks if the selected Workspace is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param prefix Workspace prefix.
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the Workspace exists
+     */
+    public boolean existsWorkspace(String prefix, boolean quietOnNotFound) {
+        if (prefix == null || prefix.isEmpty()) {
+            throw new IllegalArgumentException("Workspace prefix cannot be null or empty");
+        }
+        String url = baseurl + "/rest/workspaces/" + prefix + ".xml";
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
 
+    /**
+     * Checks if the selected Workspace is present.
+     * 
+     * @param prefix Workspace prefix.
+     * @return boolean indicating if the Workspace exists
+     */
+    public boolean existsWorkspace(String prefix){
+        return existsWorkspace(prefix, Util.DEFAULT_QUIET_ON_NOT_FOUND);
+    }
+
+    //==========================================================================
+    //=== Structured Coverages
+    //==========================================================================    
+    
     /**
      * Get information about a granule for a structured coverage.
      * 
@@ -701,6 +929,38 @@ public class GeoServerRESTReader {
             }
         }
         return null;
+    }
+    
+    /**
+     * Checks if the selected Granule is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param workspace workspace of the coveragestore
+     * @param coverageStore name of the coveragestore
+     * @param coverage name of the coverage
+     * @param id id of the granule
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the Granule exists
+     */
+    public boolean existsGranule(String workspace, String coverageStore, String coverage,
+            String id, boolean quietOnNotFound) {
+        String url = baseurl + "/rest/workspaces/" + workspace + "/coveragestores/" + coverageStore
+                + "/coverages/" + coverage + "/index/granules/" + id + ".xml";
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
+
+    /**
+     * Checks if the selected Granule is present.
+     * 
+     * @param workspace workspace of the coveragestore
+     * @param coverageStore name of the coveragestore
+     * @param coverage name of the coverage
+     * @param id id of the granule
+     * @return boolean indicating if the Granule exists
+     */
+    public boolean existsGranule(String workspace, String coverageStore, String coverage, String id) {
+        return existsGranule(workspace, coverageStore, coverage, id,
+                Util.DEFAULT_QUIET_ON_NOT_FOUND);
     }
 
     /**

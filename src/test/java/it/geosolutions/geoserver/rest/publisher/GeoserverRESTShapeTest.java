@@ -101,6 +101,10 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         boolean published = publisher.publishShp(DEFAULT_WS, storeName, layerName, zipFile);
         assertTrue("publish() failed", published);
         assertTrue(existsLayer(layerName));
+        // Test exists datastore
+        assertTrue(reader.existsDatastore(DEFAULT_WS, storeName));
+        // Test exists featuretype
+        assertTrue(reader.existsFeatureType(DEFAULT_WS, storeName, layerName));
 
         RESTLayer layer = reader.getLayer(layerName);
 
@@ -110,10 +114,16 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         boolean ok = publisher.unpublishFeatureType(DEFAULT_WS, storeName, layerName);
         assertTrue("Unpublish() failed", ok);
         assertFalse(existsLayer(layerName));
+        
+        // Test not exists featuretype
+        assertFalse(reader.existsFeatureType(DEFAULT_WS, storeName, layerName));
 
         // remove also datastore
         boolean dsRemoved = publisher.removeDatastore(DEFAULT_WS, storeName,false);
         assertTrue("removeDatastore() failed", dsRemoved);
+        
+        // Test not exists datastore
+        assertFalse(reader.existsDatastore(DEFAULT_WS, storeName));
 
     }
 

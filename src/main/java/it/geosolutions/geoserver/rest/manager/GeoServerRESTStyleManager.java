@@ -26,6 +26,7 @@ package it.geosolutions.geoserver.rest.manager;
 
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.HTTPUtils;
+import it.geosolutions.geoserver.rest.Util;
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
 import java.io.File;
@@ -61,9 +62,21 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
      * @throws RuntimeException if any other HTTP code than 200 or 404 was retrieved.
      */
     public boolean existsStyle(String name) throws RuntimeException {
-        String url = buildXmlUrl(null, name);
-        return HTTPUtils.exists(url, gsuser, gspass);
+        return existsStyle(name, Util.DEFAULT_QUIET_ON_NOT_FOUND);
     }
+    
+    /**
+     * Check if a Style exists in the configured GeoServer instance. User can choose if log a possible exception or not
+     * @param name the name of the style to check for.
+     * @param quietOnNotFound if true, mute exception if false is returned
+     * @return <TT>true</TT> on HTTP 200, <TT>false</TT> on HTTP 404
+     * @throws RuntimeException if any other HTTP code than 200 or 404 was retrieved.
+     */
+   public boolean existsStyle(String name, boolean quietOnNotFound) {
+       String url = buildXmlUrl(null, name);
+       String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+       return HTTPUtils.exists(composed , gsuser, gspass);
+   }
 
     /**
      * Get summary info about all Styles.
@@ -111,9 +124,18 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
      * @since GeoServer 2.2
      */
     public boolean existsStyle(String workspace, String name) {
-        String url = buildXmlUrl(workspace, name);
-        return HTTPUtils.exists(url, gsuser, gspass);
+        return existsStyle(workspace, name, Util.DEFAULT_QUIET_ON_NOT_FOUND);
     }
+    
+    /**
+    *
+    * @since GeoServer 2.6
+    */
+   public boolean existsStyle(String workspace, String name, boolean quietOnNotFound) {
+       String url = buildXmlUrl(workspace, name);
+       String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+       return HTTPUtils.exists(composed , gsuser, gspass);
+   }
 
     /**
      * Get summary info about Styles in a workspace.
