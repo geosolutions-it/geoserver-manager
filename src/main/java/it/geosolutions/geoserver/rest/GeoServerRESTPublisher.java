@@ -1691,7 +1691,43 @@ public class GeoServerRESTPublisher {
         return publishCoverage(workspace, coveragestore, CoverageStoreExtension.WORLDIMAGE,
                 "application/zip", zipFile, configure, params);
     }
+    
+    /**
+     * Publish a external worldimage file. 
+     * 
+     * @param workspace Workspace to use
+     * @param coveragestore Name of the coveragestore
+     * @param fileUri the uri of the file containing the WorldImage.
+     * @param configure Configure parameter. See {@link ParameterConfigure}. It can be null.
+     * @param params parameters to append to the url (can be null).<br>
+     *        Accepted parameters are:
+     *        <ul>
+     *        <li><b>coverageName=name</b> coverageName parameter to append. Only works if configure is not set to {@link ParameterConfigure#NONE}.</li>
+     *        </ul>
+     * @return true if the operation completed successfully.
+     */
+    public boolean publishWorldImage(String workspace, String coveragestore, URI fileURI,
+            ParameterConfigure configure, NameValuePair... params) throws FileNotFoundException {
+        
+        return createCoverageStore(workspace, coveragestore, UploadMethod.EXTERNAL, CoverageStoreExtension.WORLDIMAGE,
+        		"text/plain", fileURI, configure, params);
+        
+    }
 
+    /**
+     * Publish a external worldimage file.
+     * 
+     * @param workspace Workspace to use
+     * @param coveragestore Name of the coveragestore
+     * @param fileUri the uri of the file containing the WorldImage.
+     * @return true if the operation completed successfully.
+     */
+    public boolean publishWorldImage(String workspace, String coveragestore, URI fileURI) throws FileNotFoundException {
+        return createCoverageStore(workspace, coveragestore, UploadMethod.EXTERNAL, CoverageStoreExtension.WORLDIMAGE,
+        		"text/plain", fileURI, ParameterConfigure.FIRST, (NameValuePair) null);
+        
+    }
+    
     // ==========================================================================
     // === MOSAIC
     // ==========================================================================
