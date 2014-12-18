@@ -1721,7 +1721,7 @@ public class GeoServerRESTPublisher {
      * @param coveragestore Name of the coveragestore
      * @param fileUri the uri of the file containing the WorldImage.
      * @return true if the operation completed successfully.
-     */
+     */ 
     public boolean publishWorldImage(String workspace, String coveragestore, URI fileURI) throws FileNotFoundException {
         return createCoverageStore(workspace, coveragestore, UploadMethod.EXTERNAL, CoverageStoreExtension.WORLDIMAGE,
         		"text/plain", fileURI, ParameterConfigure.FIRST, (NameValuePair) null);
