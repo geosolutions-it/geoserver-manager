@@ -259,6 +259,20 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
         String result = HTTPUtils.post(sUrl, sldFile, GeoServerRESTPublisher.Format.SLD.getContentType(), gsuser, gspass);
         return result != null;
     }
+    
+    public boolean publishStyle(final File sldFile, final String name, final boolean raw) {
+        /*
+         * This is the equivalent call with cUrl:
+         *
+         * {@code curl -u admin:geoserver -XPOST \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
+         * http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=name&raw=raw}
+         */
+        String sUrl = buildPostUrl(null, name);
+        sUrl += "&raw=" + raw;
+        LOGGER.debug("POSTing new style " + name + " to " + sUrl);
+        String result = HTTPUtils.post(sUrl, sldFile, GeoServerRESTPublisher.Format.SLD.getContentType(), gsuser, gspass);
+        return result != null;
+    }
 
     /**
      * Update a Style.
