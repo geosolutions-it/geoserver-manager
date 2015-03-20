@@ -357,6 +357,19 @@ public class GeoServerRESTPublisher {
     }
 
     /**
+     * Store and publish a Style, assigning it a name and choosing the raw format.
+     *
+     * @param sldFile the File containing the SLD document.
+     * @param name the Style name.
+     * @param raw the raw format
+     *
+     * @return <TT>true</TT> if the operation completed successfully.
+     */
+    public boolean publishStyle(File sldFile, String name, boolean raw) {
+        return styleManager.publishStyle(sldFile, name, raw);
+    }
+
+    /**
      * Update a Style.
      * 
      * @param sldBody the new SLD document as a String.

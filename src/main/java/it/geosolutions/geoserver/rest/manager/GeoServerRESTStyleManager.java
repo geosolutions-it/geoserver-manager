@@ -260,6 +260,15 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
         return result != null;
     }
     
+    /**
+     * Store and publish a Style, assigning it a name and choosing the raw format.
+     *
+     * @param sldFile the File containing the SLD document.
+     * @param name the Style name.
+     * @param raw the raw format
+     *
+     * @return <TT>true</TT> if the operation completed successfully.
+     */
     public boolean publishStyle(final File sldFile, final String name, final boolean raw) {
         /*
          * This is the equivalent call with cUrl:
