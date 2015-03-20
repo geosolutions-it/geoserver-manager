@@ -30,10 +30,21 @@ import it.geosolutions.geoserver.rest.Util;
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -261,7 +272,8 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
     }
     
     /**
-     * Store and publish a Style, assigning it a name and choosing the raw format.
+     * Store and publish a Style, assigning it a name and choosing the raw
+     * format.
      *
      * @param sldFile the File containing the SLD document.
      * @param name the Style name.
@@ -279,7 +291,11 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
         String sUrl = buildPostUrl(null, name);
         sUrl += "&raw=" + raw;
         LOGGER.debug("POSTing new style " + name + " to " + sUrl);
-        String result = HTTPUtils.post(sUrl, sldFile, GeoServerRESTPublisher.Format.SLD.getContentType(), gsuser, gspass);
+        String contentType = GeoServerRESTPublisher.Format.SLD.getContentType();
+        if(!this.checkSLD10Version(sldFile)){
+            contentType = GeoServerRESTPublisher.Format.SLD_1_1_0.getContentType();
+        }
+        String result = HTTPUtils.post(sUrl, sldFile, contentType, gsuser, gspass);
         return result != null;
     }
 
@@ -619,4 +635,26 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
         return sUrl.toString();
     }
 
+    private boolean checkSLD10Version(File fileSLD) {
+        boolean result = false;
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(fileSLD);
+            XPathFactory xPathfactory = XPathFactory.newInstance();
+            XPath xpath = xPathfactory.newXPath();
+            XPathExpression expr = xpath.compile("//@version='1.0.0'");
+            result = (Boolean)expr.evaluate(doc, XPathConstants.BOOLEAN);
+        } catch (SAXException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        } catch (IOException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        } catch (XPathExpressionException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        } catch (ParserConfigurationException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        }
+        return result;
+    }
+    
 }
