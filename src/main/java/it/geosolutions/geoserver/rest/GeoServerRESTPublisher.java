@@ -359,6 +359,19 @@ public class GeoServerRESTPublisher {
     /**
      * Store and publish a Style, assigning it a name and choosing the raw format.
      *
+     * @param sldBody the full SLD document as a String.
+     * @param name the Style name.
+     * @param raw the raw format
+     *
+     * @return <TT>true</TT> if the operation completed successfully.
+     */
+    public boolean publishStyle(String sldBody, String name, boolean raw) {
+        return styleManager.publishStyle(sldBody, name, raw);
+    }
+    
+    /**
+     * Store and publish a Style, assigning it a name and choosing the raw format.
+     *
      * @param sldFile the File containing the SLD document.
      * @param name the Style name.
      * @param raw the raw format
@@ -377,11 +390,26 @@ public class GeoServerRESTPublisher {
      * @param raw the raw format
      * 
      * @return <TT>true</TT> if the operation completed successfully.
-     * @throws IllegalArgumentException if the sldFile file or name are null or name is empty.
+     * @throws IllegalArgumentException if the style body or name are null or empty.
      */
     public boolean updateStyle(final File sldFile, final String name, boolean raw)
             throws IllegalArgumentException {
         return styleManager.updateStyle(sldFile, name, raw);
+    }
+    
+    /**
+     * Update a Style.
+     * 
+     * @param sldBody the new SLD document as a String.
+     * @param name the Style name.
+     * @param raw the raw format
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException if the style body or name are null or empty.
+     */
+    public boolean updateStyle(final String sldBody, final String name, boolean raw)
+            throws IllegalArgumentException {
+        return styleManager.updateStyle(sldBody, name, raw);
     }
 
     /**
