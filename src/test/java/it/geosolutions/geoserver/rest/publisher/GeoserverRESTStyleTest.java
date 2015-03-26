@@ -78,6 +78,15 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 
 		assertFalse(publisher.publishStyle(sldFile));
 		assertTrue(reader.existsStyle(STYLENAME));
+                
+		final String STYLENAMEV110 = "restteststyleV110";
+		File sldFileV110 = new ClassPathResource("testdata/" + STYLENAMEV110 + ".sld")
+				.getFile();
+
+                assertTrue(publisher.publishStyle(sldFileV110, STYLENAMEV110, true));
+		assertTrue(reader.existsStyle(STYLENAME));
+
+		assertFalse(publisher.publishStyle(sldFileV110, STYLENAMEV110, true));
 
         RESTStyle style = reader.getStyle(STYLENAME);
         assertEquals(STYLENAME, style.getName());
@@ -133,9 +142,14 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 
 		File sldFile = new ClassPathResource("testdata/restteststyle.sld")
 				.getFile();
+                
+                final String STYLENAMEV110 = "restteststyleV110";
+		File sldFileV110 = new ClassPathResource("testdata/" + STYLENAMEV110 + ".sld")
+				.getFile();
 
 		// known state?
 		cleanupTestStyle(styleName);
+		cleanupTestStyle(STYLENAMEV110);
 
 		// test insert
 		boolean published = publisher.publishStyle(sldFile); // Will take the
@@ -152,6 +166,19 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 		boolean ok = publisher.removeStyle(styleName);
 		assertTrue("Unpublish() failed", ok);
 		assertFalse(reader.existsStyle(styleName));
+		
+                published = publisher.publishStyle(sldFileV110, STYLENAMEV110, true);
+
+		assertTrue("publish() failed", published);
+		assertTrue(reader.existsStyle(STYLENAMEV110));
+
+		boolean updated = publisher.updateStyle(sldFileV110, STYLENAMEV110, true);
+		assertTrue("update() failed", updated);
+
+		// test delete
+		ok = publisher.removeStyle(STYLENAMEV110);
+		assertTrue("Unpublish() failed", ok);
+		assertFalse(reader.existsStyle(STYLENAMEV110));
 	}
 
 	@Test
