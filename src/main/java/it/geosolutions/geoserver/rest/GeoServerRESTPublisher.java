@@ -372,6 +372,21 @@ public class GeoServerRESTPublisher {
     /**
      * Update a Style.
      * 
+     * @param sldFile the File containing the SLD document.
+     * @param name the Style name.
+     * @param raw the raw format
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException if the sldFile file or name are null or name is empty.
+     */
+    public boolean updateStyle(final File sldFile, final String name, boolean raw)
+            throws IllegalArgumentException {
+        return styleManager.updateStyle(sldFile, name, raw);
+    }
+
+    /**
+     * Update a Style.
+     * 
      * @param sldBody the new SLD document as a String.
      * @param name the Style name to update.
      * 

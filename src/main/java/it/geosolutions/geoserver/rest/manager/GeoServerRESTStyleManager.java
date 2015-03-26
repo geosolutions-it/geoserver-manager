@@ -286,7 +286,7 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
          * This is the equivalent call with cUrl:
          *
          * {@code curl -u admin:geoserver -XPOST \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
-         * http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=name&raw=raw}
+         * http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=$name&raw=$raw}
          */
         String sUrl = buildPostUrl(null, name);
         sUrl += "&raw=" + raw;
@@ -296,6 +296,41 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
             contentType = GeoServerRESTPublisher.Format.SLD_1_1_0.getContentType();
         }
         String result = HTTPUtils.post(sUrl, sldFile, contentType, gsuser, gspass);
+        return result != null;
+    }
+    
+    /**
+     * Update a Style.
+     * 
+     * @param sldFile the File containing the SLD document.
+     * @param name the Style name.
+     * @param raw the raw format
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException if the sldFile file or name are null or name is empty.
+     */
+    public boolean updateStyle(final File sldFile, final String name, final boolean raw) 
+            throws IllegalArgumentException {
+        /*
+         * This is the equivalent call with cUrl:
+         *
+         * {@code curl -u admin:geoserver -XPUT \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
+         * http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=$name&raw=$raw}
+         */
+        if (sldFile == null) {
+            throw new IllegalArgumentException("Unable to updateStyle using a null parameter file");
+        } else if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("The style name may not be null or empty");
+        }
+        
+        String sUrl = buildUrl(null, name, null);
+        sUrl += "&raw=" + raw;
+        LOGGER.debug("POSTing new style " + name + " to " + sUrl);
+        String contentType = GeoServerRESTPublisher.Format.SLD.getContentType();
+        if(!this.checkSLD10Version(sldFile)){
+            contentType = GeoServerRESTPublisher.Format.SLD_1_1_0.getContentType();
+        }
+        String result = HTTPUtils.put(sUrl, sldFile, contentType, gsuser, gspass);
         return result != null;
     }
 
