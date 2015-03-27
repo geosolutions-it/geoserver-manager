@@ -29,10 +29,13 @@ import it.geosolutions.geoserver.rest.HTTPUtils;
 import it.geosolutions.geoserver.rest.Util;
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -742,7 +745,8 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(sldBody);
+            InputStream stream = new ByteArrayInputStream(sldBody.getBytes(StandardCharsets.UTF_8));
+            Document doc = builder.parse(stream);
             result = this.checkSLD10Version(doc);
         } catch (SAXException ex) {
             LOGGER.error("Error parsing SLD file: " + ex);
