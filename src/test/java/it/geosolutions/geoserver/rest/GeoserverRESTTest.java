@@ -226,7 +226,7 @@ public abstract class GeoserverRESTTest {
                 // RESTCoverageStore store = reader.getCoverageStore(workspace, storename);
 
                 LOGGER.warn("Deleting CoverageStore " + workspace + " : " + storename);
-                boolean removed = publisher.removeCoverageStore(workspace, storename, false);
+                boolean removed = publisher.removeCoverageStore(workspace, storename, false, GeoServerRESTPublisher.Purge.METADATA);
                 assertTrue("CoverageStore not removed " + workspace + " : " + storename, removed);
             }
         }
@@ -246,7 +246,7 @@ public abstract class GeoserverRESTTest {
                 // }
 
                 LOGGER.warn("Deleting DataStore " + workspace + " : " + storename);
-                boolean removed = publisher.removeDatastore(workspace, storename, false);
+                boolean removed = publisher.removeDatastore(workspace, storename, false, GeoServerRESTPublisher.Purge.METADATA);
                 assertTrue("DataStore not removed " + workspace + " : " + storename, removed);
             }
         }
@@ -287,7 +287,7 @@ public abstract class GeoserverRESTTest {
         RESTFeatureType featureType = reader.getFeatureType(layer);
         RESTDataStore datastore = reader.getDatastore(featureType);
 
-        LOGGER.warn("Deleting FeatureType" + datastore.getWorkspaceName() + " : "
+        LOGGER.warn("Deleting FeatureType " + datastore.getWorkspaceName() + " : "
                 + datastore.getName() + " / " + featureType.getName());
 
         boolean removed = publisher.unpublishFeatureType(datastore.getWorkspaceName(),
