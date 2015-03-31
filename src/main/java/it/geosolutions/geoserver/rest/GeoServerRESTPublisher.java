@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2013 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2015 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -354,6 +354,62 @@ public class GeoServerRESTPublisher {
      */
     public boolean publishStyle(File sldFile, String name) {
         return styleManager.publishStyle(sldFile, name);
+    }
+
+    /**
+     * Store and publish a Style, assigning it a name and choosing the raw format.
+     *
+     * @param sldBody the full SLD document as a String.
+     * @param name the Style name.
+     * @param raw the raw format
+     *
+     * @return <TT>true</TT> if the operation completed successfully.
+     */
+    public boolean publishStyle(String sldBody, String name, boolean raw) {
+        return styleManager.publishStyle(sldBody, name, raw);
+    }
+    
+    /**
+     * Store and publish a Style, assigning it a name and choosing the raw format.
+     *
+     * @param sldFile the File containing the SLD document.
+     * @param name the Style name.
+     * @param raw the raw format
+     *
+     * @return <TT>true</TT> if the operation completed successfully.
+     */
+    public boolean publishStyle(File sldFile, String name, boolean raw) {
+        return styleManager.publishStyle(sldFile, name, raw);
+    }
+
+    /**
+     * Update a Style.
+     * 
+     * @param sldFile the File containing the SLD document.
+     * @param name the Style name.
+     * @param raw the raw format
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException if the style body or name are null or empty.
+     */
+    public boolean updateStyle(final File sldFile, final String name, boolean raw)
+            throws IllegalArgumentException {
+        return styleManager.updateStyle(sldFile, name, raw);
+    }
+    
+    /**
+     * Update a Style.
+     * 
+     * @param sldBody the new SLD document as a String.
+     * @param name the Style name.
+     * @param raw the raw format
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException if the style body or name are null or empty.
+     */
+    public boolean updateStyle(final String sldBody, final String name, boolean raw)
+            throws IllegalArgumentException {
+        return styleManager.updateStyle(sldBody, name, raw);
     }
 
     /**
@@ -1340,7 +1396,7 @@ public class GeoServerRESTPublisher {
      * </ul>
      */
     public enum Format {
-        XML, JSON, HTML, SLD;
+        XML, JSON, HTML, SLD, SLD_1_1_0;
 
         /**
          * Gets the mime type from a format.
@@ -1358,6 +1414,8 @@ public class GeoServerRESTPublisher {
                 return "application/json";
             case SLD:
                 return "application/vnd.ogc.sld+xml";
+            case SLD_1_1_0:
+                return "application/vnd.ogc.se+xml";
             default:
                 return null;
             }

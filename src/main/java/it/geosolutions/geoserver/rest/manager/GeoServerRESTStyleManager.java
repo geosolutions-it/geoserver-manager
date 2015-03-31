@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *
- *  Copyright (C) 2007,2013 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2015 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,11 +29,25 @@ import it.geosolutions.geoserver.rest.HTTPUtils;
 import it.geosolutions.geoserver.rest.Util;
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -257,6 +271,136 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
         String sUrl = buildPostUrl(null, name);
         LOGGER.debug("POSTing new style " + name + " to " + sUrl);
         String result = HTTPUtils.post(sUrl, sldFile, GeoServerRESTPublisher.Format.SLD.getContentType(), gsuser, gspass);
+        return result != null;
+    }
+    
+    /**
+     * Store and publish a Style, assigning it a name and choosing the raw
+     * format.
+     *
+     * @param sldBody the full SLD document as a String.
+     * @param name the Style name.
+     * @param raw the raw format
+     *
+     * @return <TT>true</TT> if the operation completed successfully.
+     */
+    public boolean publishStyle(final String sldBody, final String name, final boolean raw) {
+        /*
+         * This is the equivalent call with cUrl:
+         *
+         * {@code curl -u admin:geoserver -XPOST \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
+         * http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=$name&raw=$raw}
+         */
+        if (sldBody == null || sldBody.isEmpty()) {
+            throw new IllegalArgumentException("The style body may not be null or empty");
+        }
+         
+        String sUrl = buildPostUrl(null, name);
+        sUrl += "&raw=" + raw;
+        LOGGER.debug("POSTing new style " + name + " to " + sUrl);
+        String contentType = GeoServerRESTPublisher.Format.SLD.getContentType();
+        if(!this.checkSLD10Version(sldBody)){
+            contentType = GeoServerRESTPublisher.Format.SLD_1_1_0.getContentType();
+        }
+        String result = HTTPUtils.post(sUrl, sldBody, contentType, gsuser, gspass);
+        return result != null;
+    }
+    
+    /**
+     * Store and publish a Style, assigning it a name and choosing the raw
+     * format.
+     *
+     * @param sldFile the File containing the SLD document.
+     * @param name the Style name.
+     * @param raw the raw format
+     *
+     * @return <TT>true</TT> if the operation completed successfully.
+     */
+    public boolean publishStyle(final File sldFile, final String name, final boolean raw) {
+        /*
+         * This is the equivalent call with cUrl:
+         *
+         * {@code curl -u admin:geoserver -XPOST \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
+         * http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=$name&raw=$raw}
+         */
+        String sUrl = buildPostUrl(null, name);
+        sUrl += "&raw=" + raw;
+        LOGGER.debug("POSTing new style " + name + " to " + sUrl);
+        String contentType = GeoServerRESTPublisher.Format.SLD.getContentType();
+        if(!this.checkSLD10Version(sldFile)){
+            contentType = GeoServerRESTPublisher.Format.SLD_1_1_0.getContentType();
+        }
+        String result = HTTPUtils.post(sUrl, sldFile, contentType, gsuser, gspass);
+        return result != null;
+    }
+    
+    /**
+     * Update a Style.
+     * 
+     * @param sldFile the File containing the SLD document.
+     * @param name the Style name.
+     * @param raw the raw format
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException if the style body or name are null or empty.
+     */
+    public boolean updateStyle(final File sldFile, final String name, final boolean raw) 
+            throws IllegalArgumentException {
+        /*
+         * This is the equivalent call with cUrl:
+         *
+         * {@code curl -u admin:geoserver -XPUT \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
+         * http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=$name&raw=$raw}
+         */
+        if (sldFile == null) {
+            throw new IllegalArgumentException("Unable to updateStyle using a null parameter file");
+        } else if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("The style name may not be null or empty");
+        }
+        
+        String sUrl = buildUrl(null, name, null);
+        sUrl += "?raw=" + raw;
+        LOGGER.debug("POSTing style " + name + " to " + sUrl);
+        String contentType = GeoServerRESTPublisher.Format.SLD.getContentType();
+        if(!this.checkSLD10Version(sldFile)){
+            contentType = GeoServerRESTPublisher.Format.SLD_1_1_0.getContentType();
+        }
+        String result = HTTPUtils.put(sUrl, sldFile, contentType, gsuser, gspass);
+        return result != null;
+    }
+    
+    /**
+     * Update a Style.
+     * 
+     * @param sldBody the new SLD document as a String.
+     * @param name the Style name.
+     * @param raw the raw format
+     * 
+     * @return <TT>true</TT> if the operation completed successfully.
+     * @throws IllegalArgumentException if the style body or name are null or empty.
+     */
+    public boolean updateStyle(final String sldBody, final String name, final boolean raw) 
+            throws IllegalArgumentException {
+        /*
+         * This is the equivalent call with cUrl:
+         *
+         * {@code curl -u admin:geoserver -XPUT \ -H 'Content-type: application/vnd.ogc.sld+xml' \ -d @$FULLSLD \
+         * http://$GSIP:$GSPORT/$SERVLET/rest/styles?name=$name&raw=$raw}
+         */
+        if (sldBody == null || sldBody.isEmpty()) {
+            throw new IllegalArgumentException("The style body may not be null or empty");
+        } else if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("The style name may not be null or empty");
+        }
+        
+        String sUrl = buildUrl(null, name, null);
+        sUrl += "&raw=" + raw;
+        LOGGER.debug("POSTing style " + name + " to " + sUrl);
+        String contentType = GeoServerRESTPublisher.Format.SLD.getContentType();
+        if(!this.checkSLD10Version(sldBody)){
+            contentType = GeoServerRESTPublisher.Format.SLD_1_1_0.getContentType();
+        }
+        String result = HTTPUtils.put(sUrl, sldBody, contentType, gsuser, gspass);
         return result != null;
     }
 
@@ -596,4 +740,52 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
         return sUrl.toString();
     }
 
+    private boolean checkSLD10Version(String sldBody) {
+        boolean result = false;
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            InputStream stream = new ByteArrayInputStream(sldBody.getBytes(StandardCharsets.UTF_8));
+            Document doc = builder.parse(stream);
+            result = this.checkSLD10Version(doc);
+        } catch (SAXException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        } catch (IOException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        } catch (ParserConfigurationException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        }
+        return result;
+    }
+
+    private boolean checkSLD10Version(File fileSLD) {
+        boolean result = false;
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(fileSLD);
+            result = this.checkSLD10Version(doc);
+        } catch (SAXException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        } catch (IOException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        } catch (ParserConfigurationException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        }
+        return result;
+    }
+    
+    private boolean checkSLD10Version(Document doc) {
+        boolean result = false;
+        try {
+            XPathFactory xPathfactory = XPathFactory.newInstance();
+            XPath xpath = xPathfactory.newXPath();
+            XPathExpression expr = xpath.compile("//@version='1.0.0'");
+            result = (Boolean)expr.evaluate(doc, XPathConstants.BOOLEAN);
+        } catch (XPathExpressionException ex) {
+            LOGGER.error("Error parsing SLD file: " + ex);
+        }
+        return result;
+    }
+    
 }
