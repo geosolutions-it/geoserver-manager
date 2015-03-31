@@ -225,6 +225,25 @@ public class RESTStructuredCoverageGranulesList implements Iterable<RESTStructur
         public String getFid() {
             return fid;
         }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this.getClass().getSimpleName()).append('[');
+
+            for (Element c : (List<Element>)granule.getChildren()) {
+                String text = c.getText();
+                if(text!= null) {
+                    text = text.replace("\n", "");
+                    text = text.trim();
+                }
+                sb.append('(').append(c.getName()).append("=").append(text).append(')');
+            }
+            sb.append(']');
+            return sb.toString();
+        }
+
+
     }
 
     @Override
