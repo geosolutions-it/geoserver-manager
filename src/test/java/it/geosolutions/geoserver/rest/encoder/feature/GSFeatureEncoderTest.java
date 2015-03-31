@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2007 - 2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2007 - 2015 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  * 
  *  GPLv3 + Classpath exception
@@ -104,11 +104,12 @@ public class GSFeatureEncoderTest extends GeoserverRESTTest {
         fte.addMetadataLinkInfo(metadatalink);
 
         GSLayerEncoder layerEncoder = null;
-        if (VERSION.getVersion(GS_VERSION).compareTo(VERSION.UNRECOGNIZED) > 0) {
-            layerEncoder = new GSLayerEncoder();
-        } else if (VERSION.getVersion(GS_VERSION).compareTo(VERSION.UNRECOGNIZED) == 0) {
+        if (VERSION.getVersion(GS_VERSION) == VERSION.UNRECOGNIZED ) {
             layerEncoder = new GSLayerEncoder21();
+        } else {
+            layerEncoder = new GSLayerEncoder();
         }
+
         layerEncoder.setEnabled(true);
         layerEncoder.setQueryable(true);
         layerEncoder.setAdvertised(true);

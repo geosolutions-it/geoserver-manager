@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *
- *  Copyright (C) 2007,2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2015 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -147,12 +147,22 @@ public class GSVersionDecoder extends XmlElement {
     }
 
     public enum VERSION {
-        UNRECOGNIZED(-1), v22(22), v23(23), v24(24), v25(25), ABOVE(9999);
+        v22(22, "2\\.2([^0-9]|$).*"),
+        v23(23, "2\\.3([^0-9]|$).*"),
+        v24(24, "2\\.4([^0-9]|$).*"),
+        v25(25, "2\\.5([^0-9]|$).*"),
+        v26(26, "2\\.6([^0-9]|$).*"),
+        v27(27, "2\\.7([^0-9]|$).*"),
+        v28(28, "2\\.8([^0-9]|$).*"),
+        ABOVE(9999, "2\\..+"),
+        UNRECOGNIZED(-1, null);
 
         final private int version;
+        final private String pattern;
 
-        private VERSION(int val) {
+        private VERSION(int val, String pattern) {
             version = val;
+            this.pattern = pattern;
         }
 
         public int getVersion() {
@@ -164,25 +174,27 @@ public class GSVersionDecoder extends XmlElement {
         }
 
         public static VERSION getVersion(String v) {
-            if (v==null) {
-                return UNRECOGNIZED;
-            } else if (v.matches("2\\.2.*")) {
-                return v22;
-            } else if (v.matches("2\\.3.*")) {
-                return v23;
-            } else if (v.matches("2\\.4.*")) {
-                return v24;
-            } else if (v.matches("2\\.5.*")) {
-                return v25;
-            } else if (v.matches("2\\..+")) {
-                return ABOVE;
-            } else {
+            if (v == null) {
                 return UNRECOGNIZED;
             }
+            
+            for (VERSION version : VERSION.values()) {
+                if(version.pattern != null && v.matches(version.pattern)) {
+                    return version;
+                }
+            }
+
+            return UNRECOGNIZED;
         }
         
         public static String print(){
-            return "["+v22+", "+v23+", "+v24+", "+v25+", "+ABOVE+", "+UNRECOGNIZED+"]";
+
+            StringBuilder sb = new StringBuilder("[");
+            for (VERSION v : VERSION.values()) {
+                sb.append(v.toString()).append(' ');
+            }
+            sb.append("]");
+            return sb.toString();
         }
     }
 
