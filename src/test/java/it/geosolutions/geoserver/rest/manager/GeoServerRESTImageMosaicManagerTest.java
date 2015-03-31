@@ -11,12 +11,15 @@ import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 
 import java.net.URL;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -34,13 +37,28 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
     private final static Logger LOGGER = LoggerFactory.getLogger(GeoServerRESTImageMosaicManagerTest.class);
     
     
+    /**
+     * This test is ignored because it cannot be repeated.
+     * Once the test is run, the index is created for the granules, but it won't be removed,
+     * so next run will still find all the granules in the db.
+     * 
+     * Tried with purge=metadata when removing datastores, but removing indices 
+     * in shapefiles is not supported by geoserver (which throws an UnsupportedOperation)
+     * Adding a datastore.properties for using an h2 DB won't work as well, because 
+     * only postgis is supported at lower levels.
+     * 
+     * @throws Exception 
+     */
+    @Ignore
     @Test
     public void createAndDelete() throws Exception{
         if (!enabled()) {
             return;
         }
         deleteAll();
-        
+
+        assertFalse("Workspace was not properly removed", reader.existsNamespace(DEFAULT_WS) );
+
         publisher.createWorkspace(DEFAULT_WS);
         
         // crea the manager
@@ -51,7 +69,9 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         final String coverageStoreName = "mosaic";
         final String coverageName = "mosaic";
         final String format = "imagemosaic";
-        
+
+        assertFalse("CoverageStore was not properly removed", reader.existsCoveragestore(DEFAULT_WS, coverageStoreName));
+
         // upload the mosaic
         boolean create=manager.create(DEFAULT_WS, coverageStoreName,new ClassPathResource("testdata/granules/mosaic.zip").getFile().getAbsolutePath());
         assertTrue(create);
@@ -64,10 +84,15 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         assertNotNull(indexFormat);
         assertFalse(indexFormat.isEmpty());
         assertEquals(5, indexFormat.size());
-        Iterator<RESTStructuredCoverageIndexAttribute> iterator = indexFormat.iterator();
-        while (iterator.hasNext()) {
-            final RESTStructuredCoverageIndexAttribute element = iterator.next();
+
+        Set<String> allowedDateFormats = new HashSet<String>(Arrays.asList(
+                "java.util.Date",  // shapefile
+                "java.sql.Timestamp")); // h2
+
+        for (RESTStructuredCoverageIndexAttribute element : indexFormat) {
+
             final String elementName = element.getName();
+
             if (elementName.equals("location")) {
                 assertEquals("0", element.getMinOccurs());
                 assertEquals("1", element.getMaxOccurs());
@@ -77,7 +102,7 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
                 assertEquals("0", element.getMinOccurs());
                 assertEquals("1", element.getMaxOccurs());
                 assertEquals("true", element.getNillable());
-                assertEquals("java.util.Date", element.getBinding());
+                assertTrue(allowedDateFormats.contains(element.getBinding()));
             } else if (elementName.equals("date")) {
                 assertEquals("0", element.getMinOccurs());
                 assertEquals("1", element.getMaxOccurs());
@@ -113,11 +138,16 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         // get with no paging
         granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName);
         assertNotNull(granulesList);
-        assertEquals(4, granulesList.size());
+
+        for (RESTStructuredCoverageGranule g : granulesList) {
+            LOGGER.info("    GRANULE before delete: " + g);
+        }
+
+        assertEquals("At first insertion 4 granules are expected", 4, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule);   
-        
+
         // examples of filtering with CQL
         granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName, "depth = 100", null, null);
         assertNotNull(granulesList);
@@ -148,7 +178,12 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName);
         assertNotNull(granulesList);
         assertFalse(granulesList.isEmpty());
-        assertEquals(3, granulesList.size());
+
+        for (RESTStructuredCoverageGranule g : granulesList) {
+            LOGGER.info("    GRANULE: " + g);
+        }
+
+        assertEquals("After deletion only 3 granules are expected", 3, granulesList.size());
         granule = granulesList.get(0);
         assertNotNull(granule);
         
@@ -158,7 +193,7 @@ public class GeoServerRESTImageMosaicManagerTest extends GeoserverRESTTest {
         
         granulesList = manager.getGranules(DEFAULT_WS, coverageStoreName, coverageName, null, null, null);
         assertNotNull(granulesList);
-        assertEquals(4, granulesList.size());
+        assertEquals("After harvest 4 granules are expected", 4, granulesList.size());
         assertFalse(granulesList.isEmpty());
         granule = granulesList.get(0);
         assertNotNull(granule);
