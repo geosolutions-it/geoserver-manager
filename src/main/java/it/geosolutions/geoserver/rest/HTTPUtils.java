@@ -337,9 +337,8 @@ public class HTTPUtils {
                 response = IOUtils.toString(is);
                 IOUtils.closeQuietly(is);
                 if (response.trim().equals("")) { 
-                    if (LOGGER.isDebugEnabled())
-                        LOGGER
-                            .debug("ResponseBody is empty (this may be not an error since we just performed a DELETE call)");
+                    if (LOGGER.isTraceEnabled())
+                        LOGGER.trace("ResponseBody is empty (this may be not an error since we just performed a DELETE call)");
                     return true;
                 }
                 if (LOGGER.isDebugEnabled())

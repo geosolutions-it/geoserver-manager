@@ -100,8 +100,8 @@ public abstract class ElementUtils {
 		final List<Element> ret = new ArrayList<Element>();
 		// if match add myself
 		if (filter.matches(root)) {
-			if (LOGGER.isDebugEnabled())
-				LOGGER.debug("LOCATED-> name:" + root.getName() + " text:"
+			if (LOGGER.isTraceEnabled())
+				LOGGER.trace("LOCATED-> name:" + root.getName() + " text:"
 						+ root.getText());
 			ret.add(root);
 		}
@@ -128,8 +128,8 @@ public abstract class ElementUtils {
 		final List<Element> ret = new ArrayList<Element>();
 		// if match add myself
 		if (filter.matches(root)) {
-			if (LOGGER.isDebugEnabled())
-				LOGGER.debug("LOCATED-> name:" + root.getName() + " text:"
+			if (LOGGER.isTraceEnabled())
+				LOGGER.trace("LOCATED-> name:" + root.getName() + " text:"
 						+ root.getText());
 			ret.add(root);
 		}
@@ -140,8 +140,8 @@ public abstract class ElementUtils {
 			if (obj instanceof Element) {
 				Element el = (Element) obj;
 
-				if (LOGGER.isDebugEnabled())
-					LOGGER.debug("LOCATED-> name:" + el.getName() + " text:"
+				if (LOGGER.isTraceEnabled())
+					LOGGER.trace("LOCATED-> name:" + el.getName() + " text:"
 							+ el.getText());
 
 				ret.add(el);
