@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -745,7 +745,7 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            InputStream stream = new ByteArrayInputStream(sldBody.getBytes(StandardCharsets.UTF_8));
+            InputStream stream = new ByteArrayInputStream(sldBody.getBytes(Charset.forName("UTF-8")));
             Document doc = builder.parse(stream);
             result = this.checkSLD10Version(doc);
         } catch (SAXException ex) {
