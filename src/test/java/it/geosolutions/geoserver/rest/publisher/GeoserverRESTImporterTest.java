@@ -41,7 +41,10 @@ public class GeoserverRESTImporterTest extends GeoserverRESTTest {
     
     @Test
     public void testShapeFileImport() throws Exception {
-     // Creates a new Importer Context and gets back the ID
+        if (!enabled())
+            return;
+        
+        // Creates a new Importer Context and gets back the ID
         int i = publisher.postNewImport();
 
         // Attaches to the new Importer Context a Task pointing to a shapefile's zip archive
