@@ -25,6 +25,7 @@
 
 package it.geosolutions.geoserver.rest;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +34,11 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.sf.json.JSON;
+import net.sf.json.JSONSerializer;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
@@ -48,6 +54,9 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,6 +127,22 @@ public class HTTPUtils {
     }
 
     /**
+     * Executes a request using the GET method and parses the result as a json object.
+     * 
+     * @param path The path to request.
+     *  
+     * @return The result parsed as json.
+     */
+    public static JSON getAsJSON(String url, String username, String pw) throws Exception {
+        String response = get(url, username, pw);
+        return json(response);
+    }
+    
+    public static JSON json(String content) {
+        return JSONSerializer.toJSON(content);
+    }
+    
+    /**
      * PUTs a File to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
      * 
@@ -175,6 +200,23 @@ public class HTTPUtils {
         return put(url, content, "text/xml", username, pw);
     }
 
+    /**
+     * PUTs a String representing an JSON Object to the given URL. <BR>
+     * Basic auth is used if both username and pw are not null.
+     * 
+     * @param url The URL where to connect to.
+     * @param content The JSON Object to be sent as a String.
+     * @param username Basic auth credential. No basic auth if null.
+     * @param pw Basic auth credential. No basic auth if null.
+     * @return The HTTP response as a String if the HTTP response code was 200
+     *         (OK).
+     * @throws MalformedURLException
+     * @return the HTTP response or <TT>null</TT> on errors.
+     */
+    public static String putJson(String url, String content, String username, String pw) {
+        return put(url, content, "application/json", username, pw);
+    }
+    
     /**
      * Performs a PUT to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
@@ -234,6 +276,38 @@ public class HTTPUtils {
     }
 
     /**
+     * POSTs a list of files as attachments to the given URL. <BR>
+     * Basic auth is used if both username and pw are not null.
+     * 
+     * @param url The URL where to connect to.
+     * @param dir The folder containing the attachments.
+     * @param username Basic auth credential. No basic auth if null.
+     * @param pw Basic auth credential. No basic auth if null.
+     * @return The HTTP response as a String if the HTTP response code was 200
+     *         (OK).
+     * @throws MalformedURLException
+     * @return the HTTP response or <TT>null</TT> on errors.
+     */
+    public static String postMultipartForm(String url, File dir, String username, String pw) {
+        try {
+            List<Part> parts = new ArrayList<Part>();
+            for (File f : dir.listFiles()) {
+                parts.add(new FilePart(f.getName(), f));
+            }
+            MultipartRequestEntity multipart = new MultipartRequestEntity(
+                    parts.toArray(new Part[parts.size()]), new PostMethod().getParams());
+
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            multipart.writeRequest(bout);
+            
+            return post(url, multipart, username, pw);
+        } catch (Exception ex) {
+            LOGGER.error("Cannot POST " + url, ex);
+            return null;
+        }
+    }
+    
+    /**
      * POSTs a String representing an XML document to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.
      * 
@@ -250,6 +324,23 @@ public class HTTPUtils {
         return post(url, content, "text/xml", username, pw);
     }
 
+    /**
+     * POSTs a String representing an JSON Object to the given URL. <BR>
+     * Basic auth is used if both username and pw are not null.
+     * 
+     * @param url The URL where to connect to.
+     * @param content The JSON content to be sent as a String.
+     * @param username Basic auth credential. No basic auth if null.
+     * @param pw Basic auth credential. No basic auth if null.
+     * @return The HTTP response as a String if the HTTP response code was 200
+     *         (OK).
+     * @throws MalformedURLException
+     * @return the HTTP response or <TT>null</TT> on errors.
+     */
+    public static String postJson(String url, String content, String username, String pw) {
+        return post(url, content, "application/json", username, pw);
+    }
+    
     /**
      * Performs a POST to the given URL. <BR>
      * Basic auth is used if both username and pw are not null.

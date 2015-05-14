@@ -88,7 +88,7 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         assertFalse("Bad unpublish()",   publisher.unpublishCoverage(DEFAULT_WS, storeName, layerName));
         assertFalse(existsLayer(layerName));
     }
-   
+    
     @Test
     public void testGeotiff() throws FileNotFoundException, IOException {
         if (!enabled()) return;
@@ -125,7 +125,6 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         assertFalse(reader.existsCoveragestore(DEFAULT_WS, storeName));
     }
     
-
     @Test
     public void testReloadCoverageStore() throws FileNotFoundException, IOException {
         if (!enabled()) return;
