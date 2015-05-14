@@ -2971,6 +2971,15 @@ public class GeoServerRESTPublisher {
     }
 
     /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#putTaskLayer(int, int, String) putTaskLayer} method
+     * 
+     * @throws Exception 
+     */
+    public void putTaskLayer(int i, int t, String json) throws Exception {
+        importerManager.putTaskLayer(i, t, json);
+    }
+    
+    /**
      * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#postImport(int) postImport} method
      * 
      * @throws Exception 

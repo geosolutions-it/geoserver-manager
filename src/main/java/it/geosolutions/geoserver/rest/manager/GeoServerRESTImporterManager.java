@@ -132,7 +132,8 @@ public class GeoServerRESTImporterManager extends GeoServerRESTAbstractManager {
      * @throws Exception
      */
     public void putTask(int imp, int task, final String json) throws Exception {
-        HTTPUtils.putJson(String.format(buildUrl()+"/%d/tasks/%d", imp, task), json, gsuser, gspass);
+        //HTTPUtils.putJson(String.format(buildUrl()+"/%d/tasks/%d", imp, task), json, gsuser, gspass);
+        HTTPUtils.put(String.format(buildUrl()+"/%d/tasks/%d", imp, task), json, "text/plain", gsuser, gspass);
     }
 
     /**
@@ -183,7 +184,7 @@ public class GeoServerRESTImporterManager extends GeoServerRESTAbstractManager {
      * @throws Exception
      */
     public int postNewImport(String body) throws Exception {
-        String resp = body == null ? HTTPUtils.postJson(buildUrl(), "", gsuser, gspass)
+        String resp = body == null ? HTTPUtils.post(buildUrl(), "", "text/plain", gsuser, gspass)
             : HTTPUtils.postJson(buildUrl(), body, gsuser, gspass);
         
         JSONObject json = (JSONObject) HTTPUtils.json(resp);
@@ -198,7 +199,7 @@ public class GeoServerRESTImporterManager extends GeoServerRESTAbstractManager {
      * @throws Exception
      */
     public void postImport(int imp) throws Exception {
-        HTTPUtils.postJson(buildUrl()+"/" + imp, "", gsuser, gspass);
+        HTTPUtils.post(buildUrl()+"/" + imp, "", "text/plain", gsuser, gspass);
     }
 
     /**

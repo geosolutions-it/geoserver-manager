@@ -98,7 +98,7 @@ public abstract class GeoserverRESTTest {
         RESTURL = getenv("gsmgr_resturl", "http://localhost:8080/geoserver");
         RESTUSER = getenv("gsmgr_restuser", "admin");
         RESTPW = getenv("gsmgr_restpw", "geoserver");
-        GS_VERSION = getenv("gsmgr_version", "2.4");
+        GS_VERSION = getenv("gsmgr_version", "28");
 
         // These tests will destroy data, so let's make sure we do want to run them
         enabled = getenv("gsmgr_resttest", "false").equalsIgnoreCase("true");

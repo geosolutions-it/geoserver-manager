@@ -384,6 +384,7 @@ public class HTTPUtils {
                 httpMethod.setRequestEntity(requestEntity);
             int status = client.executeMethod(httpMethod);
 
+            InputStream responseBody;
             switch (status) {
             case HttpURLConnection.HTTP_OK:
             case HttpURLConnection.HTTP_CREATED:
@@ -394,9 +395,10 @@ public class HTTPUtils {
                     LOGGER.info("HTTP " + httpMethod.getStatusText() + ": " + response);
                 return response;
             default:
+                responseBody = httpMethod.getResponseBodyAsStream();
                 LOGGER.warn("Bad response: code[" + status + "]" + " msg[" + httpMethod.getStatusText() + "]"
                             + " url[" + url + "]" + " method[" + httpMethod.getClass().getSimpleName()
-                            + "]: " + IOUtils.toString(httpMethod.getResponseBodyAsStream()));
+                            + "]: " + (responseBody != null ? IOUtils.toString(responseBody) : ""));
                 return null;
             }
         } catch (ConnectException e) {
