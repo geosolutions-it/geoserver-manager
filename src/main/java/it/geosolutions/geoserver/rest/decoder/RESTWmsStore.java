@@ -48,6 +48,8 @@ import org.jdom.Element;
 	</metadata>
 	<__default>false</__default>
 	<capabilitiesURL>http://www.regione.lazio.it/geoserver/wms</capabilitiesURL>
+	<user>admin</user>
+	<password>geoserver</password>
 	<maxConnections>6</maxConnections>
 	<readTimeout>60</readTimeout>
 	<connectTimeout>30</connectTimeout>
@@ -112,6 +114,14 @@ public class RESTWmsStore {
         return cs.getChildText("type");
     }
 
+    public String getUser() {
+        return cs.getChildText("user");
+    }
+    
+    public String getPassword() {
+        return cs.getChildText("password");
+    }
+    
     public String toString() {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName())
                 .append('[');
