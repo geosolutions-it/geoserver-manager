@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *
- *  Copyright (C) 2007,2013 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2015 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,15 +27,18 @@ package it.geosolutions.geoserver.rest;
 
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author ETj (etj at geo-solutions.it)
  */
 public class Util {
-    
-    public static final String QUIET_ON_NOT_FOUND_PARAM = "quietOnNotFound="; 
+
+public static final String QUIET_ON_NOT_FOUND_PARAM = "quietOnNotFound="; 
     
     public static final boolean DEFAULT_QUIET_ON_NOT_FOUND = true; 
 
@@ -69,5 +72,45 @@ public class Util {
         boolean contains = url.contains("?");
         String composed = url + (contains ? "&":"?") + QUIET_ON_NOT_FOUND_PARAM + quietOnNotFound;
         return composed;
+    }
+
+    public static <T> List<T> safeList(List<T> list) {
+        return list == null ? Collections.EMPTY_LIST : list;
+    }
+
+    public static <T> Collection<T> safeCollection(Collection<T> collection) {
+        return collection == null ? Collections.EMPTY_SET : collection;
+    }
+
+    public static <TK, TV> Map<TK, TV> safeMap(Map<TK, TV> map) {
+        return map == null ? Collections.EMPTY_MAP : map;
+    }
+
+    public static char getParameterSeparator(String url) {
+        char parameterSeparator = '?';
+        if (url.contains("?")) {
+            parameterSeparator = '&';
+        }
+        return parameterSeparator;
+    }
+
+    public static char getParameterSeparator(StringBuilder url) {
+        char parameterSeparator = '?';
+        if (url.indexOf("?") != -1) {
+            parameterSeparator = '&';
+        }
+        return parameterSeparator;
+    }
+
+    public static boolean appendParameter(StringBuilder url, String parameterName,
+            String parameterValue) {
+        boolean result = false;
+        if (parameterName != null && !parameterName.isEmpty()
+                && parameterValue != null && !parameterValue.isEmpty()) {
+            char parameterSeparator = getParameterSeparator(url);
+            url.append(parameterSeparator).append(parameterName.trim())
+                    .append('=').append(parameterValue.trim());
+        }
+        return result;
     }
 }
