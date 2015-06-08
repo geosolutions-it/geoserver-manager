@@ -45,6 +45,10 @@ import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageIndexSchema;
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
+import it.geosolutions.geoserver.rest.decoder.RESTWms;
+import it.geosolutions.geoserver.rest.decoder.RESTWmsList;
+import it.geosolutions.geoserver.rest.decoder.RESTWmsStore;
+import it.geosolutions.geoserver.rest.decoder.RESTWmsStoreList;
 import it.geosolutions.geoserver.rest.decoder.RESTWorkspaceList;
 import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
@@ -544,6 +548,153 @@ public class GeoServerRESTReader {
         return RESTCoverage.build(response);
     }
 
+    //==========================================================================
+    //=== WMSSTORES
+    //==========================================================================
+    
+    /**
+     * Get summary info about all WmsStore in a WorkSpace.
+     *
+     * @param workspace The name of the workspace
+     *
+     * @return summary info about CoverageStores as a {@link RESTWmsStoreList}
+     */
+    public RESTWmsStoreList getWmsStores(String workspace) {
+        String url = "/rest/workspaces/" + workspace + "/wmsstores.xml";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving CS list from " + url);
+        }
+        return RESTWmsStoreList.build(load(url));
+    }
+    
+    /**
+     * Get detailed info about a given WmsStore in a given Workspace.
+     *
+     * @param workspace The name of the workspace
+     * @param wsName The name of the WmsStore
+     * @return WmsStore details as a {@link RESTWmsStore}
+     */
+    public RESTWmsStore getWmsStore(String workspace, String wsName) {
+        String url = "/rest/workspaces/" + workspace + "/wmsstores/" + wsName + ".xml";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving CS from " + url);
+        }
+        return RESTWmsStore.build(load(url));
+    }
+    
+    /**
+     * Get detailed info about a Wms's Datastore.
+     *
+     * @param wms the RESTWms
+     * @return wmsStore details as a {@link RESTWmsStore}
+     */
+    public RESTWmsStore getWmsStore(RESTWms wms) {
+        String url = wms.getStoreUrl();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving CS from fullurl " + url);
+        }
+        String response = loadFullURL(url);
+        return RESTWmsStore.build(response);
+    }
+
+    /**
+     * Checks if the selected Wms store is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param workspace workspace of the wmsstore
+     * @param wsName name of the wmsstore
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the wmsstore exists
+     */
+    public boolean existsWmsstore(String workspace, String wsName, boolean quietOnNotFound){
+        String url = baseurl + "/rest/workspaces/" + workspace + "/wmsstores/" + wsName + ".xml";
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
+
+    /**
+     * Checks if the selected wms store is present.
+     * 
+     * @param workspace workspace of the wmsstore
+     * @param wsName name of the wmsstore
+     * @return boolean indicating if the wmsstore exists
+     */
+    public boolean existsWmsstore(String workspace, String wsName){
+        return existsCoveragestore(workspace, wsName, Util.DEFAULT_QUIET_ON_NOT_FOUND);
+    }
+    
+    //==========================================================================
+    //=== WMSS
+    //==========================================================================
+ 
+    /**
+     * Get list of wmss (usually only one).
+     *
+     * @param workspace The name of the workspace
+     * @param wsName The name of the WmsStore
+     * @return wms list as a {@link RESTWmsList}
+     */
+    public RESTWmsList getWms(String workspace, String wsName) {
+        String url = "/rest/workspaces/" + workspace + "/wmsstores/" + wsName + "/wmslayers.xml";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving Wmss from " + url);
+        }
+        return RESTWmsList.build(load(url));
+    }
+    
+    /**
+     * Get detailed info about a given Wms.
+     *
+     * @param workspace The name of the workspace
+     * @param store The name of the WmsStore
+     * @param name The name of the Wms
+     * @return wms details as a {@link RESTwms}
+     */
+    public RESTWms getWms(String workspace, String store, String name) {
+        String url = "/rest/workspaces/" + workspace + "/wmsstores/" + store + "/wmslayers/"+name+".xml";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving Wmss from " + url);
+        }
+        return RESTWms.build(load(url));
+    }
+    
+    /**
+     * Checks if the selected Wms is present. Parameter quietOnNotFound can be used for controlling the logging when 404 is returned.
+     * 
+     * @param workspace workspace of the wmsstore
+     * @param wsName name of the wmsstore
+     * @param name name of the wms
+     * @param quietOnNotFound if true, no exception is logged
+     * @return boolean indicating if the coverage exists
+     */
+    public boolean existsWms(String workspace, String store, String name, boolean quietOnNotFound){
+        String url = baseurl + "/rest/workspaces/" + workspace + "/wmsstores/" + store + "/wmslayers/"+name+".xml";
+        String composed = Util.appendQuietOnNotFound(quietOnNotFound, url);
+        return HTTPUtils.exists(composed, username, password);
+    }
+    
+    /**
+     * Checks if the selected wms is present.
+     * 
+     * @param workspace workspace of the wmsstore
+     * @param store name of the wmsstore
+     * @param name name of the wms
+     * @return boolean indicating if the coverage exists
+     */
+    public boolean existsWms(String workspace, String store, String name){
+        return existsWms(workspace, store, name, Util.DEFAULT_QUIET_ON_NOT_FOUND);
+    }
+    
+    /**
+     * Get detailed info about a Wms given the Layer where it's published with.
+     *
+     * @param layer A layer publishing the wmsStore
+     * @return Wms details as a {@link RESTWms}
+     */
+    public RESTWms getWms(RESTLayer layer) {
+        String response = loadFullURL(layer.getResourceUrl());
+        return RESTWms.build(response);
+    }
+    
     //==========================================================================
     //==========================================================================
     
