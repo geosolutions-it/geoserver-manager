@@ -90,10 +90,23 @@ public class RESTWmsStore {
         return cs.getChildText("name");
     }
 
-    public String getWorkspaceName() {
-        return cs.getChild("workspace").getChildText("name");
+    public String getType() {
+        return cs.getChildText("type");
     }
 
+    public Boolean getEnabled() {
+        return Boolean.parseBoolean(cs.getChildText("enabled"));
+    }
+    
+    public String getWorkspaceName() {
+        return cs.getChild("workspace").getChildText("name");
+    }    
+    
+    public Boolean getUseConnectionPooling(){
+    	Element entry = cs.getChild("metadata").getChild("entry");    	
+    	return entry.getAttributeValue("key").equals("useConnectionPooling") && Boolean.parseBoolean(entry.getValue());
+    }
+    
     public String getCapabilitiesURL() {
         return cs.getChildText("capabilitiesURL");
     }
@@ -108,11 +121,7 @@ public class RESTWmsStore {
     
     public String getConnectTimeout() {
 		return cs.getChildText("connectTimeout");
-    }
-        
-    public String getType() {
-        return cs.getChildText("type");
-    }
+    }        
 
     public String getUser() {
         return cs.getChildText("user");
