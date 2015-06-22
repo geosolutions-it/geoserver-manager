@@ -171,9 +171,9 @@ public class RESTCoverage extends RESTResource {
 //		return rootElem.getChildText("name");
 //	}
 
-//	public String getNativeName() {
-//		return rootElem.getChildText("nativeName");
-//	}
+	public String getNativeCoverageName() {
+		return rootElem.getChildText("nativeCoverageName");
+	}
 
 	public String getNativeFormat() {
 		return rootElem.getChildText("nativeFormat");
@@ -280,6 +280,11 @@ public class RESTCoverage extends RESTResource {
         if (getNativeName() != null) {
             builder.append("getNativeName()=");
             builder.append(getNativeName());
+            builder.append(", ");
+        }
+        if (getNativeCoverageName() != null) {
+            builder.append("getNativeCoverageName()=");
+            builder.append(getNativeCoverageName());
             builder.append(", ");
         }
         if (getAbstract() != null) {

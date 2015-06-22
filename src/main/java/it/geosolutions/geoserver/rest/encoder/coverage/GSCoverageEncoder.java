@@ -41,6 +41,8 @@ import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
  */
 public class GSCoverageEncoder extends GSResourceEncoder {
 
+    public final static String NATIVECOVERAGENAME = "nativeCoverageName";
+
     public final static String DIMENSIONS = "dimensions";
     
     final private Element dimensionsEncoder = new Element(DIMENSIONS);
@@ -106,4 +108,36 @@ public class GSCoverageEncoder extends GSResourceEncoder {
         return (dimensionsEncoder.removeContent(GSCoverageDimensionEncoder
                 .getFilterByContent(coverageDimensionName))).size() == 0 ? false : true;
     }
+
+    /**
+     * Add the 'nativeCoverageName' node with a text value from 'name'
+     * 
+     * 
+     */
+    public void addNativeCoverageName(final String nativeCoverageName) {
+        add(NATIVECOVERAGENAME, nativeCoverageName);
+    }
+
+    /**
+     * Set the 'nativeCoverageName' node with a text value from 'name'
+     * 
+     * 
+     */
+    public void setNativeCoverageName(final String nativeCoverageName) {
+        set(NATIVECOVERAGENAME, nativeCoverageName);
+    }
+
+    /**
+     * Get the nativeCoverageName
+     * 
+     * @return
+     */
+    public String getNativeCoverageName() {
+        final Element nativeCoverageNameNode = ElementUtils.contains(getRoot(), NATIVECOVERAGENAME, 1);
+        if (nativeCoverageNameNode != null)
+            return nativeCoverageNameNode.getText();
+        else
+            return null;
+    }
+
 }

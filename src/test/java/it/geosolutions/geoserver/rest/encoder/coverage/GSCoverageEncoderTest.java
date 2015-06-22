@@ -19,6 +19,8 @@
  */
 package it.geosolutions.geoserver.rest.encoder.coverage;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 import it.geosolutions.geoserver.rest.encoder.dimensions.GSCoverageDimensionEncoder;
@@ -129,9 +131,14 @@ public class GSCoverageEncoderTest extends TestCase {
                 "dobson units³", "REAL_32BITS");
         encoder.addCoverageDimensionInfo(gsCoverageDimensionEncoder);
 
-    	if (LOGGER.isInfoEnabled())
+        encoder.setNativeCoverageName("Sample native name");
+        if (LOGGER.isInfoEnabled())
     		LOGGER.info(encoder.toString());
     	
+        Element nativeCoverageName = ElementUtils.contains(encoder.getRoot(), GSCoverageEncoder.NATIVECOVERAGENAME);
+        assertNotNull(nativeCoverageName);
+        assertEquals("Sample native name", nativeCoverageName.getText());
+        
     	final Element el2=ElementUtils.contains(encoder.getRoot(),GSDimensionInfoEncoder.PRESENTATION);
     	Assert.assertNotNull(el2);
     	LOGGER.info("contains_key:"+el2.toString());
