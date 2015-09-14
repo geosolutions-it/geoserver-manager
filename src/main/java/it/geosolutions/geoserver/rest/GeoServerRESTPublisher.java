@@ -2041,6 +2041,63 @@ public class GeoServerRESTPublisher {
     }
 
     /**
+     * Removes the wms layer.
+     * <P>
+     * You may also want to {@link #removeDatastore(String, String) remove the datastore}.
+     *
+     * @return true if the operation completed successfully.
+     */
+    public boolean unpublishWmsLayer(String workspace, String storename, String layerName) {
+        try {
+
+            final String fqLayerName;
+            // this null check is here only for backward compatibility.
+            // workspace
+            // shall be mandatory.
+            if (workspace == null) {
+
+                fqLayerName = layerName;
+
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("Null workspace while configuring layer : " + layerName
+                            + " -- This behavior is deprecated.");
+                }
+            } else {
+                fqLayerName = workspace + ":" + layerName;
+            }
+            // delete related layer
+            URL deleteLayerUrl = new URL(restURL + "/rest/layers/" + fqLayerName);
+            boolean layerDeleted = HTTPUtils
+                    .delete(deleteLayerUrl.toExternalForm(), gsuser, gspass);
+            if (!layerDeleted) {
+                LOGGER.warn("Could not delete layer '" + fqLayerName + "'");
+                return false;
+            }
+            // delete the wms layer
+            URL deleteFtUrl = new URL(restURL + "/rest/workspaces/" + workspace + "/wmsstores/"
+                    + storename + "/wmslayers/" + layerName);
+            boolean ftDeleted = HTTPUtils.delete(deleteFtUrl.toExternalForm(), gsuser, gspass);
+            if (!ftDeleted) {
+                LOGGER.warn("Could not delete wms layer " + workspace + ":" + storename + "/"
+                        + layerName + ", but layer was deleted.");
+            } else {
+                LOGGER.info("Wms layer successfully deleted " + workspace + ":" + storename + "/"
+                        + layerName);
+            }
+
+            return ftDeleted;
+
+            // the store is still there: should we delete it?
+
+        } catch (MalformedURLException ex) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error(ex.getLocalizedMessage(), ex);
+            return false;
+        }
+    }
+
+
+    /**
      * Removes the featuretype and the associated layer.
      * <P>
      * You may also want to {@link #removeDatastore(String, String) remove the datastore}.
