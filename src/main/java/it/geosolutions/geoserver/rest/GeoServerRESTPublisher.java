@@ -646,7 +646,7 @@ public class GeoServerRESTPublisher {
             case DATASTORES:
                 return "dataStore";
             case WMSSTORES:
-                return "wmsstores";
+                return "wmsStore";
             default:
                 return "coverageStore";
             }
