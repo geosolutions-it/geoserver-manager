@@ -25,6 +25,7 @@
 
 package it.geosolutions.geoserver.rest;
 
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.Format;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +39,7 @@ import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.DeleteMethod;
@@ -172,7 +174,7 @@ public class HTTPUtils {
      * @return the HTTP response or <TT>null</TT> on errors.
      */
     public static String putXml(String url, String content, String username, String pw) {
-        return put(url, content, "text/xml", username, pw);
+        return put(url, content, Format.TXT_XML.getContentType(), username, pw);
     }
 
     /**
@@ -247,7 +249,7 @@ public class HTTPUtils {
      * @return the HTTP response or <TT>null</TT> on errors.
      */
     public static String postXml(String url, String content, String username, String pw) {
-        return post(url, content, "text/xml", username, pw);
+        return post(url, content, Format.TXT_XML.getContentType(), username, pw);
     }
 
     /**
@@ -265,6 +267,12 @@ public class HTTPUtils {
      */
     public static String post(String url, RequestEntity requestEntity, String username, String pw) {
         return send(new PostMethod(url), url, requestEntity, username, pw);
+    }
+
+    public static String post(String url, RequestEntity requestEntity, NameValuePair[] parameters, String username, String pw) {
+        PostMethod postMethod = new PostMethod(url);
+        postMethod.addParameters(parameters);
+        return send(postMethod, url, requestEntity, username, pw);
     }
 
     /**

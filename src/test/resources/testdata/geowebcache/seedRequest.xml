@@ -1,0 +1,12 @@
+<seedRequest>
+    <name>layer2</name>
+    <srs>
+        <number>4326</number>
+    </srs>
+    <zoomStart>1</zoomStart>
+    <zoomStop>12</zoomStop>
+    <format>image/png</format>
+    <!-- type can be * seed (add tiles) * reseed (replace tiles) * truncate (remove tiles) -->
+    <type>seed</type>
+    <threadCount>2</threadCount>
+</seedRequest>

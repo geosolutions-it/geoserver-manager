@@ -1,0 +1,20 @@
+<wmsLayer>
+  <name>layer1</name>
+  <mimeFormats>
+    <string>image/png</string>
+    <string>image/jpeg</string>
+    <string>image/gif</string>
+  </mimeFormats>
+  <gridSubsets>
+    <gridSubset>
+      <gridSetName>EPSG:900913</gridSetName>
+    </gridSubset>
+    <gridSubset>
+      <gridSetName>EPSG:4326</gridSetName>
+    </gridSubset>
+  </gridSubsets>
+  <wmsUrl>
+    <string>http://localhost:8080/geoserver/wms</string>
+  </wmsUrl>
+  <wmsLayers>topp:states,nurc:Img_Sample</wmsLayers>
+</wmsLayer>

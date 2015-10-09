@@ -1393,10 +1393,12 @@ public class GeoServerRESTPublisher {
      * <li>JSON (application/json)</li>
      * <li>HTML (application/html)</li>
      * <li>SLD (application/vnd.ogc.sld+xml)</li>
+     * <li>SLD_1_1_0 (application/vnd.ogc.se+xml)</li>
+     * <li>TXT (text/xml)</li>
      * </ul>
      */
     public enum Format {
-        XML, JSON, HTML, SLD, SLD_1_1_0;
+        XML, JSON, HTML, SLD, SLD_1_1_0, TXT_XML;
 
         /**
          * Gets the mime type from a format.
@@ -1416,6 +1418,8 @@ public class GeoServerRESTPublisher {
                 return "application/vnd.ogc.sld+xml";
             case SLD_1_1_0:
                 return "application/vnd.ogc.se+xml";
+            case TXT_XML:
+                return "text/xml";
             default:
                 return null;
             }
