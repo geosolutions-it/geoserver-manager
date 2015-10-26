@@ -232,6 +232,17 @@
 			<artifactId>jdom</artifactId>
 			<version>1.1</version>
 		</dependency>
+		 <dependency>
+	        <groupId>net.sf.json-lib</groupId>
+	        <artifactId>json-lib</artifactId>
+	        <version>2.4</version>
+	        <classifier>jdk15</classifier>
+	    </dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.restlet</artifactId>
+			<version>1.1.10_3</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -243,6 +254,7 @@
 			<artifactId>jcl-over-slf4j</artifactId>
 			<version>${slf4j.version}</version>
 		</dependency>
+		
 		<!-- commons-logging can be rather simply and conveniently excluded as 
 			a dependency by declaring it in the provided scope within the pom.xml file 
 			of your project. The actual commons-logging classes would be provided by 
@@ -275,16 +287,7 @@
 			</exclusions>
 		</dependency>
 		
-		<dependency>
-			<groupId>org.geoserver.importer</groupId>
-			<artifactId>gs-importer-core</artifactId>
-			<version>${gs.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.geoserver</groupId>
-			<artifactId>gs-restconfig</artifactId>
-			<version>${gs.version}</version>
-		</dependency>
+	
 		<dependency>
 			<groupId>org.restlet</groupId>
 			<artifactId>org.restlet.ext.fileupload</artifactId>

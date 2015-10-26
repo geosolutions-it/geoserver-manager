@@ -25,7 +25,6 @@ import java.net.URL;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
-import org.geoserver.importer.VFSWorker;
 import org.restlet.data.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,6 +151,23 @@ public class GeoServerRESTImporterManager extends GeoServerRESTAbstractManager {
     public void putTaskLayer(int imp, int task, final String json) throws Exception {
         HTTPUtils.putJson(String.format(buildUrl()+"/%d/tasks/%d/layer", imp, task), json, gsuser, gspass);
     }
+    
+    /**
+     * Just update the Layers properties associated to a Task (t) in the Importer Context (i).
+     * 
+     * e.g.:
+     * <pre>
+     * putTaskLayer(i, t, "{\"title\":\"Archsites\", \"abstract\":\"Archeological Sites\"}");
+     * </pre>
+     * 
+     * @param imp int: Import context number ID
+     * @param task int: Task number
+     * @param json String: JSON containing the Layer properties to be updated
+     * @throws Exception
+     */
+    public void postTaskTransform(int imp, int task, final String json) throws Exception {
+        HTTPUtils.postJson(String.format(buildUrl()+"/%d/tasks/%d/transforms", imp, task), json, gsuser, gspass);
+    }
 
     /**
      * Creates an empty Importer Context.
@@ -199,7 +215,7 @@ public class GeoServerRESTImporterManager extends GeoServerRESTAbstractManager {
      * @throws Exception
      */
     public void postImport(int imp) throws Exception {
-        HTTPUtils.post(buildUrl()+"/" + imp, "", "text/plain", gsuser, gspass);
+        HTTPUtils.post(buildUrl()+"/" + imp + "?exec=true", "", "text/plain", gsuser, gspass);
     }
 
     /**
@@ -286,7 +302,7 @@ public class GeoServerRESTImporterManager extends GeoServerRESTAbstractManager {
         
         File file = new File(path);
         
-        new VFSWorker().extractTo(file, dir);
+        //new VFSWorker().extractTo(file, dir);
         if (!file.delete()) {
             // fail early as tests will expect it's deleted
             throw new IOException("deletion failed during extraction");
