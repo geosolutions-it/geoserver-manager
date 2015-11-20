@@ -28,6 +28,8 @@ package it.geosolutions.geoserver.rest.encoder.coverage;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
 
+import org.jdom.Element;
+
 
 /**
  * Creates an XML 
@@ -38,8 +40,17 @@ import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder;
  */
 public class GSCoverageEncoder extends GSResourceEncoder {
     
+        final private static String NATIVE_FORMAT="nativeFormat";
+        final private static String SUPPORTED_FORMATS="supportedFormats";
+        
+        final private static String REQUEST_SRS="requestSRS";
+        final private static String RESPONSE_SRS="responseSRS";
+        
+        final private Element supportedFormatsListEncoder = new Element(SUPPORTED_FORMATS);
+    
 	public GSCoverageEncoder() {
-        super("coverage");
+            super("coverage");
+            addContent(supportedFormatsListEncoder);
 	}
 	
     /**
@@ -53,4 +64,27 @@ public class GSCoverageEncoder extends GSResourceEncoder {
 	public void setMetadata(String key, GSDimensionInfoEncoder dimensionInfo) {
 		super.setMetadata(key, dimensionInfo);
 	}
+	
+	public void setNativeFormat(String format) {
+            set(NATIVE_FORMAT, format);
+        }
+	
+	public void addSupportedFormats(String format) {
+            final Element el = new Element("string");
+            el.setText(format);
+            supportedFormatsListEncoder.addContent(el);
+        }
+	
+	public void setRequestSRS(String srs) {
+	    final Element el = new Element("string");
+            el.setText(srs);
+            set(REQUEST_SRS, el);
+        }
+	
+	public void setResponseSRS(String srs) {
+	    final Element el = new Element("string");
+            el.setText(srs);
+            set(RESPONSE_SRS, el);
+	}
+	
 }
