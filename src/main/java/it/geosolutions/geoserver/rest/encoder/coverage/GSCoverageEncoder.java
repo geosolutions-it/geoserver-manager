@@ -43,12 +43,20 @@ public class GSCoverageEncoder extends GSResourceEncoder {
 
     public final static String NATIVECOVERAGENAME = "nativeCoverageName";
 
+    private final static String NATIVE_FORMAT="nativeFormat";
+    private final static String SUPPORTED_FORMATS="supportedFormats";
+        
+    private final static String REQUEST_SRS="requestSRS";
+    private final static String RESPONSE_SRS="responseSRS";
+        
+    private final Element supportedFormatsListEncoder = new Element(SUPPORTED_FORMATS);
     public final static String DIMENSIONS = "dimensions";
     
     final private Element dimensionsEncoder = new Element(DIMENSIONS);
     
     public GSCoverageEncoder() {
         super("coverage");
+        addContent(supportedFormatsListEncoder);
     }
 
     /**
@@ -69,6 +77,40 @@ public class GSCoverageEncoder extends GSResourceEncoder {
         super.setMetadata(key, dimensionInfo);
     }
 
+    /**
+     * Add the 'nativeFormat' node with a text value
+     */
+    public void setNativeFormat(String format) {
+        set(NATIVE_FORMAT, format);
+    }
+	
+    /**
+     * Add the 'supportedFormat' node with a text value
+     */
+    public void addSupportedFormats(String format) {
+        final Element el = new Element("string");
+        el.setText(format);
+        supportedFormatsListEncoder.addContent(el);
+    }
+    
+    /**
+     * Add the 'requestSRS' node with a text value
+     */
+    public void setRequestSRS(String srs) {
+        final Element el = new Element("string");
+        el.setText(srs);
+        set(REQUEST_SRS, el);
+    }
+
+    /**
+     * Add the 'responseSRS' node with a text value
+     */
+    public void setResponseSRS(String srs) {
+        final Element el = new Element("string");
+        el.setText(srs);
+        set(RESPONSE_SRS, el);
+    }
+    
     /**
      * Adds a CoverageDimensionInfo to the GeoServer Resource
      * 
