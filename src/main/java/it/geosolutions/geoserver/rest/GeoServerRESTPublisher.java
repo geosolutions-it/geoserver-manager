@@ -1603,7 +1603,14 @@ public class GeoServerRESTPublisher {
         coverageEncoder.setName(coverageName);
         coverageEncoder.setTitle(coverageName);
         coverageEncoder.setSRS(srs);
+        coverageEncoder.setNativeFormat("GeoTIFF");
+        coverageEncoder.addSupportedFormats("GEOTIFF");
+        coverageEncoder.addKeyword("geoTiff");
+        coverageEncoder.addKeyword("WCS");
+        coverageEncoder.setNativeCRS(srs);
         coverageEncoder.setProjectionPolicy(policy);
+        coverageEncoder.setRequestSRS(srs);
+        coverageEncoder.setResponseSRS(srs);
         if (bbox != null && bbox.length == 4) {
             coverageEncoder.setLatLonBoundingBox(bbox[0], bbox[1], bbox[2], bbox[3], DEFAULT_CRS);
         }
