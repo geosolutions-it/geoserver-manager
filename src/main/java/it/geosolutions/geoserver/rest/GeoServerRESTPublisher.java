@@ -39,6 +39,7 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager.ConfigureCoveragesOption;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStyleManager;
@@ -52,6 +53,8 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.zip.ZipFile;
+
+import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.FilenameUtils;
@@ -90,6 +93,7 @@ public class GeoServerRESTPublisher {
 
 
     private final GeoServerRESTStyleManager styleManager;
+    private final GeoServerRESTImporterManager importerManager;
     /**
      * Creates a <TT>GeoServerRESTPublisher</TT> to connect against a GeoServer instance with the given URL and user credentials.
      * 
@@ -109,6 +113,7 @@ public class GeoServerRESTPublisher {
             LOGGER.error("Bad URL: Calls to GeoServer are going to fail" , ex);
         }
         styleManager = new GeoServerRESTStyleManager(url, username, password);
+        importerManager = new GeoServerRESTImporterManager(url, username, password);
     }
 
     // ==========================================================================
@@ -2936,4 +2941,58 @@ public class GeoServerRESTPublisher {
     
     }
 
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#postNewImport() postNewImport} method
+     * 
+     * @throws Exception 
+     */
+    public int postNewImport() throws Exception {
+        return importerManager.postNewImport();
+    }
+
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#postNewTaskAsMultiPartForm(int, String) postNewTaskAsMultiPartForm} method
+     * 
+     * @throws Exception 
+     */
+    public int postNewTaskAsMultiPartForm(int i, String data) throws Exception {
+        return importerManager.postNewTaskAsMultiPartForm(i, data);
+    }
+
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#getTask(int, int) getTask} method
+     * 
+     * @throws Exception 
+     */
+    public JSONObject getTask(int i, int t) throws Exception {
+        return importerManager.getTask(i, t);
+    }
+
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#putTask(int, int, String) putTask} method
+     * 
+     * @throws Exception 
+     */
+    public void putTask(int i, int t, String json) throws Exception {
+        importerManager.putTask(i, t, json);
+    }
+
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#putTaskLayer(int, int, String) putTaskLayer} method
+     * 
+     * @throws Exception 
+     */
+    public void putTaskLayer(int i, int t, String json) throws Exception {
+        importerManager.putTaskLayer(i, t, json);
+    }
+    
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#postImport(int) postImport} method
+     * 
+     * @throws Exception 
+     */
+    public void postImport(int i) throws Exception {
+        importerManager.postImport(i);
+    }
+    
 }
