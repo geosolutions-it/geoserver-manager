@@ -25,9 +25,14 @@
 
 package it.geosolutions.geoserver.rest.publisher;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.StoreType;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
 
 import java.io.File;
@@ -35,7 +40,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -125,6 +129,38 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         assertFalse(reader.existsCoveragestore(DEFAULT_WS, storeName));
     }
     
+    @Test
+    public void testGeoTiffWithStyleInWorkspace() throws IOException {
+        if (!enabled()) return;
+        deleteAll();
+
+        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
+        
+        assertTrue(reader.getWorkspaces().isEmpty());
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+        File sldFile = new ClassPathResource("testdata/raster.sld").getFile();
+
+
+        // insert style
+        assertTrue(publisher.publishStyleInWorkspace(DEFAULT_WS, sldFile, "mystyle"));
+        assertTrue(reader.existsStyle(DEFAULT_WS, "mystyle"));
+        
+        // known state?
+        assertFalse("Cleanup failed", existsLayer(layerName));
+
+        // test insert
+        boolean pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName, storeName,
+                geotiff, "EPSG:4326", ProjectionPolicy.FORCE_DECLARED, DEFAULT_WS + ":" + "mystyle", null);
+        
+        assertNotNull("publish() failed", pub);
+        // Test exists
+        assertTrue(reader.existsCoveragestore(DEFAULT_WS, storeName));
+        assertTrue(reader.existsCoverage(DEFAULT_WS, storeName, storeName));
+        RESTLayer layer = reader.getLayer(DEFAULT_WS, storeName);
+        assertEquals("mystyle", layer.getDefaultStyle());
+        assertEquals(DEFAULT_WS, layer.getDefaultStyleWorkspace());
+    }
 
     @Test
     public void testReloadCoverageStore() throws FileNotFoundException, IOException {
