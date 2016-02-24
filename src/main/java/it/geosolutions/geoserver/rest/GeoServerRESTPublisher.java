@@ -1152,11 +1152,22 @@ public class GeoServerRESTPublisher {
         }
 
         // config layer props (style, ...)
-        final GSLayerEncoder layerEncoder = new GSLayerEncoder();
-        if (defaultStyle != null && !defaultStyle.isEmpty())
-            layerEncoder.setDefaultStyle(defaultStyle);
+        final GSLayerEncoder layerEncoder = configureDefaultStyle(defaultStyle);
 
         return configureLayer(workspace, datasetName, layerEncoder);
+    }
+
+    private GSLayerEncoder configureDefaultStyle(String defaultStyle) {
+        final GSLayerEncoder layerEncoder = new GSLayerEncoder();
+        if (defaultStyle != null && !defaultStyle.isEmpty()) {
+            if(defaultStyle.indexOf(":") != -1) {
+                String[] wsAndName = defaultStyle.split(":");
+                layerEncoder.setDefaultStyle(wsAndName[0], wsAndName[1]);
+            } else {
+                layerEncoder.setDefaultStyle(defaultStyle);
+            }
+        }
+        return layerEncoder;
     }
 
     /**
@@ -1621,8 +1632,7 @@ public class GeoServerRESTPublisher {
         }
 
         // config layer props (style, ...)
-        final GSLayerEncoder layerEncoder = new GSLayerEncoder();
-        layerEncoder.setDefaultStyle(defaultStyle);
+        final GSLayerEncoder layerEncoder = configureDefaultStyle(defaultStyle);
 
         return configureLayer(workspace, coverageName, layerEncoder);
     }

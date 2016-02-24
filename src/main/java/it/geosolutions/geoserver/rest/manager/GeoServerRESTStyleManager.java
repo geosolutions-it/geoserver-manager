@@ -528,7 +528,7 @@ public class GeoServerRESTStyleManager extends GeoServerRESTAbstractManager {
      */
     public boolean publishStyleInWorkspace(final String workspace, String sldBody) {
         try {
-            return publishStyleInWorkspace(workspace, sldBody);
+            return publishStyleInWorkspace(workspace, sldBody, null);
         } catch (IllegalArgumentException e) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error(e.getLocalizedMessage(), e);

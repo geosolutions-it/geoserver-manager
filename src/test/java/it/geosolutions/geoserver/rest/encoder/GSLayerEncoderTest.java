@@ -111,4 +111,12 @@ public class GSLayerEncoderTest {
 		Assert.assertEquals("authority1", el.getChild("authority").getValue());
 		Assert.assertEquals("identifier1", el.getChild("identifier").getValue());
 	}
+	
+	@Test
+        public void testDefaultStyleWithWorkspace(){
+	        layerEncoder.setDefaultStyle("ws", "style");
+                Element el = (Element) layerEncoder.getRoot().getChild("defaultStyle");
+                Assert.assertEquals("style", el.getChild("name").getValue());
+                Assert.assertEquals("ws", el.getChild("workspace").getValue());
+        }
 }
