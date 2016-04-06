@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2015 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2015,2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -65,6 +65,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Lennart Karsten - lennart.k@thinking-aloud.eu
  */
 public class GeoServerRESTPublisher {
 
@@ -761,7 +762,9 @@ public class GeoServerRESTPublisher {
         /** ImageMosaic */
         IMAGEMOSAIC,
         /** Geo referenced image (JPEG,PNG,TIF) */
-        WORLDIMAGE;
+        WORLDIMAGE,
+        /** Esri ArcGrid */
+        ARCGRID;
 
         /**
          * Returns a lowercase representation of the parameter value, suitable to construct the rest call.
@@ -1517,6 +1520,215 @@ public class GeoServerRESTPublisher {
                 configure,
                 (update != null) ? new NameValuePair[] { new NameValuePair("update", update
                         .toString()) } : (NameValuePair[]) null);
+    }
+
+    // ==========================================================================
+    // === ARCGRID
+    // ==========================================================================
+
+    /**
+     * Upload and publish a ArcGrid image.
+     *
+     * @param workspace Workspace to use
+     * @param storeName The store name to be used or created.
+     * @param arcgrid The ArcGrid file.
+     * @return true if success.
+     * @throws FileNotFoundException if ArcGrid file does not exist.
+     */
+    public boolean publishArcGrid(String workspace, String storeName, File arcgrid)
+            throws FileNotFoundException {
+        return publishCoverage(workspace, storeName, CoverageStoreExtension.ARCGRID,
+                "image/arcgrid", arcgrid, ParameterConfigure.FIRST, (NameValuePair[]) null);
+    }
+
+    /**
+     * Upload and publish a ArcGrid image.
+     *
+     * @param workspace Workspace to use
+     * @param storeName Name of the coveragestore (if null the file name will be used)
+     * @param coverageName the name of the coverage (if null the file name will be used)
+     * @param arcgrid file to upload
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException if file does not exists
+     * @throws IllegalArgumentException if workspace or arcgrid are null
+     */
+    public boolean publishArcGrid(final String workspace, final String storeName,
+                                  final String coverageName, final File arcgrid) throws FileNotFoundException,
+            IllegalArgumentException {
+        if (workspace == null || arcgrid == null)
+            throw new IllegalArgumentException("Unable to proceed, some arguments are null");
+
+        return publishCoverage(
+                workspace,
+                (storeName != null) ? storeName : FilenameUtils.getBaseName(arcgrid
+                        .getAbsolutePath()), CoverageStoreExtension.ARCGRID, "image/arcgrid",
+                arcgrid, ParameterConfigure.FIRST,
+                (coverageName != null) ? new NameValuePair[] { new NameValuePair("coverageName",
+                        coverageName) } : (NameValuePair[]) null);
+    }
+
+    /**
+     * Same as {@link #publishArcGrid(String, String, String, File, String, ProjectionPolicy, String, double[])} but without the last parameter
+     * (bbox). Kept here for backwards compatibility.
+     *
+     * @deprecated use the former method with bbox set to null.
+     */
+    public boolean publishArcGrid(String workspace, String storeName, String resourceName,
+                                  File arcgrid, String srs, ProjectionPolicy policy, String defaultStyle)
+            throws FileNotFoundException, IllegalArgumentException {
+        return publishArcGrid(workspace, storeName, resourceName, arcgrid, srs, policy,
+                defaultStyle, null);
+    }
+
+    /**
+     * Upload and publish a ArcGrid image.
+     *
+     * @param workspace Workspace to use
+     * @param storeName Name of the coveragestore (if null the file name will be used)
+     * @param coverageName the name of the coverage (if null the file name will be used)
+     * @param arcgrid file to upload
+     * @param srs the native CRS
+     * @param policy projection policy. See {@link ProjectionPolicy}.
+     * @param defaultStyle the default style to apply.
+     * @param bbox An array of 4 doubles indicating envelope in EPSG:4326. Order is [Xmin, Ymin, Xmax, Ymax].
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException if file does not exists
+     * @throws IllegalArgumentException if workspace or arcgrid are null
+     *
+     */
+    public boolean publishArcGrid(String workspace, String storeName, String coverageName,
+                                  File arcgrid, String srs, ProjectionPolicy policy, String defaultStyle, double[] bbox)
+            throws FileNotFoundException, IllegalArgumentException {
+        if (workspace == null || storeName == null || arcgrid == null || coverageName == null
+                || srs == null || policy == null || defaultStyle == null)
+            throw new IllegalArgumentException("Unable to run: null parameter");
+
+        if (!createCoverageStore(
+                workspace,
+                (storeName != null) ? storeName : FilenameUtils.getBaseName(arcgrid
+                        .getAbsolutePath()), UploadMethod.FILE, CoverageStoreExtension.ARCGRID,
+                "image/arcgrid", arcgrid.toURI(), ParameterConfigure.NONE, (NameValuePair[]) null)) {
+            LOGGER.error("Unable to create coverage store for coverage: " + arcgrid);
+            return false;
+        }
+
+        // config coverage props (srs)
+        final GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
+        coverageEncoder.setName(coverageName);
+        coverageEncoder.setTitle(coverageName);
+        coverageEncoder.setSRS(srs);
+        coverageEncoder.setNativeFormat("ArcGrid");
+        coverageEncoder.addSupportedFormats("ARCGRID");
+        coverageEncoder.addKeyword("arcGrid");
+        coverageEncoder.addKeyword("WCS");
+        coverageEncoder.setNativeCRS(srs);
+        coverageEncoder.setProjectionPolicy(policy);
+        coverageEncoder.setRequestSRS(srs);
+        coverageEncoder.setResponseSRS(srs);
+        if (bbox != null && bbox.length == 4) {
+            coverageEncoder.setLatLonBoundingBox(bbox[0], bbox[1], bbox[2], bbox[3], DEFAULT_CRS);
+        }
+
+        if (!createCoverage(workspace, storeName, coverageEncoder)) {
+            LOGGER.error("Unable to create a coverage store for coverage: " + arcgrid);
+            return false;
+        }
+
+        // config layer props (style, ...)
+        final GSLayerEncoder layerEncoder = configureDefaultStyle(defaultStyle);
+
+        return configureLayer(workspace, coverageName, layerEncoder);
+    }
+
+    /**
+     * Publish a ArcGrid already in a filesystem readable by GeoServer.
+     *
+     * @param workspace an existing workspace
+     * @param storeName the coverageStore to be created
+     * @param arcgrid the arcGrid to be published
+     * @param srs the native CRS
+     * @param policy projection policy. See {@link ProjectionPolicy}.
+     * @param defaultStyle the default style to apply.
+     *
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException if file does not exists
+     * @throws IllegalArgumentException if any of the mandatory parameters are null.
+     */
+    public boolean publishExternalArcGrid(String workspace, String storeName, File arcgrid,
+                                          String coverageName, String srs, ProjectionPolicy policy, String defaultStyle)
+            throws FileNotFoundException, IllegalArgumentException {
+        if (workspace == null || storeName == null || arcgrid == null || coverageName == null
+                || srs == null || policy == null || defaultStyle == null)
+            throw new IllegalArgumentException("Unable to run: null parameter");
+
+        // config coverage props (srs)
+        final GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
+        coverageEncoder.setName(coverageName);
+        coverageEncoder.setTitle(coverageName);
+        coverageEncoder.setSRS(srs);
+        coverageEncoder.setProjectionPolicy(policy);
+
+        // config layer props (style, ...)
+        final GSLayerEncoder layerEncoder = new GSLayerEncoder();
+        layerEncoder.setDefaultStyle(defaultStyle);
+
+        return publishExternalArcGrid(workspace, storeName, arcgrid, coverageEncoder, layerEncoder) != null ? true
+                : false;
+    }
+
+    /**
+     * Publish a ArcGrid already in a filesystem readable by GeoServer.
+     *
+     * @param workspace an existing workspace
+     * @param storeName the coverageStore to be created
+     * @param arcgrid the arcGrid to be published
+     * @param coverageEncoder coverage details. See {@link GSCoverageEncoder}.
+     * @param layerEncoder layer details, See {@link GSLayerEncoder}.
+     *
+     * @return true if the operation completed successfully.
+     * @throws FileNotFoundException if file does not exists
+     * @throws IllegalArgumentException if any of the mandatory parameters are null.
+     */
+    public RESTCoverageStore publishExternalArcGrid(final String workspace, final String storeName,
+                                                    final File arcgrid, final GSCoverageEncoder coverageEncoder,
+                                                    final GSLayerEncoder layerEncoder) throws IllegalArgumentException,
+            FileNotFoundException {
+
+        if (workspace == null || arcgrid == null || storeName == null || layerEncoder == null
+                || coverageEncoder == null)
+            throw new IllegalArgumentException("Unable to run: null parameter");
+
+        final String coverageName = coverageEncoder.getName();
+        if (coverageName.isEmpty()) {
+            throw new IllegalArgumentException("Unable to run: empty coverage store name");
+        }
+
+        // create store
+        final boolean store = publishExternalCoverage(workspace, storeName,
+                CoverageStoreExtension.ARCGRID, "text/plain", arcgrid, ParameterConfigure.NONE,
+                ParameterUpdate.OVERWRITE);
+        if (!store) {
+            return null;
+        }
+
+        // create Coverage Store
+        if (!createCoverage(workspace, storeName, coverageEncoder)) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error("Unable to create a coverage for the store:" + coverageName);
+            return null;
+        }
+
+        // create Layer
+        if (configureLayer(workspace, coverageName, layerEncoder)) {
+            GeoServerRESTReader reader;
+            try {
+                reader = new GeoServerRESTReader(this.restURL, this.gsuser, this.gspass);
+                return reader.getCoverageStore(workspace, storeName);
+            } catch (MalformedURLException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+        return null;
     }
 
     // ==========================================================================
