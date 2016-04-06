@@ -9,7 +9,7 @@ For general questions about this project feel free to use the mailing lists.
 
 ## License
 
-geoserver-manager is released under a permissinve [MIT](https://opensource.org/licenses/MIT) license. See [wikipedia](https://en.wikipedia.org/wiki/MIT_License) for more information:
+geoserver-manager is released under a permissinve [MIT](https://opensource.org/licenses/MIT) license. See [wikipedia](https://en.wikipedia.org/wiki/MIT_License) for more information.
 
 
 ## Mailing Lists
