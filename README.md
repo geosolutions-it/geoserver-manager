@@ -1,5 +1,6 @@
 # geoserver-manager
 ## Status
+ * Master on travis [![Build Status](https://travis-ci.org/geosolutions-it/geoserver-manager.svg?branch=master)](https://travis-ci.org/geosolutions-it/geoserver-manager)
  * Master on Linux + OracleJDK7 [![Build Status](http://build.geo-solutions.it/jenkins/view/GeoServer-manager/job/GeoServer-Manager-Master/badge/icon)](http://build.geo-solutions.it/jenkins/view/GeoServer-manager/job/GeoServer-Manager-Master/)
  * Master on Windows + OracleJDK7 [![Build Status](http://winbuild.geo-solutions.it/jenkins/buildStatus/icon?job=GeoServer-Manager-Master)](http://winbuild.geo-solutions.it/jenkins/view/GeoServer-Manager/job/GeoServer-Manager-Master/)
  * Stable on Linux + OracleJDK7 [![Build Status](http://build.geo-solutions.it/jenkins/view/GeoServer-manager/job/GeoServer-Manager-Stable/badge/icon)](http://build.geo-solutions.it/jenkins/view/GeoServer-manager/job/GeoServer-Manager-Stable/)
