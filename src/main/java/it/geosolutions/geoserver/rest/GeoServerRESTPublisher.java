@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2015 GeoSolutions S.A.S.
+ *  Copyright (C) 2007,2015,2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -65,6 +65,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author ETj (etj at geo-solutions.it)
  * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Lennart Karsten - lennart.k@thinking-aloud.eu
  */
 public class GeoServerRESTPublisher {
 

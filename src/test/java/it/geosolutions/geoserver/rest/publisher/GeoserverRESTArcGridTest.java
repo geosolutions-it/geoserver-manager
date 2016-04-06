@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -46,7 +46,8 @@ import static org.junit.Assert.*;
  * We need a running GeoServer to properly run the tests. 
  * If such geoserver instance cannot be contacted, tests will be skipped.
  *
- * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Lennart Karsten - lennart.k@thinking-aloud.eu
+ * inspired by: Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
 public class GeoserverRESTArcGridTest extends GeoserverRESTTest {
 
