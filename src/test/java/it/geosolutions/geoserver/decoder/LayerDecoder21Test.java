@@ -29,9 +29,9 @@ public class LayerDecoder21Test{
 	
 	@Before
 	public void setUp() throws IOException{
-		File layerFile = new ClassPathResource("testdata/layerExample21.xml").getFile();
-	    String layerString = FileUtils.readFileToString(layerFile);
-		layer = (RESTLayer21) RESTLayer21.build(layerString);
+          File layerFile = new ClassPathResource("testdata/layerExample21.xml").getFile();
+	  String layerString = FileUtils.readFileToString(layerFile);
+	  layer = (RESTLayer21) RESTLayer21.build(layerString);
 	}
 	
 	@Test
