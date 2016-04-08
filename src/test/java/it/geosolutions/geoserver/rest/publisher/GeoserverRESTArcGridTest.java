@@ -156,7 +156,7 @@ public class GeoserverRESTArcGridTest extends GeoserverRESTTest {
         assertTrue(reader.existsCoveragestore(DEFAULT_WS, storeName));
         assertTrue(reader.existsCoverage(DEFAULT_WS, storeName, storeName));
         RESTLayer layer = reader.getLayer(DEFAULT_WS, storeName);
-        assertEquals("mystyle", layer.getDefaultStyle());
+        assertEquals(DEFAULT_WS + ":mystyle", layer.getDefaultStyle());
         assertEquals(DEFAULT_WS, layer.getDefaultStyleWorkspace());
     }
 

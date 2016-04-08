@@ -274,7 +274,7 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         RESTLayer layer = reader.getLayer(layerName);
 //        RESTLayer layerDecoder = new RESTLayer(layer);
         LOGGER.info("Layer style is " + layer.getDefaultStyle());
-        assertEquals("Style not assigned properly", styleName, layer.getDefaultStyle());
+        assertEquals("Style not assigned properly", DEFAULT_WS + ":" + styleName, layer.getDefaultStyle());
         assertEquals("Style not assigned properly", DEFAULT_WS, layer.getDefaultStyleWorkspace());
 
         // remove also datastore

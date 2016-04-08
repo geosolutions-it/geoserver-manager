@@ -130,7 +130,8 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
     }
     
     @Test
-    public void testGeoTiffWithStyleInWorkspace() throws IOException {
+    public void testGeoTiffWithStyleInWorkspace() throws IOException
+    {
         if (!enabled()) return;
         deleteAll();
 
@@ -155,11 +156,11 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         
         assertNotNull("publish() failed", pub);
         // Test exists
-        assertTrue(reader.existsCoveragestore(DEFAULT_WS, storeName));
-        assertTrue(reader.existsCoverage(DEFAULT_WS, storeName, storeName));
+        assertTrue("New coverage not found", reader.existsCoveragestore(DEFAULT_WS, storeName));
+        assertTrue("New Store not found", reader.existsCoverage(DEFAULT_WS, storeName, storeName));
         RESTLayer layer = reader.getLayer(DEFAULT_WS, storeName);
-        assertEquals("mystyle", layer.getDefaultStyle());
-        assertEquals(DEFAULT_WS, layer.getDefaultStyleWorkspace());
+        assertEquals("Bad default style", DEFAULT_WS + ":mystyle", layer.getDefaultStyle());
+        assertEquals("Bad workspace for style", DEFAULT_WS, layer.getDefaultStyleWorkspace());
     }
 
     @Test
