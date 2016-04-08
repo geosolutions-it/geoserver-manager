@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2007 - 2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2007-2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  * 
  *  GPLv3 + Classpath exception
@@ -19,7 +19,6 @@
  */
 package it.geosolutions.geoserver.rest.encoder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import it.geosolutions.geoserver.rest.encoder.authorityurl.AuthorityURLInfo;
@@ -46,16 +45,21 @@ public class GSLayerEncoder21Test {
 	public void setup() {
 		layerEncoder = new GSLayerEncoder21();
 		layerEncoder.setAdvertised(true);
-		layerEncoder.addAuthorityURL(new GSAuthorityURLInfoEncoder(
+		layerEncoder.addAuthorityURL(
+                        new GSAuthorityURLInfoEncoder(
 				"authority1", "http://www.authority1.org"));
-		layerEncoder.addIdentifier(new GSIdentifierInfoEncoder("authority1",
-				"identifier1"));
-		layerEncoder.addAuthorityURL(new GSAuthorityURLInfoEncoder(
+		layerEncoder.addIdentifier(
+                        new GSIdentifierInfoEncoder(
+                                "authority1", "identifier1"));
+		layerEncoder.addAuthorityURL(
+                        new GSAuthorityURLInfoEncoder(
 				"authority2", "http://www.authority2.org"));
-		layerEncoder.addIdentifier(new GSIdentifierInfoEncoder("authority2",
-				"identifier2"));
-		layerEncoder.addIdentifier(new GSIdentifierInfoEncoder("authority2",
-				"additionalId"));
+		layerEncoder.addIdentifier(
+                        new GSIdentifierInfoEncoder(
+                                "authority2", "identifier2"));
+		layerEncoder.addIdentifier(
+                        new GSIdentifierInfoEncoder(
+                                "authority2", "additionalId"));
 	}
 
 	
@@ -97,34 +101,33 @@ public class GSLayerEncoder21Test {
 			}else if(key.matches("identifiers")){
 				String jsonStr = el.getValue();
 				jsonStr = jsonStr.substring(2);
-				jsonStr = jsonStr.substring(0,
-						jsonStr.length() - 3);
+				jsonStr = jsonStr.substring(0, jsonStr.length() - 3);
 
 				String[] items = jsonStr.split("\\}(,)\\{");
 
 				String[] props1 = items[0].split(",");
 				String[] kvp1_1 = props1[0].split("\":");
 				String[] kvp1_2 = props1[1].split("\":");
-				Assert.assertEquals(IdentifierInfo.authority.name(), kvp1_1[0].replace("\"", ""));
-				Assert.assertEquals("authority2", kvp1_1[1].replace("\"", ""));
-				Assert.assertEquals(IdentifierInfo.identifier.name(), kvp1_2[0].replace("\"", ""));
-				Assert.assertEquals("identifier2", kvp1_2[1].replace("\"", ""));
+				Assert.assertEquals("idx0", IdentifierInfo.authority.name(), kvp1_1[0].replace("\"", ""));
+				Assert.assertEquals("idx0", "authority1", kvp1_1[1].replace("\"", ""));
+				Assert.assertEquals("idx0", IdentifierInfo.identifier.name(), kvp1_2[0].replace("\"", ""));
+				Assert.assertEquals("idx0", "identifier1", kvp1_2[1].replace("\"", ""));
 				
 				String[] props2 = items[1].split(",");
 				String[] kvp2_1 = props2[0].split("\":");
 				String[] kvp2_2 = props2[1].split("\":");
-				Assert.assertEquals(IdentifierInfo.authority.name(), kvp2_1[0].replace("\"", ""));
-				Assert.assertEquals("authority2", kvp2_1[1].replace("\"", ""));
-				Assert.assertEquals(IdentifierInfo.identifier.name(), kvp2_2[0].replace("\"", ""));
-				Assert.assertEquals("additionalId", kvp2_2[1].replace("\"", ""));
+				Assert.assertEquals("idx1", IdentifierInfo.authority.name(), kvp2_1[0].replace("\"", ""));
+				Assert.assertEquals("idx1", "authority2", kvp2_1[1].replace("\"", ""));
+				Assert.assertEquals("idx1", IdentifierInfo.identifier.name(), kvp2_2[0].replace("\"", ""));
+				Assert.assertEquals("idx1", "identifier2", kvp2_2[1].replace("\"", ""));
 				
 				String[] props3 = items[2].split(",");
 				String[] kvp3_1 = props3[0].split("\":");
 				String[] kvp3_2 = props3[1].split("\":");
-				Assert.assertEquals(IdentifierInfo.authority.name(), kvp3_1[0].replace("\"", ""));
-				Assert.assertEquals("authority1", kvp3_1[1].replace("\"", ""));
-				Assert.assertEquals(IdentifierInfo.identifier.name(), kvp3_2[0].replace("\"", ""));
-				Assert.assertEquals("identifier1", kvp3_2[1].replace("\"", ""));
+				Assert.assertEquals("idx2", IdentifierInfo.authority.name(), kvp3_1[0].replace("\"", ""));
+				Assert.assertEquals("idx2", "authority2", kvp3_1[1].replace("\"", ""));
+				Assert.assertEquals("idx2", IdentifierInfo.identifier.name(), kvp3_2[0].replace("\"", ""));
+				Assert.assertEquals("idx2", "additionalId", kvp3_2[1].replace("\"", ""));
 
 			}
 		}
