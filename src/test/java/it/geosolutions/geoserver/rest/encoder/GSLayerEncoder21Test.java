@@ -20,6 +20,8 @@
 package it.geosolutions.geoserver.rest.encoder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import it.geosolutions.geoserver.rest.encoder.authorityurl.AuthorityURLInfo;
@@ -101,6 +103,7 @@ public class GSLayerEncoder21Test {
 						jsonStr.length() - 3);
 
 				String[] items = jsonStr.split("\\}(,)\\{");
+				Arrays.sort(items, Collections.reverseOrder());
 
 				String[] props1 = items[0].split(",");
 				String[] kvp1_1 = props1[0].split("\":");
