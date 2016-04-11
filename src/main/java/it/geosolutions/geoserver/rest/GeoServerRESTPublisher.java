@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2015,2016 GeoSolutions S.A.S.
+ *  Copyright (C) 2007 - 2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -1565,19 +1565,6 @@ public class GeoServerRESTPublisher {
                 arcgrid, ParameterConfigure.FIRST,
                 (coverageName != null) ? new NameValuePair[] { new NameValuePair("coverageName",
                         coverageName) } : (NameValuePair[]) null);
-    }
-
-    /**
-     * Same as {@link #publishArcGrid(String, String, String, File, String, ProjectionPolicy, String, double[])} but without the last parameter
-     * (bbox). Kept here for backwards compatibility.
-     *
-     * @deprecated use the former method with bbox set to null.
-     */
-    public boolean publishArcGrid(String workspace, String storeName, String resourceName,
-                                  File arcgrid, String srs, ProjectionPolicy policy, String defaultStyle)
-            throws FileNotFoundException, IllegalArgumentException {
-        return publishArcGrid(workspace, storeName, resourceName, arcgrid, srs, policy,
-                defaultStyle, null);
     }
 
     /**
