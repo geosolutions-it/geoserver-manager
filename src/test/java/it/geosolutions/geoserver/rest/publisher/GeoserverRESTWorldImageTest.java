@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.junit.Test;
@@ -53,9 +54,9 @@ public class GeoserverRESTWorldImageTest extends GeoserverRESTTest {
     @Test
     public void testPublishWorldImage() throws IOException {
 
-		if (!enabled()) {
-			return;
-		}
+//		if (!enabled()) {
+//			return;
+//		}
 		deleteAll();
 		String storeName = "testWorldimage";
 
@@ -66,6 +67,9 @@ public class GeoserverRESTWorldImageTest extends GeoserverRESTTest {
 		File worldImageFile = new ClassPathResource(
 				"testdata/sw.zip").getFile();
 
+		File worldImageFileTif = new ClassPathResource(
+				"testdata/sw.tif").getFile();
+		
 		// test publish
 
 		boolean wp = publisher.publishWorldImage(DEFAULT_WS, storeName,
@@ -93,15 +97,13 @@ public class GeoserverRESTWorldImageTest extends GeoserverRESTTest {
 		
 		assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName, true));
 		
-		// --
-        
-		wp = publisher.publishWorldImage(DEFAULT_WS, storeName, worldImageFile.toURI(), ParameterConfigure.FIRST, new NameValuePair("coverageName", "worldImage_test"));
+		wp = publisher.publishWorldImage(DEFAULT_WS, storeName, worldImageFileTif.toURI(), ParameterConfigure.FIRST, new NameValuePair("coverageName", "worldImage_test"));
 		
 		assertTrue("Publish worldfile configuring all available layers, failed.", wp);
 		
 		assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName, true));
 		
-		wp = publisher.publishWorldImage(DEFAULT_WS, storeName, worldImageFile.toURI());
+		wp = publisher.publishWorldImage(DEFAULT_WS, storeName, worldImageFileTif.toURI());
 		
 		assertTrue("Publish worldfile configuring all available layers, failed.", wp);
 		
