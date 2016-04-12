@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.junit.Test;
@@ -54,9 +53,9 @@ public class GeoserverRESTWorldImageTest extends GeoserverRESTTest {
     @Test
     public void testPublishWorldImage() throws IOException {
 
-//		if (!enabled()) {
-//			return;
-//		}
+		if (!enabled()) {
+			return;
+		}
 		deleteAll();
 		String storeName = "testWorldimage";
 
