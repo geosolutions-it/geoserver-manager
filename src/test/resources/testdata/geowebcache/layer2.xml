@@ -1,0 +1,15 @@
+<wmsLayer>
+  <name>layer2</name>
+  <mimeFormats>
+    <string>image/png</string>
+  </mimeFormats>
+  <gridSubsets>
+    <gridSubset>
+      <gridSetName>EPSG:900913</gridSetName>
+    </gridSubset>
+  </gridSubsets>
+  <wmsUrl>
+    <string>http://localhost:8080/geoserver/wms</string>
+  </wmsUrl>
+  <wmsLayers>nurc:Arc_Sample</wmsLayers>
+</wmsLayer>

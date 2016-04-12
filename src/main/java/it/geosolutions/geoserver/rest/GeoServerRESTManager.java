@@ -49,6 +49,7 @@ public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
 
     private final GeoServerRESTPublisher publisher;
     private final GeoServerRESTReader reader;
+    private final GeoWebCacheRESTManager geoWebCacheManager;
 
     private final GeoServerRESTStoreManager storeManager;
     private final GeoServerRESTStyleManager styleManager;
@@ -73,6 +74,11 @@ public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
         // Internal publisher and reader, provide simple access methods.
         publisher = new GeoServerRESTPublisher(restURL.toString(), username, password);
         reader = new GeoServerRESTReader(restURL, username, password);
+        String gwcGeoServerURL = restURL.toString();
+        if(!restURL.toString().endsWith("/")){
+            gwcGeoServerURL += '/';
+        }
+        this.geoWebCacheManager = new GeoWebCacheRESTManager(gwcGeoServerURL + "gwc", username, password);
         structuredGridCoverageReader = new GeoServerRESTStructuredGridCoverageReaderManager(restURL, username, password);
         storeManager = new GeoServerRESTStoreManager(restURL, gsuser, gspass);
         styleManager = new GeoServerRESTStyleManager(restURL, gsuser, gspass);
@@ -84,6 +90,10 @@ public class GeoServerRESTManager extends GeoServerRESTAbstractManager {
 
     public GeoServerRESTReader getReader() {
         return reader;
+    }
+
+    public GeoWebCacheRESTManager getGeoWebCacheManager() {
+        return geoWebCacheManager;
     }
 
     public GeoServerRESTStoreManager getStoreManager() {

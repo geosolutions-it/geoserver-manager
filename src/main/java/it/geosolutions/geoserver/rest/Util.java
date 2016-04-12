@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.jdom.Element;
 
 /**
  *
@@ -62,6 +63,60 @@ public static final String QUIET_ON_NOT_FOUND_PARAM = "quietOnNotFound=";
         return styles;
     }
     
+    public static List<String> getElementsChildrenStringContent(Element elementRoot){
+        return getElementsChildrenContent(elementRoot, "string");
+    }
+
+    public static List<String> getElementsChildrenContent(Element elementRoot, String childrensName){
+        assert(elementRoot != null) : "The passed elementRoot must be not null";
+        assert(childrensName != null) : "The passed childrensName must be not null";
+        List<String> stringContentList = new ArrayList<String>();
+        for (Element listItem : (List<Element>) Util.safeList(elementRoot.getChildren(childrensName))) {
+            stringContentList.add(listItem.getText());
+        }
+        return stringContentList;
+    }
+    
+    public static Integer getIntValueFromText(String text){
+        Integer result = null;
+        if(text != null){
+            result = Integer.parseInt(text);
+        }
+        return result;
+    }
+
+    public static Float getFloatValueFromText(String text){
+        Float result = null;
+        if(text != null){
+            result = Float.parseFloat(text);
+        }
+        return result;
+    }
+
+    public static Double getDoubleValueFromText(String text){
+        Double result = null;
+        if(text != null){
+            result = Double.parseDouble(text);
+        }
+        return result;
+    }
+
+    public static Long getLongValueFromText(String text){
+        Long result = null;
+        if(text != null){
+            result = Long.parseLong(text);
+        }
+        return result;
+    }
+
+    public static Boolean getBooleanValueFromText(String text){
+        Boolean result = null;
+        if(text != null){
+            result = Boolean.parseBoolean(text);
+        }
+        return result;
+    }
+    
     /**
      * Append the quietOnNotFound parameter to the input URL
      * @param quietOnNotFound parameter
@@ -84,6 +139,15 @@ public static final String QUIET_ON_NOT_FOUND_PARAM = "quietOnNotFound=";
 
     public static <TK, TV> Map<TK, TV> safeMap(Map<TK, TV> map) {
         return map == null ? Collections.EMPTY_MAP : map;
+    }
+    
+    /**
+     * 
+     * @param stringValue
+     * @return true iff the stringValue is NULL or it is empty
+     */
+    public static boolean isEmpty(String stringValue){
+        return stringValue == null || stringValue.isEmpty();
     }
 
     public static char getParameterSeparator(String url) {
