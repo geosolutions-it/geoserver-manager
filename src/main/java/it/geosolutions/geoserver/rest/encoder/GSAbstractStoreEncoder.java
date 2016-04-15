@@ -56,7 +56,7 @@ public abstract class GSAbstractStoreEncoder extends PropertyXMLEncoder {
     }
 
     public String getType() {
-        return ElementUtils.contains(getRoot(), "name").getTextTrim();
+        return ElementUtils.contains(getRoot(), "type").getTextTrim();
     }
 
     public void setName(String name) {
