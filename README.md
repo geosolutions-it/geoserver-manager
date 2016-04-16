@@ -8,9 +8,9 @@
 
 
 ## Intro
-Client library written in Java to interact with [GeoServer](http://www.geoserver.org) through its REst administration interface.
+Client library written in Java to interact with [GeoServer](http://www.geoserver.org) through its [ReST administration interface](http://docs.geoserver.org/stable/en/user/rest/api/index.html).
 
-The purpose of this project is to hold a REST client library to interact with GeoServer; a requirement for this library is to depend as less as possible on external libraries. This library aims at being lean and mean.
+The purpose of this project is to hold a ReST client library to interact with GeoServer; a requirement for this library is to depend as less as possible on external libraries. This library aims at being lean and mean.
 
 For general questions about this project feel free to use the mailing lists.
 
@@ -26,4 +26,5 @@ geoserver-manager is released under a permissinve [MIT](https://opensource.org/l
 
 For more information see [this](https://github.com/geosolutions-it/geoserver-manager/wiki) page.
 
-
+## Credits
+The work on this library has been initiated by GeoSolutions. Over the years it has been funder by various organizations like UN FAO, German Space Agency (DLR) and others.
