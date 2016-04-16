@@ -15,6 +15,30 @@ The purpose of this project is to hold a ReST client library to interact with Ge
 
 For general questions about this project feel free to use the mailing lists.
 
+## Using the library 
+
+### Working with Maven 
+In order to include the lib and its dependencies in a Maven project, the repository to point at is this one:
+
+```xml
+   <repository>
+      <id>GeoSolutions</id>
+      <url>http://maven.geo-solutions.it/</url>
+   </repository>
+```
+
+and the dependency tag for your pom is as follows:
+
+```xml
+  <dependency>
+    <groupId>it.geosolutions</groupId>
+    <artifactId>geoserver-manager</artifactId>
+    <version>1.7.0</version>
+  </dependency>
+```
+
+## Documentation 
+You can find some examples in the wiki.
 ## License
 
 geoserver-manager is released under a permissinve [MIT](https://opensource.org/licenses/MIT) license. See [wikipedia](https://en.wikipedia.org/wiki/MIT_License) for more information.
@@ -26,6 +50,9 @@ geoserver-manager is released under a permissinve [MIT](https://opensource.org/l
  * [DEVELOPERS](https://groups.google.com/forum/?fromgroups#!forum/geoserver-manager-devs)
 
 For more information see [this](https://github.com/geosolutions-it/geoserver-manager/wiki) page.
+
+## Version 
+Current stable version is 1.7.0 ([[Changelog]]).
 
 ## Credits
 The work on this library has been initiated by GeoSolutions. Over the years it has been funder by various organizations like UN FAO, German Space Agency (DLR) and others.
