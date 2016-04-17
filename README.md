@@ -55,4 +55,5 @@ For more information see [this](https://github.com/geosolutions-it/geoserver-man
 Current stable version is 1.7.0 ([[Changelog]]).
 
 ## Credits
-The work on this library has been initiated by GeoSolutions. Over the years it has been funder by various organizations like UN FAO, German Space Agency (DLR) and others.
+The work on this library has been initiated by GeoSolutions. Over the years it has been funded by various organizations like UN FAO, German Space Agency (DLR) and others.
+
