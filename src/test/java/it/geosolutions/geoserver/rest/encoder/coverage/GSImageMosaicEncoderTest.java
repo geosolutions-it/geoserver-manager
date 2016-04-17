@@ -64,6 +64,17 @@ public class GSImageMosaicEncoderTest extends TestCase {
         LOGGER.info(encoder.toString());
 
         encoder.addSUGGESTED_TILE_SIZE("512,512");
-
+        
+        encoder.setInputTransparentColor("#FFFFFF");
+        Assert.isTrue(encoder.getInputTransparentColor().equalsIgnoreCase("#FFFFFF"));
+        
+        encoder.setOutputTransparentColor("#000000");
+        Assert.isTrue(encoder.getOutputTransparentColor().equalsIgnoreCase("#000000"));
+        
+        encoder.setAccurateResolutionComputation(true);
+        Assert.isTrue(encoder.getAccurateResolutionComputation());
+        
+        encoder.setFootprintBehavior("None");
+        Assert.isTrue(encoder.getFootprintBehavior().equalsIgnoreCase("None"));
     }
 }
