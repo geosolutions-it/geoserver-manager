@@ -25,19 +25,19 @@
 
 package it.geosolutions.geoserver.rest.publisher;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.ParameterConfigure;
-import it.geosolutions.geoserver.rest.GeoserverRESTTest;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.ParameterConfigure;
+import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 
 /**
  * Testcase for publishing layers on geoserver.
@@ -66,6 +66,9 @@ public class GeoserverRESTWorldImageTest extends GeoserverRESTTest {
 		File worldImageFile = new ClassPathResource(
 				"testdata/sw.zip").getFile();
 
+		File worldImageFileTif = new ClassPathResource(
+				"testdata/sw.tif").getFile();
+		
 		// test publish
 
 		boolean wp = publisher.publishWorldImage(DEFAULT_WS, storeName,
@@ -92,5 +95,18 @@ public class GeoserverRESTWorldImageTest extends GeoserverRESTTest {
 		assertTrue("Publish worldfile configuring all available layers, failed.", wp);
 		
 		assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName, true));
+		
+		wp = publisher.publishWorldImage(DEFAULT_WS, storeName, worldImageFileTif.toURI(), ParameterConfigure.FIRST, new NameValuePair("coverageName", "worldImage_test"));
+		
+		assertTrue("Publish worldfile configuring all available layers, failed.", wp);
+		
+		assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName, true));
+		
+		wp = publisher.publishWorldImage(DEFAULT_WS, storeName, worldImageFileTif.toURI());
+		
+		assertTrue("Publish worldfile configuring all available layers, failed.", wp);
+		
+		assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName, true));
+		
 	}
 }
