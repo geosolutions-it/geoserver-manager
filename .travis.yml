@@ -4,6 +4,8 @@ cache:
     - "$HOME/.m2"
 language: java
 jdk:
+  - oraclejdk6
+  - openjdk6
   - oraclejdk7
   - openjdk7
 script:
