@@ -1022,6 +1022,36 @@ public class GeoServerRESTPublisher {
 
         return published && configured;
     }
+    
+    public boolean updateDBLayer(final String workspace, final String storename,final GSFeatureTypeEncoder fte){
+        /*
+         * This is the equivalent call with cUrl:
+         * 
+         * {@code curl -u admin:geoserver -XPUT -H 'Content-type: text/xml' \ -d
+         * "<featureType><name>easia_gaul_1_aggr</name><nativeCRS>EPSG:4326</nativeCRS><enabled>true</enabled></featureType>" \
+         * http://localhost:8080/geoserver/rest/workspaces/it.geosolutions/ datastores/pg_kids/featuretypes/easia_gaul_1_aggr }
+         * 
+         */
+        
+        String ftypeXml = fte.toString();
+        String layername = fte.getName();
+        StringBuilder putUrl = new StringBuilder(restURL)
+            .append("/rest/workspaces/").append(workspace)
+            .append("/datastores/").append(storename)
+            .append("/featuretypes").append("/"+layername);
+                
+        if (layername == null || layername.isEmpty()) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error("GSFeatureTypeEncoder has no valid name associated, try using GSFeatureTypeEncoder.setName(String)");
+            return false;
+        }
+        
+        String configuredResult = HTTPUtils.putXml(putUrl.toString(), ftypeXml, this.gsuser,this.gspass);
+        boolean published = configuredResult != null;
+                
+        return published;
+    }
+    
 
     // ==========================================================================
     // === SHAPEFILES
