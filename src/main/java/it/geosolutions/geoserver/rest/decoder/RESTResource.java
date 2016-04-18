@@ -136,7 +136,11 @@ public class RESTResource {
     	RESTBoundingBox bbox = this.getLatLonBoundingBox();
     	return bbox.getCRS();
     }
-
+    
+    public String getSrs(){
+        return rootElem.getChildText("srs");
+    }
+    
     public double getMinX() {
         return this.getLatLonBoundingBox().getMinX();
     }
