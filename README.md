@@ -36,8 +36,14 @@ and the dependency tag for your pom is as follows:
     <version>1.7.0</version>
   </dependency>
 ```
+### GeoServer Compatibility Matrix
 
-## Documentation 
+ **GeoServer-Manager/GeoServer** | **2.6.x** |**2.7.x** |**2.8.x** |**2.9.x** 
+-------------------------------- | ----------|----------|----------|---------
+ **1.6.0** | Y | Y | P | P 
+ **1.7.0** | N |  P | Y | Y 
+
+### Documentation 
 You can find some examples in the wiki.
 ## License
 
