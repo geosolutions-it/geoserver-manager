@@ -36,6 +36,9 @@ and the dependency tag for your pom is as follows:
     <version>1.7.0</version>
   </dependency>
 ```
+### Direct Link to JAR
+If you are simply looking for the JAR to download and use you can find it [here](http://maven.geo-solutions.it/it/geosolutions/geoserver-manager/1.7.0/geoserver-manager-1.7.0.jar).
+
 ### GeoServer Compatibility Matrix
 
  **GeoServer-Manager/GeoServer** | **2.6.x** |**2.7.x** |**2.8.x** |**2.9.x** 
