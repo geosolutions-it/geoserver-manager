@@ -130,14 +130,22 @@ public class RESTLayerGroup {
 	    }
 	}
 
-        public RESTPublishedList getPublishedList() {
-            if (rootElem.getChild("publishables") != null) {
-                return new RESTPublishedList(rootElem.getChild("publishables"));
-            } else {
-                return null;
-            }
-        }	
-	
+    public RESTPublishedList getPublishedList() {
+        if (rootElem.getChild("publishables") != null) {
+            return new RESTPublishedList(rootElem.getChild("publishables"));
+        } else {
+            return null;
+        }
+    }
+    
+    public RESTStyleList getStyleList() {
+        if (rootElem.getChild("styles") != null) {
+            return new RESTStyleList(rootElem.getChild("styles"));
+        } else {
+            return null;
+        }
+    }	
+    
 	public String getCRS() {
 		Element bounds = rootElem.getChild("bounds");
 		return bounds.getChildText("crs");
