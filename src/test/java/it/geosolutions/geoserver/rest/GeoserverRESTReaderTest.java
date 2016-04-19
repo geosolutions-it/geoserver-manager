@@ -116,7 +116,6 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 //        assertEquals(7, wsnames.size()); // value in default gs installation
 
 //        System.out.println("Workspaces: " + wslist.size());
-        int dsnum = 0;
         int wscnt = 0;
 		for (RESTWorkspaceList.RESTShortWorkspace ws : wslist) {
             String wsname = wsnames.get(wscnt++);

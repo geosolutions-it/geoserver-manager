@@ -24,16 +24,12 @@
  */
 package it.geosolutions.geoserver.rest;
 
-import static it.geosolutions.geoserver.rest.GeoserverRESTTest.publisher;
-import static it.geosolutions.geoserver.rest.GeoserverRESTTest.reader;
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 
 import java.io.File;
 import java.io.IOException;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -41,8 +37,6 @@ import org.springframework.core.io.ClassPathResource;
  * @author etj
  */
 public class UtilTest extends GeoserverRESTTest {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(UtilTest.class);
 
     @Test
     public void testSearchStyle() throws IOException {
