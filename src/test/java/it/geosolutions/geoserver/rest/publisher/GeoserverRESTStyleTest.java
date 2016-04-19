@@ -26,8 +26,6 @@
 package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
-import static it.geosolutions.geoserver.rest.GeoserverRESTTest.publisher;
-import static it.geosolutions.geoserver.rest.GeoserverRESTTest.reader;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;

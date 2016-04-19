@@ -24,16 +24,15 @@
  */
 package it.geosolutions.geoserver.rest;
 
-import static it.geosolutions.geoserver.rest.GeoserverRESTTest.publisher;
-import static it.geosolutions.geoserver.rest.GeoserverRESTTest.reader;
 import it.geosolutions.geoserver.rest.decoder.RESTStyle;
 
 import java.io.File;
 import java.io.IOException;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.*;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -81,7 +80,7 @@ public class UtilTest extends GeoserverRESTTest {
 
         for(RESTStyle style : Util.searchStyles(reader, STYLENAME))
         {
-            System.out.println(style.getWorkspace() + " :: " + style.getName());
+            LOGGER.debug(style.getWorkspace() + " :: " + style.getName());
         }
 
         // there's a bug in geoserver here: the global style will include workspace info
