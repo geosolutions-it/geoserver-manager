@@ -35,6 +35,9 @@ import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 import java.util.List;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.junit.Assert.*;
 
 
@@ -43,6 +46,8 @@ import static org.junit.Assert.*;
  * @author etj
  */
 public class GeoserverRESTReaderTest extends GeoserverRESTTest {
+
+	private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTReaderTest.class);
 
 	/**
 	 * Test of getLayers method, of class GeoServerRESTReader.
@@ -56,16 +61,16 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 //        assertEquals(/*CHANGEME*/19, result.getChildren("layer").size()); // value in default gs installation
 
 //        System.out.println("Layers:" + result.getChildren("layer").size());
-        System.out.println("Layers:" + result.size());
-        System.out.print("Layers:" );
+        LOGGER.debug("Layers: " + result.size());
+//		LOGGER.debug("Layers:" );
         for (NameLinkElem shlayer : result) {
             assertNotNull(shlayer.getName());
-            System.out.print(shlayer.getName() + " ");
+            LOGGER.debug(shlayer.getName() + " ");
         }
 //		for (Element layer : (List<Element>)result.getChildren("layer")) {
 //			System.out.print(layer.getChildText("name") + " ");
 //		}
-        System.out.println();
+        LOGGER.debug("");
 	}
 
 	/**
@@ -79,25 +84,25 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 		assertNotNull(wslist);
 //        assertEquals(7, wslist.size()); // value in default gs installation
 
-        System.out.println("Workspaces: " + wslist.size());
+        LOGGER.debug("Workspaces: " + wslist.size());
         int dsnum = 0;
 		for (RESTWorkspaceList.RESTShortWorkspace ws : wslist) {
-            System.out.println("Getting DSlist for WS " + ws.getName() + "..." );
+            LOGGER.debug("Getting DSlist for WS " + ws.getName() + "..." );
 			RESTDataStoreList result = reader.getDatastores(ws.getName());
 			assertNotNull(result);
             dsnum += result.size();
             for (NameLinkElem ds : result) {
                 assertNotNull(ds.getName());
-				System.out.print(ds.getName() + " " );
+                LOGGER.debug(ds.getName() + " " );
                 RESTDataStore datastore = reader.getDatastore(ws.getName(), ds.getName());
                 assertNotNull(datastore);
                 assertEquals(ds.getName(), datastore.getName());
                 assertEquals(ws.getName(), datastore.getWorkspaceName());
             }
-            System.out.println();
+            LOGGER.debug("");
 		}
-        System.out.println();
-        System.out.println("Datastores:" + dsnum); // value in default gs installation
+        LOGGER.debug("");
+        LOGGER.debug("Datastores:" + dsnum); // value in default gs installation
 //        assertEquals(4, dsnum); // value in default gs installation
 
 	}
@@ -157,14 +162,14 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 		assertNotNull(names);
         assertEquals(names.size(), result.size()); // value in default gs installation
 
-        System.out.println("Namespaces:" + result.size());
-        System.out.print("Namespaces:" );
+        LOGGER.debug("Namespaces:" + result.size());
+        LOGGER.debug("Namespaces:" );
         int namesIdx = 0;
         for (RESTNamespaceList.RESTShortNamespace ns : result) {
             assertEquals("namespace mismatch", names.get(namesIdx++), ns.getName());
-			System.out.print(ns.getName() + " " );
+            LOGGER.debug(ns.getName() + " " );
         }
-        System.out.println();
+        LOGGER.debug("");
 	}
 	
 	/**
@@ -178,12 +183,12 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 		assertNotNull(names);
 //        assertEquals(7, names.size()); // value in default gs installation
 
-        System.out.println("Namespaces:" + names.size());
-        System.out.print("Namespaces:");
+		LOGGER.debug("Namespaces:" + names.size());
+		LOGGER.debug("Namespaces:");
 		for (String name : names) {
-			System.out.print(name + " ");
+			LOGGER.debug(name + " ");
 		}
-        System.out.println();
+		LOGGER.debug("");
 	}
 
 	/**
@@ -197,12 +202,12 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 		assertNotNull(wslist);
 //        assertEquals(7, wslist.size()); // value in default gs installation
 
-        System.out.println("Workspaces:" + wslist.size());
-        System.out.print("Workspaces:");
+		LOGGER.debug("Workspaces:" + wslist.size());
+		LOGGER.debug("Workspaces:");
 		for (RESTWorkspaceList.RESTShortWorkspace ws : wslist) {
-			System.out.print(ws.getName() + " ");
+			LOGGER.debug(ws.getName() + " ");
 		}
-        System.out.println();
+		LOGGER.debug("");
 
         assertEquals(wslist.size(), reader.getWorkspaceNames().size());
 	}
@@ -217,12 +222,12 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 		assertNotNull(names);
 //        assertEquals(7, names.size()); // value in default gs installation
 
-        System.out.println("Workspaces:" + names.size());
-        System.out.print("Workspaces:");
+		LOGGER.debug("Workspaces:" + names.size());
+		LOGGER.debug("Workspaces:");
 		for (String name : names) {
-			System.out.print(name + " ");
+			LOGGER.debug(name + " ");
 		}
-        System.out.println();
+		LOGGER.debug("");
 	}
 
 }

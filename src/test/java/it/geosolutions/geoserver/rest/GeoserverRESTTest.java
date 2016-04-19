@@ -135,17 +135,17 @@ public abstract class GeoserverRESTTest {
                             + RESTURL);
                 }
             } else if (existgs == false){
-                System.out.println("Failing tests  : geoserver not found");
+                LOGGER.debug("Failing tests  : geoserver not found");
                 fail("GeoServer not found");
             }
             
             GSVersionDecoder v=reader.getGeoserverVersion();
             if (v.compareTo(VERSION.getVersion(GS_VERSION))!=0){
-                System.out.println("Failing tests  : geoserver version does not match.\nAccepted versions: "+VERSION.print());
+                LOGGER.debug("Failing tests  : geoserver version does not match.\nAccepted versions: "+VERSION.print());
                 fail("GeoServer version ("+v.getVersion()+") does not match the desired one ("+GS_VERSION+")");
             }
         } else {
-            System.out.println("Skipping tests ");
+            LOGGER.debug("Skipping tests ");
             LOGGER.warn("Tests are disabled. Please read the documentation to enable them.");
         }
     }
