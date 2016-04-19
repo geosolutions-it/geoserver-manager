@@ -61,7 +61,7 @@ geoserver-manager is released under a permissinve [MIT](https://opensource.org/l
 For more information see [this](https://github.com/geosolutions-it/geoserver-manager/wiki) page.
 
 ## Version 
-Current stable version is 1.7.0 ([[Changelog]]).
+Current stable version is [1.7.0](https://github.com/geosolutions-it/geoserver-manager/releases/tag/v1.7.0) ([Changelog](https://github.com/geosolutions-it/geoserver-manager/wiki/Changelog)).
 
 ## Credits
 The work on this library has been initiated by GeoSolutions. Over the years it has been funded by various organizations like UN FAO, German Space Agency (DLR) and others.
