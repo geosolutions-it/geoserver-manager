@@ -5,7 +5,7 @@
  * Master on Windows + OracleJDK7 [![Build Status](http://winbuild.geo-solutions.it/jenkins/buildStatus/icon?job=GeoServer-Manager-Master)](http://winbuild.geo-solutions.it/jenkins/view/GeoServer-Manager/job/GeoServer-Manager-Master/)
  * Stable on Linux + OracleJDK7 [![Build Status](http://build.geo-solutions.it/jenkins/view/GeoServer-manager/job/GeoServer-Manager-Stable/badge/icon)](http://build.geo-solutions.it/jenkins/view/GeoServer-manager/job/GeoServer-Manager-Stable/)
  * Stable on Windows + OracleJDK7 [![Build Status](http://winbuild.geo-solutions.it/jenkins/buildStatus/icon?job=GeoServer-Manager-Stable)](http://winbuild.geo-solutions.it/jenkins/view/GeoServer-Manager/job/GeoServer-Manager-Stable/)
- * Coveralls [![Coverage Status](https://coveralls.io/repos/github/geosolutions-it/geoserver-manager/badge.svg?branch=master)](https://coveralls.io/github/geosolutions-it/geoserver-manager?branch=master)
+
 
 
 ## Intro
