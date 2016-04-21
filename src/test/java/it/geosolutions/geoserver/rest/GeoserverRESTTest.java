@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2007 - 2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -41,7 +41,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-import org.jdom.output.EscapeStrategy;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -98,7 +97,7 @@ public abstract class GeoserverRESTTest {
         RESTURL = getenv("gsmgr_resturl", "http://localhost:8080/geoserver");
         RESTUSER = getenv("gsmgr_restuser", "admin");
         RESTPW = getenv("gsmgr_restpw", "geoserver");
-        GS_VERSION = getenv("gsmgr_version", "2.4");
+        GS_VERSION = getenv("gsmgr_version", "2.8");
 
         // These tests will destroy data, so let's make sure we do want to run them
         enabled = getenv("gsmgr_resttest", "false").equalsIgnoreCase("true");
@@ -136,17 +135,17 @@ public abstract class GeoserverRESTTest {
                             + RESTURL);
                 }
             } else if (existgs == false){
-                System.out.println("Failing tests  : geoserver not found");
+                LOGGER.debug("Failing tests  : geoserver not found");
                 fail("GeoServer not found");
             }
             
             GSVersionDecoder v=reader.getGeoserverVersion();
             if (v.compareTo(VERSION.getVersion(GS_VERSION))!=0){
-                System.out.println("Failing tests  : geoserver version does not match.\nAccepted versions: "+VERSION.print());
+                LOGGER.debug("Failing tests  : geoserver version does not match.\nAccepted versions: "+VERSION.print());
                 fail("GeoServer version ("+v.getVersion()+") does not match the desired one ("+GS_VERSION+")");
             }
         } else {
-            System.out.println("Skipping tests ");
+            LOGGER.debug("Skipping tests ");
             LOGGER.warn("Tests are disabled. Please read the documentation to enable them.");
         }
     }

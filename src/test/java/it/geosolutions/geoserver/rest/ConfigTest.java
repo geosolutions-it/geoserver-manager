@@ -64,7 +64,7 @@ public class ConfigTest extends GeoserverRESTTest {
             LOGGER.info("Existing styles: " + reader.getStyles().getNames());
             String basename = FilenameUtils.getBaseName(sldFile.toString());
             LOGGER.info("Publishing style " + sldFile + " as " + basename);
-            assertTrue("Cound not publish " + sldFile, publisher.publishStyle(sldFile, basename));
+            assertTrue("Could not publish " + sldFile, publisher.publishStyle(sldFile, basename));
         }
     }
 

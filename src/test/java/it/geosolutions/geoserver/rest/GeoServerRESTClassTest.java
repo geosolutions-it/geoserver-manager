@@ -25,12 +25,10 @@
 package it.geosolutions.geoserver.rest;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
-import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 
 import org.junit.Test;
 import org.slf4j.Logger;

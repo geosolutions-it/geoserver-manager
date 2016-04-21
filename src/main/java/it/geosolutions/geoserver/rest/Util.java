@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *
- *  Copyright (C) 2007,2015 GeoSolutions S.A.S.
+ *  Copyright (C) 2007 - 2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -50,8 +50,13 @@ public static final String QUIET_ON_NOT_FOUND_PARAM = "quietOnNotFound=";
         List<RESTStyle> styles = new ArrayList<RESTStyle>();
 
         RESTStyle style = reader.getStyle(stylename);
-        if(style != null)
-            styles.add(style);
+
+        // We don't want geoserver to be lenient here: take only the real global style if it exists
+        if(style != null) {
+            if(style.getWorkspace() == null || style.getWorkspace().isEmpty()) {
+                styles.add(style);
+            }
+        }
 
         for (String workspace : reader.getWorkspaceNames()) {
             style = reader.getStyle(workspace, stylename);

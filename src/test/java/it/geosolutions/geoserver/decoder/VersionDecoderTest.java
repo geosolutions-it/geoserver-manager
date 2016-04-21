@@ -21,11 +21,8 @@
  */
 package it.geosolutions.geoserver.decoder;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
-import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder.VERSION;
 import junit.framework.Assert;
 
 import org.jdom.Element;
