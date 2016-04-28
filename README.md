@@ -55,7 +55,7 @@ geoserver-manager is released under a permissinve [MIT](https://opensource.org/l
 
 ## Mailing Lists
 
- * [USERS](https://groups.google.com/forum/?fromgroups#!forum/geoserver-manager-users]https://groups.google.com/forum/?fromgroups#!forum/geoserver-manager-users)
+ * [USERS](https://groups.google.com/group/geoserver-manager-users)
  * [DEVELOPERS](https://groups.google.com/forum/?fromgroups#!forum/geoserver-manager-devs)
 
 For more information see [this](https://github.com/geosolutions-it/geoserver-manager/wiki) page.
