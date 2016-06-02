@@ -833,6 +833,22 @@ public class GeoServerRESTReader {
         return RESTFeatureTypeList.build(load(url));
     }
 
+    public RESTFeatureTypeList getFeatureTypes(String workspace, String list) {
+        String url = "/rest/workspaces/" + workspace + "/featuretypes.xml?list=" + list;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving featuretypes from " + url);
+        }
+        return RESTFeatureTypeList.build(load(url));
+    }
+
+    public RESTCoverageList getCoverageNames(String workspace, String coveragestorename, String list) {
+        String url = "/rest/workspaces/" + workspace + "/coveragestores/" + coveragestorename + "/coverages.xml?list=" + list;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving coveragenames from " + url);
+        }
+        return RESTCoverageList.build(load(url));
+    }
+
     /**
      * Get detailed info about a given Layer.
      * 

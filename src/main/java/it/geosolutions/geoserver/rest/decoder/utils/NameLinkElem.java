@@ -32,14 +32,19 @@ import org.jdom.Element;
  * @author ETj (etj at geo-solutions.it)
  */
 public class NameLinkElem {
-        private final Element elem;
+    private final Element elem;
 
-        public NameLinkElem(Element elem) {
+    public NameLinkElem(Element elem) {
             this.elem = elem;
         }
 
-        public String getName() {
-            return elem.getChildText("name");
-        }
+    public String getName() {
+        return elem.getChildText("name");
+    }
+
+    public String getValue() {
+
+        return elem.getContent(0).getValue();
+    }
 
 }

@@ -91,6 +91,21 @@ public class GSLayerGroupEncoder23 extends GSLayerGroupEncoder {
             style.addContent(elem("name", styleName));         
         }
     }
+
+    public void addLayer(String layer, String styleName, String styleWorkspace) {
+        initPublishables("publishables");
+
+        publishablesElem.addContent(
+                new Element("published").setAttribute("type", "layer").addContent(
+                        elem("name", layer)));
+
+        Element style = new Element("style");
+        stylesElem.addContent(style);
+        if (styleName != null) {
+            style.addContent(elem("name", styleName));
+            style.addContent(elem("workspace", styleWorkspace));
+        }
+    }
     
     public void addLayerGroup(String group) {
         initPublishables("publishables");

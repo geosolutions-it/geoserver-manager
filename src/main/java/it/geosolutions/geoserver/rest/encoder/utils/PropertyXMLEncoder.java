@@ -134,6 +134,13 @@ public class PropertyXMLEncoder extends XmlElement {
 
 	}
 
+	protected Element createElementWithAttribute(String elementName, String elementValue, String attributeName, String attributeValue){
+		Element result = new Element(elementName);
+		result.setAttribute(attributeName, attributeValue);
+		result.setText(elementValue);
+		return result;
+	}
+
 	// public void set(final String key, final String value) {
 	// if (key != null && value != null) {
 	// set(getRoot(), key, value);

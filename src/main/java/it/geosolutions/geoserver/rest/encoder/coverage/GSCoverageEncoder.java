@@ -182,4 +182,26 @@ public class GSCoverageEncoder extends GSResourceEncoder {
             return null;
     }
 
+    public void addRequestSRS(String[] requestsrslist) {
+
+        Element requestsrs = new Element("requestSRS");
+
+        for (String request : requestsrslist) {
+            new Element("requestSRS").addContent(new Element("string").setText(request));
+        }
+
+        addContent(requestsrs);
+    }
+
+    public void addResponseSRS(String[] responsesrslist) {
+
+        Element responsesrs = new Element("responseSRS");
+
+        for (String response : responsesrslist) {
+            responsesrs.addContent(new Element("string").setText(response));
+        }
+
+        addContent(responsesrs);
+    }
+
 }
