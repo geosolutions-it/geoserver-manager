@@ -212,6 +212,26 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
 	}
 
 	/**
+	 *
+	 * @param styleName
+	 * @param workspaceName
+	 */
+	public void addStyle(String styleName, String workspaceName) {
+		final Element el = new Element("style");
+
+		Element name = new Element("name");
+		Element workspace = new Element("workspace");
+
+		name.setText(styleName);
+		workspace.setText(workspaceName);
+
+		el.addContent(name);
+		el.addContent(workspace);
+
+		stylesEncoder.addContent(el);
+	}
+
+	/**
 	 * delete a style from the list of available styles
 	 * 
 	 * @param style

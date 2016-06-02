@@ -39,6 +39,7 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
+import it.geosolutions.geoserver.rest.encoder.service.GSServiceSettingsEncoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager.ConfigureCoveragesOption;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStyleManager;
@@ -3144,5 +3145,131 @@ public class GeoServerRESTPublisher {
         }
     
     }
+
+    public boolean publishServiceLayer(final String workspace, final String servicetype, final GSServiceSettingsEncoder serviceEncoder) {
+
+        if (workspace == null) {
+            throw new IllegalArgumentException("Null argument");
+        }
+        // TODO: check this usecase, layer should always be defined
+        if (workspace.isEmpty()) {
+            throw new IllegalArgumentException("Empty argument");
+        }
+
+        // rest/services/w[mfc]s/workspaces/schelpdierwater/settings.xml
+        final String url = restURL + "/rest/services/" + servicetype + "/workspaces/" + workspace + "/settings.xml";
+
+        String settingsXml = serviceEncoder.toString();
+        LOGGER.debug("URL: " + url);
+        LOGGER.debug("BODY: " + settingsXml);
+
+        String sendResult = HTTPUtils.putXml(url, settingsXml, gsuser, gspass);
+        if (sendResult != null) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info( servicetype.toUpperCase() + "Service successfully configured: " + workspace);
+            }
+        } else {
+            if (LOGGER.isWarnEnabled())
+                LOGGER.warn("Error configuring " + servicetype.toUpperCase() + " Servic " + workspace + " (" + sendResult + ")");
+        }
+
+        return sendResult != null;
+    }
+
+    public boolean publishWmsServiceLayer(final String workspace, final GSServiceSettingsEncoder serviceEncoder) {
+
+        if (workspace == null) {
+            throw new IllegalArgumentException("Null argument");
+        }
+        // TODO: check this usecase, layer should always be defined
+        if (workspace.isEmpty()) {
+            throw new IllegalArgumentException("Empty argument");
+        }
+
+        // rest/services/wms/workspaces/schelpdierwater/settings.xml
+        final String url = restURL + "/rest/services/wms/workspaces/" + workspace + "/settings.xml";
+
+        String settingsXml = serviceEncoder.toString();
+        LOGGER.debug("URL: " + url);
+        LOGGER.debug("BODY: " + settingsXml);
+
+        String sendResult = HTTPUtils.putXml(url, settingsXml, gsuser, gspass);
+        if (sendResult != null) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("WMS Service successfully configured: " + workspace);
+            }
+        } else {
+            if (LOGGER.isWarnEnabled())
+                LOGGER.warn("Error configuring WMS Servic " + workspace + " (" + sendResult + ")");
+        }
+
+        return sendResult != null;
+    }
+
+    public boolean publishWfsServiceLayer(final String workspace, final GSServiceSettingsEncoder serviceEncoder) {
+
+        if (workspace == null) {
+            throw new IllegalArgumentException("Null argument");
+        }
+        // TODO: check this usecase, layer should always be defined
+        if (workspace.isEmpty()) {
+            throw new IllegalArgumentException("Empty argument");
+        }
+
+        // rest/services/wms/workspaces/schelpdierwater/settings.xml
+        final String url = restURL + "/rest/services/wfs/workspaces/" + workspace + "/settings.xml";
+
+        String settingsXml = serviceEncoder.toString();
+        LOGGER.debug("URL: " + url);
+        LOGGER.debug("BODY: " + settingsXml);
+
+        String sendResult = HTTPUtils.putXml(url, settingsXml, gsuser, gspass);
+        if (sendResult != null) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("WFS Service successfully configured: " + workspace);
+            }
+        } else {
+            if (LOGGER.isWarnEnabled())
+                LOGGER.warn("Error configuring WFS Service " + workspace + " (" + sendResult + ")");
+        }
+
+        return sendResult != null;
+    }
+    public boolean publishMosaicLayer(final String workspace, final String storename, final GSCoverageEncoder cove, final GSLayerEncoder layerEncoder) {
+        String ftypeXml = cove.toString();
+        StringBuilder postUrl = new StringBuilder(restURL).append("/rest/workspaces/").append(workspace).append("/coveragestores/").append(storename).append("/coverages.xml");
+
+        final String layername = cove.getNativeName();
+
+        LOGGER.info("URL: " + postUrl.toString());
+        LOGGER.info("BODY: " + ftypeXml);
+
+        String configuredResult = HTTPUtils.postXml(postUrl.toString(), ftypeXml, this.gsuser, this.gspass);
+        boolean published = configuredResult != null;
+        boolean configured = false;
+
+        if (!published) {
+            LOGGER.warn("Error in publishing (" + configuredResult + ") " + workspace + ":" + storename + "/" + layername);
+        } else {
+            LOGGER.info("Mosaic layer successfully added (layer:" + layername + ")");
+
+            if (layerEncoder == null) {
+                if (LOGGER.isErrorEnabled())
+                    LOGGER.error("GSLayerEncoder is null: Unable to find the defaultStyle for this layer");
+                return false;
+            }
+
+            configured = configureLayer(workspace, layername, layerEncoder);
+
+            if (!configured) {
+                LOGGER.warn("Error in configuring (" + configuredResult + ") " + workspace + ":" + storename + "/" + layername);
+            } else {
+                LOGGER.info("DB layer successfully configured (layer:" + layername + ")");
+            }
+        }
+
+        return published && configured;
+    }
+
 
 }
