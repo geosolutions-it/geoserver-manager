@@ -42,6 +42,7 @@ import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager.ConfigureCoveragesOption;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStyleManager;
+import it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,6 +58,8 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.sf.json.JSONObject;
 
 /**
  * Connect to a GeoServer instance to publish or modify its contents via REST API.
@@ -91,6 +94,9 @@ public class GeoServerRESTPublisher {
 
 
     private final GeoServerRESTStyleManager styleManager;
+
+    private final GeoServerRESTImporterManager importerManager;
+
     /**
      * Creates a <TT>GeoServerRESTPublisher</TT> to connect against a GeoServer instance with the given URL and user credentials.
      * 
@@ -110,6 +116,7 @@ public class GeoServerRESTPublisher {
             LOGGER.error("Bad URL: Calls to GeoServer are going to fail" , ex);
         }
         styleManager = new GeoServerRESTStyleManager(url, username, password);
+        importerManager = new GeoServerRESTImporterManager(url, username, password);
     }
 
     // ==========================================================================
@@ -3145,4 +3152,58 @@ public class GeoServerRESTPublisher {
     
     }
 
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#postNewImport() postNewImport} method
+     * 
+     * @throws Exception 
+     */
+    public int postNewImport() throws Exception {
+        return importerManager.postNewImport();
+    }
+
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#postNewTaskAsMultiPartForm(int, String) postNewTaskAsMultiPartForm} method
+     * 
+     * @throws Exception 
+     */
+    public int postNewTaskAsMultiPartForm(int i, String data) throws Exception {
+        return importerManager.postNewTaskAsMultiPartForm(i, data);
+    }
+
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#getTask(int, int) getTask} method
+     * 
+     * @throws Exception 
+     */
+    public JSONObject getTask(int i, int t) throws Exception {
+        return importerManager.getTask(i, t);
+    }
+
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#putTask(int, int, String) putTask} method
+     * 
+     * @throws Exception 
+     */
+    public void putTask(int i, int t, String json) throws Exception {
+        importerManager.putTask(i, t, json);
+    }
+
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#putTaskLayer(int, int, String) putTaskLayer} method
+     * 
+     * @throws Exception 
+     */
+    public void putTaskLayer(int i, int t, String json) throws Exception {
+        importerManager.putTaskLayer(i, t, json);
+    }
+    
+    /**
+     * Refers to {@link it.geosolutions.geoserver.rest.manager.GeoServerRESTImporterManager#postImport(int) postImport} method
+     * 
+     * @throws Exception 
+     */
+    public void postImport(int i) throws Exception {
+        importerManager.postImport(i);
+    }
+    
 }
