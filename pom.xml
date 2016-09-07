@@ -108,7 +108,6 @@
         <url>http://build.geo-solutions.it/jenkins/view/GeoServer-manager/</url>
     </ciManagement>
 
-
  <repositories>
   <repository>
    <id>boundless</id>
@@ -155,7 +154,6 @@
      </releases>
     </repository>
  </repositories>
-
 
     <distributionManagement>
         <downloadUrl>http://maven.geo-solutions.it</downloadUrl>
