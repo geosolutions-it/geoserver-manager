@@ -126,7 +126,7 @@ public class GSCoverageEncoderTest extends TestCase {
         // setting dimensions (since gs-2.4.x)
     	GSCoverageDimensionEncoder gsCoverageDimensionEncoder = new GSCoverageDimensionEncoder(
                 "GRAY_INDEX", "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf",
-                "dobson units³", "REAL_32BITS");
+                "dobson units", "REAL_32BITS");
         encoder.addCoverageDimensionInfo(gsCoverageDimensionEncoder);
 
         encoder.setNativeCoverageName("Sample native name");

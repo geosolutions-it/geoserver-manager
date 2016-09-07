@@ -33,14 +33,14 @@ public class GSCoverageDimensionEncoderTest {
     @Test
     public void coverageDimensionTest() {
         GSCoverageDimensionEncoder encoder = new GSCoverageDimensionEncoder("GRAY_INDEX",
-                "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf", "dobson units³",
+                "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf", "dobson units",
                 "REAL_32BITS");
 
         Assert.assertEquals("GRAY_INDEX", encoder.getName());
         Assert.assertEquals("GridSampleDimension[-Infinity,Infinity]", encoder.getDescription());
         Assert.assertEquals("-inf", encoder.getRangeMin());
         Assert.assertEquals("inf", encoder.getRangeMax());
-        Assert.assertEquals("dobson units³", encoder.getUnit());
+        Assert.assertEquals("dobson units", encoder.getUnit());
         Assert.assertEquals("REAL_32BITS", encoder.getDimensionTypeName());
 
         Assert.assertTrue(encoder.delName());
@@ -59,14 +59,14 @@ public class GSCoverageDimensionEncoderTest {
         encoder.setName("GRAY_INDEX");
         encoder.setDescription("GridSampleDimension[-Infinity,Infinity]");
         encoder.setRange("-inf", "inf");
-        encoder.setUnit("dobson units³");
+        encoder.setUnit("dobson units");
         encoder.setDimensionType("REAL_32BITS");
 
         Assert.assertEquals("GRAY_INDEX", encoder.getName());
         Assert.assertEquals("GridSampleDimension[-Infinity,Infinity]", encoder.getDescription());
         Assert.assertEquals("-inf", encoder.getRangeMin());
         Assert.assertEquals("inf", encoder.getRangeMax());
-        Assert.assertEquals("dobson units³", encoder.getUnit());
+        Assert.assertEquals("dobson units", encoder.getUnit());
         Assert.assertEquals("REAL_32BITS", encoder.getDimensionTypeName());
     }
     

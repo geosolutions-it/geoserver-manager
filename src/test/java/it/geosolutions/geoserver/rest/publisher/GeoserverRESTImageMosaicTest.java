@@ -116,7 +116,7 @@ public class GeoserverRESTImageMosaicTest extends GeoserverRESTTest {
         if (v.compareTo(GSVersionDecoder.VERSION.v24)>=0){
             GSCoverageDimensionEncoder gsCoverageDimensionEncoder = new GSCoverageDimensionEncoder(
                     "GRAY_INDEX", "GridSampleDimension[-Infinity,Infinity]", "-inf", "inf",
-                    "dobson units³", "REAL_32BITS");
+                    "dobson units", "REAL_32BITS");
             coverageEncoder.addCoverageDimensionInfo(gsCoverageDimensionEncoder);            
         }
 
