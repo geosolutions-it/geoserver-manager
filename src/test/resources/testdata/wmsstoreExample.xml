@@ -1,0 +1,22 @@
+<wmsStore>
+	<name>wmsstore001</name>
+	<type>WMS</type>
+	<enabled>true</enabled>
+	<workspace>
+		<name>ws001</name>
+		<atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://172.27.30.25:8080/geoserver/rest/workspaces/ws001.xml" type="application/xml"/>
+	</workspace>
+	<metadata>
+		<entry key="useConnectionPooling">true</entry>
+	</metadata>
+	<__default>false</__default>
+	<capabilitiesURL>http://myhost/geoserver/wms</capabilitiesURL>
+	<user>admin</user>
+	<password>geoserver</password>
+	<maxConnections>6</maxConnections>
+	<readTimeout>60</readTimeout>
+	<connectTimeout>30</connectTimeout>
+	<wmsLayers>
+		<atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://172.27.30.25:8080/geoserver/rest/workspaces/ws001/wmsstores/wmsstore001/wmslayers.xml" type="application/xml"/>
+	</wmsLayers>
+</wmsStore>

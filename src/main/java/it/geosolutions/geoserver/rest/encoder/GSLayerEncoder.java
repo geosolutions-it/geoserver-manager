@@ -74,9 +74,11 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
 	
 	public final static String STYLES = "styles";
 	public final static String AUTHORITY_URLS="authorityURLs";
-	public final static String IDENTIFIERS="identifiers"; 
+	public final static String IDENTIFIERS="identifiers";
+	public final static String DEFAULT_STYLE = "defaultStyle";
 	
 	final private Element stylesEncoder = new Element(STYLES);
+	final private Element defaultStyleEncoder = new Element(DEFAULT_STYLE);
 	final private Element authorityURLListEncoder = new Element(AUTHORITY_URLS);
 	final private Element identifierListEncoder = new Element(IDENTIFIERS);
 	
@@ -164,6 +166,20 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
     protected void addDefaultStyle(String defaultStyle) {
         add("defaultStyle", defaultStyle);
     }
+    
+    /**
+     * @see {@link GSLayerEncoder#setDefaultStyle(String)}
+     * @param defaultStyle 
+     */
+    protected void addDefaultStyle(String workspace, String defaultStyle) {
+        addContent(defaultStyleEncoder);
+        Element el = new Element("name");
+        el.setText(defaultStyle);
+        defaultStyleEncoder.addContent(el);
+        el = new Element("workspace");
+        el.setText(workspace);
+        defaultStyleEncoder.addContent(el);
+    }
 
     /**
      * @param defaultStyle The style that will be applied if no style is specified.
@@ -173,6 +189,15 @@ public class GSLayerEncoder extends PropertyXMLEncoder {
         if (defaultStyle==null || defaultStyle.isEmpty())
             throw new IllegalArgumentException("Unable to set an empty or null parameter");
         set("defaultStyle", defaultStyle);
+    }
+    
+    /**
+     * @see {@link GSLayerEncoder#setDefaultStyle(String)}
+     * @param defaultStyle 
+     */
+    public void setDefaultStyle(String workspace, String defaultStyle) {
+        remove("defaultStyle");
+        addDefaultStyle(workspace, defaultStyle);
     }
     
 	/**

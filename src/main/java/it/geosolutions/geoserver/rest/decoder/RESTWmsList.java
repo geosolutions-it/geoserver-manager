@@ -22,39 +22,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package it.geosolutions.geoserver.rest;
 
-import static org.junit.Assert.*;
+package it.geosolutions.geoserver.rest.decoder;
 
-import java.util.List;
+import it.geosolutions.geoserver.rest.decoder.utils.JDOMBuilder;
+import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
 
-import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jdom.Element;
 
 /**
- * Simple class for testing that the DeleteAllLayerGroups() method behaves correctly.
- * 
- * @author Nicola Lagomarsini 
+ * Parses list of summary data about Wms.
+ *
+ * <P>This is the XML REST representation:
+ * <PRE>{@code <wmsLayers>
+	<wmsLayer>
+		<name>comunilazio</name>
+		<atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://172.27.30.25:8080/geoserver/rest/workspaces/arit/wmsstores/regione/wmslayers/comunilazio.xml" type="application/xml"/>
+	</wmsLayer>
+</wmsLayers>
+ *
+}</PRE>
+ *
+ * @author cip 
  */
-public class GeoServerRESTClassTest extends GeoserverRESTTest {
+public class RESTWmsList extends RESTAbstractList<NameLinkElem> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTTest.class);;
+    public static RESTWmsList build(String response) {
+        Element elem = JDOMBuilder.buildElement(response);
+        return elem == null? null : new RESTWmsList(elem);
+	}
 
-    @Test
-    public void testGetLayerGroups() {
-        if(!enabled()){
-            return;
-        }
-        List<String> groups = reader.getLayerGroups().getNames();
-        LOGGER.info("Found " + groups.size() + " layerGroups");
-        for (String groupName : groups) {
-            RESTLayerGroup group = reader.getLayerGroup(groupName);
-            if (groups != null) {
-                assertNotNull(group.getPublishedList());
-            }
-        }
+    protected RESTWmsList(Element list) {
+        super(list);
     }
+    
 }

@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2007-2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,7 +26,6 @@
 package it.geosolutions.geoserver.rest.encoder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,6 +36,7 @@ import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder
 import it.geosolutions.geoserver.rest.encoder.identifier.IdentifierInfo;
 import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
+import java.util.LinkedHashMap;
 
 /**
  * Layer encoder for Geoserver = 2.1
@@ -102,7 +102,7 @@ public class GSLayerEncoder21 extends GSLayerEncoder {
 	 */
 	public void addAuthorityURL(GSAuthorityURLInfoEncoder authorityURLInfo){	
 		if(authorityURLList == null){
-			authorityURLList = new HashMap<String,String>();
+			authorityURLList = new LinkedHashMap<String,String>();
 		}
 		authorityURLList.put(authorityURLInfo.getHref(), authorityURLInfo.getName());
 		String jsonStr = "";
@@ -152,7 +152,7 @@ public class GSLayerEncoder21 extends GSLayerEncoder {
 	 */
 	public void addIdentifier(GSIdentifierInfoEncoder identifierInfo){
 		if(identifierList == null){
-			identifierList = new HashMap<String,List<String>>();
+			identifierList = new LinkedHashMap<String,List<String>>();
 		}
 		
 		String authority = identifierInfo.getAuthority();

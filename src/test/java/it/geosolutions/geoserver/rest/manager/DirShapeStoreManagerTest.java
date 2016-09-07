@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2012 GeoSolutions S.A.S.
+ *  Copyright (C) 2007 - 2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,6 +37,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  * Test datastore handling (create, read and update):
@@ -63,10 +64,12 @@ import static org.junit.Assert.*;
  * <li>Read again.
  * <li>Test all new values.
  * </ol>
- * 
+ *
+ * @deprecated ignored since dir of shapes cannot be uploaded
  * @author Oscar Fonts
  */
-public class GeoserverRESTDatastoreManagerTest extends StoreIntegrationTest {
+@Ignore
+public class DirShapeStoreManagerTest extends StoreIntegrationTest {
 
     private static final String WS_NAME = DEFAULT_WS;
 
@@ -78,7 +81,7 @@ public class GeoserverRESTDatastoreManagerTest extends StoreIntegrationTest {
 
     private static URL LOCATION_2;
 
-    public GeoserverRESTDatastoreManagerTest() throws Exception {
+    public DirShapeStoreManagerTest() throws Exception {
         super(false);
         LOCATION_1 = new URL("file:data/shapefiles/");
         LOCATION_2 = new URL("file:data/2");
@@ -104,7 +107,7 @@ public class GeoserverRESTDatastoreManagerTest extends StoreIntegrationTest {
         // Create a directory of spatial files with default parameters
         GSDirectoryOfShapefilesDatastoreEncoder create = new GSDirectoryOfShapefilesDatastoreEncoder(
                 DS_NAME, LOCATION_1);
-        assertTrue(manager.getStoreManager().create(WS_NAME, create));
+        assertTrue("Could not create create store", manager.getStoreManager().create(WS_NAME, create));
 
         // Read the store from server; check all parameter values
         RESTDataStore read = reader.getDatastore(WS_NAME, DS_NAME);
@@ -131,14 +134,14 @@ public class GeoserverRESTDatastoreManagerTest extends StoreIntegrationTest {
         update.setCacheAndReuseMemoryMaps(false);
 
         // update the store
-        assertTrue(manager.getStoreManager().update(WS_NAME, update));
+        assertTrue("Could not update store " + WS_NAME, manager.getStoreManager().update(WS_NAME, update));
 
         // Read again, check that all parameters have changed
         read = reader.getDatastore(WS_NAME, DS_NAME);
-        assertEquals(read.getWorkspaceName(), WS_NAME);
-        assertEquals(read.isEnabled(), false);
+        assertEquals("Bad workspace name", read.getWorkspaceName(), WS_NAME);
+        assertEquals("Datastore should not be enabled", read.isEnabled(), false);
         connParams = read.getConnectionParameters();
-        assertEquals(connParams.get("url"), LOCATION_2.toString());
+        assertEquals("Bad URL", connParams.get("url"), LOCATION_2.toString());
         assertEquals(connParams.get("charset"), "UTF-8");
         assertEquals(connParams.get("create spatial index"), "false");
         assertEquals(connParams.get("memory mapped buffer"), "true");

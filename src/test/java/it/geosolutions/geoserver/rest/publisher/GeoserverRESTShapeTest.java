@@ -240,6 +240,52 @@ public class GeoserverRESTShapeTest extends GeoserverRESTTest {
         assertTrue("Unpublish() failed", oksld);
         assertFalse(reader.existsStyle(styleName));
     }
+    
+    @Test
+    public void testPublishDeleteStyledInWorkspaceShapeZip() throws FileNotFoundException, IOException {
+        if (!enabled()) {
+            return;
+        }
+        deleteAllWorkspacesRecursively();
+//        Assume.assumeTrue(enabled);
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+        String ns = "geosolutions";
+        String storeName = "resttestshp";
+        String layerName = "cities";
+        final String styleName = "restteststyle";
+
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile();
+        publisher.removeDatastore(DEFAULT_WS, storeName,true);
+        publisher.removeStyleInWorkspace(DEFAULT_WS, styleName);
+        
+        File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
+
+        // insert style
+        boolean sldpublished = publisher.publishStyleInWorkspace(DEFAULT_WS, sldFile); // Will take the name from sld contents
+        assertTrue("style publish() failed", sldpublished);
+        assertTrue(reader.existsStyle(DEFAULT_WS, styleName));
+
+        // test insert
+        boolean published = publisher.publishShp(ns, storeName, layerName, zipFile, "EPSG:4326", DEFAULT_WS + ":" + styleName);
+        assertTrue("publish() failed", published);
+        assertTrue(existsLayer(layerName));
+
+        RESTLayer layer = reader.getLayer(layerName);
+//        RESTLayer layerDecoder = new RESTLayer(layer);
+        LOGGER.info("Layer style is " + layer.getDefaultStyle());
+        assertEquals("Style not assigned properly", DEFAULT_WS + ":" + styleName, layer.getDefaultStyle());
+        assertEquals("Style not assigned properly", DEFAULT_WS, layer.getDefaultStyleWorkspace());
+
+        // remove also datastore
+        boolean dsRemoved = publisher.removeDatastore(ns, storeName,true);
+        assertTrue("removeDatastore() failed", dsRemoved);
+
+        //test delete style
+        boolean oksld = publisher.removeStyleInWorkspace(DEFAULT_WS, styleName);
+        assertTrue("Unpublish() failed", oksld);
+        assertFalse(reader.existsStyle(styleName));
+    }
 
     @Test
     public void testPublishDeleteShapeZipWithParams() throws FileNotFoundException, IOException {

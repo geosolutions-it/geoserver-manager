@@ -1,7 +1,7 @@
 /*
  *  GeoServer-Manager - Simple Manager Library for GeoServer
  *  
- *  Copyright (C) 2007,2011 GeoSolutions S.A.S.
+ *  Copyright (C) 2016 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,45 +25,43 @@
 
 package it.geosolutions.geoserver.rest.publisher;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.StoreType;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
 import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
+import static org.junit.Assert.*;
 
 /**
  * Testcase for publishing layers on geoserver.
  * We need a running GeoServer to properly run the tests. 
  * If such geoserver instance cannot be contacted, tests will be skipped.
  *
- * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
+ * @author Lennart Karsten - lennart.k@thinking-aloud.eu
+ * inspired by: Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
  */
-public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
+public class GeoserverRESTArcGridTest extends GeoserverRESTTest {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTGeoTiffTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTArcGridTest.class);
 
-    String storeName = "testRESTStoreGeotiff";
-    String layerName = "resttestdem";
+    private String storeName = "testRESTStoreArcGrid";
+    private String layerName = "resttestdem";
     
     @Test
-    public void testExternalGeotiff() throws FileNotFoundException, IOException {
+    public void testExternalArcGrid() throws FileNotFoundException, IOException {
         if (!enabled()) return;
         deleteAll();
 
-        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
+        File arcgrid = new ClassPathResource("testdata/resttestdem.asc").getFile();
 
         assertTrue(reader.getWorkspaces().isEmpty());
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
@@ -76,7 +74,7 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         assertFalse(reader.existsLayer(DEFAULT_WS, layerName));
 
         // test insert
-        boolean pc = publisher.publishExternalGeoTIFF(DEFAULT_WS, storeName, geotiff, layerName,"EPSG:4326",ProjectionPolicy.FORCE_DECLARED,"raster");
+        boolean pc = publisher.publishExternalArcGrid(DEFAULT_WS, storeName, arcgrid, layerName,"EPSG:4326",ProjectionPolicy.FORCE_DECLARED,"raster");
         assertTrue("publish() failed", pc);
         assertTrue(existsLayer(layerName));
         assertFalse(reader.existsLayer(DEFAULT_WS, layerName));
@@ -94,11 +92,11 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
     }
    
     @Test
-    public void testGeotiff() throws FileNotFoundException, IOException {
+    public void testArcGrid() throws FileNotFoundException, IOException {
         if (!enabled()) return;
         deleteAll();
 
-        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
+        File arcgrid = new ClassPathResource("testdata/resttestdem.asc").getFile();
         
         assertTrue(reader.getWorkspaces().isEmpty());
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
@@ -107,19 +105,19 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         assertFalse("Cleanup failed", existsLayer(layerName));
 
         // test insert
-        boolean pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName, geotiff);
+        boolean pub = publisher.publishArcGrid(DEFAULT_WS, storeName, arcgrid);
         
         assertNotNull("publish() failed", pub);
         // Test exists
         assertTrue(reader.existsCoveragestore(DEFAULT_WS, storeName));
         assertTrue(reader.existsCoverage(DEFAULT_WS, storeName, storeName));
 
-        pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another", "layername", geotiff);
+        pub = publisher.publishArcGrid(DEFAULT_WS, storeName+"another", "layername", arcgrid);
         
         assertTrue("publish() failed", pub);
         
         double[] bbox = {-103.85, 44.38, -103.62, 44.50};
-        pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another_complex", storeName+"another_complex", geotiff, "EPSG:4326", ProjectionPolicy.REPROJECT_TO_DECLARED, "raster", bbox);
+        pub = publisher.publishArcGrid(DEFAULT_WS, storeName+"another_complex", storeName+"another_complex", arcgrid, "EPSG:4326", ProjectionPolicy.REPROJECT_TO_DECLARED, "raster", bbox);
         
         assertTrue("publish() failed", pub);
 
@@ -130,12 +128,11 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
     }
     
     @Test
-    public void testGeoTiffWithStyleInWorkspace() throws IOException
-    {
+    public void testArcGridWithStyleInWorkspace() throws IOException {
         if (!enabled()) return;
         deleteAll();
 
-        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
+        File arcgrid = new ClassPathResource("testdata/resttestdem.asc").getFile();
         
         assertTrue(reader.getWorkspaces().isEmpty());
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
@@ -151,16 +148,16 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         assertFalse("Cleanup failed", existsLayer(layerName));
 
         // test insert
-        boolean pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName, storeName,
-                geotiff, "EPSG:4326", ProjectionPolicy.FORCE_DECLARED, DEFAULT_WS + ":" + "mystyle", null);
+        boolean pub = publisher.publishArcGrid(DEFAULT_WS, storeName, storeName,
+                arcgrid, "EPSG:4326", ProjectionPolicy.FORCE_DECLARED, DEFAULT_WS + ":" + "mystyle", null);
         
         assertNotNull("publish() failed", pub);
         // Test exists
-        assertTrue("New coverage not found", reader.existsCoveragestore(DEFAULT_WS, storeName));
-        assertTrue("New Store not found", reader.existsCoverage(DEFAULT_WS, storeName, storeName));
+        assertTrue(reader.existsCoveragestore(DEFAULT_WS, storeName));
+        assertTrue(reader.existsCoverage(DEFAULT_WS, storeName, storeName));
         RESTLayer layer = reader.getLayer(DEFAULT_WS, storeName);
-        assertEquals("Bad default style", DEFAULT_WS + ":mystyle", layer.getDefaultStyle());
-        assertEquals("Bad workspace for style", DEFAULT_WS, layer.getDefaultStyleWorkspace());
+        assertEquals(DEFAULT_WS + ":mystyle", layer.getDefaultStyle());
+        assertEquals(DEFAULT_WS, layer.getDefaultStyleWorkspace());
     }
 
     @Test
@@ -168,12 +165,12 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         if (!enabled()) return;
         deleteAll();
 
-        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
+        File arcgrid = new ClassPathResource("testdata/resttestdem.asc").getFile();
         
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
         
         // test insert
-        boolean pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName, geotiff);
+        boolean pub = publisher.publishArcGrid(DEFAULT_WS, storeName, arcgrid);
         
         assertNotNull("publish() failed", pub);
 
