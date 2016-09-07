@@ -53,7 +53,7 @@ import org.jdom.filter.Filter;
  * 		<min>-2.147483648E9</min>
  * 		<max>2.147483647E9</max>
  * 	</range>
- * 	<unit>dobson units³</unit>
+ * 	<unit>dobson units</unit>
  * 	<dimensionType>
  *  		<name>REAL_32BITS</name>
  *  	</dimensionType>
