@@ -3253,7 +3253,7 @@ public class GeoServerRESTPublisher {
     
     /**
      * 
-     * Recalculate the bounding box for a feature or a type
+     * Recalculate the bounding box for a feature type or a coverage
      * 
      * @param type
      * @param workspace
@@ -3270,11 +3270,35 @@ public class GeoServerRESTPublisher {
                 layerName + "." + Format.XML.toString() + "?recalculate=" +
                 calculationMode.getParamValue();
                 
-        LOGGER.debug("Constructed the following url for bounding box recalculation: ");
+        LOGGER.debug("Constructed the following url for bounding box recalculation: " + sUrl);
         
         String sendResult = HTTPUtils.put(sUrl, "", "text/plain", gsuser,
                 gspass);
-        
-        return sendResult != null;
+        boolean success = sendResult != null;
+        return success;
+    }
+    
+    /**
+     * Recalculate a bounding box for a feature type
+     * @param workspace
+     * @param storeName
+     * @param layerName
+     * @param calculationMode
+     * @return 
+     */
+    public boolean recalculateFeatureTypeBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode){
+        return recalculateBBox(StoreType.DATASTORES, workspace, storeName, layerName, calculationMode);
+    }
+    
+    /**
+     * Recalculate a bounding box for a coverage
+     * @param workspace
+     * @param storeName
+     * @param layerName
+     * @param calculationMode
+     * @return 
+     */
+    public boolean recalculateCoverageBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode){
+        return recalculateBBox(StoreType.COVERAGESTORES, workspace, storeName, layerName, calculationMode);
     }
 }
