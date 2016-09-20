@@ -3293,6 +3293,7 @@ public class GeoServerRESTPublisher {
      * @param storeName
      * @param layerName
      * @param calculationMode
+     * @param enabled
      * @return true if successful, false otherwise
      */
     public boolean recalculateFeatureTypeBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
@@ -3305,6 +3306,7 @@ public class GeoServerRESTPublisher {
      * @param storeName
      * @param layerName
      * @param calculationMode
+     * @param enabled
      * @return true if successful, false otherwise
      */
     public boolean recalculateCoverageBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
