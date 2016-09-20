@@ -26,18 +26,12 @@
 package it.geosolutions.geoserver.rest.publisher;
 
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.StoreType;
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher.UploadMethod;
 import it.geosolutions.geoserver.rest.GeoserverRESTTest;
-import it.geosolutions.geoserver.rest.decoder.RESTLayer;
-import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
-import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoderTest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.apache.commons.httpclient.NameValuePair;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -61,12 +55,19 @@ public class GeoserverRESTRecalculateTest extends GeoserverRESTTest {
     @Override
     public void before(){
         super.before();
+        
+        if (!enabled()) 
+            return;
+        
         deleteAll();
         assertTrue(publisher.createWorkspace(DEFAULT_WS));
     }
     
     @After
     public void cleanUp(){
+        if (!enabled()) 
+            return;
+        
         deleteAll();
     }
     
