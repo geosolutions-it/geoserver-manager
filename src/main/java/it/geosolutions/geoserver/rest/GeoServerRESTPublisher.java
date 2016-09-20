@@ -3261,6 +3261,7 @@ public class GeoServerRESTPublisher {
      * @param storeName
      * @param layerName
      * @param calculationMode
+     * @param enabled
      * @return true if recalculation succeeded, false otherwise.
      */
     private boolean recalculateBBox(StoreType type, String xmlElementName, String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
@@ -3269,22 +3270,18 @@ public class GeoServerRESTPublisher {
                 type.getType().toLowerCase() +"s/" + storeName + "/" +
                 type.getTypeName().toLowerCase() + "/" +
                 layerName + "." + Format.XML.toString();
-                
-        
-//        LOGGER.debug("Retrieving current state of item from "+ baseUrl);
-//        String getResult = HTTPUtils.get(baseUrl, gsuser, gspass);
-        
-//        LOGGER.debug("Current state of item is:\n" + getResult);
 
         String sUrl = baseUrl + "?recalculate=" + calculationMode.getParamValue();
         LOGGER.debug("Constructed the following url for bounding box recalculation: " + sUrl);
-
-//        String body = getResult
-//        GSWorkspaceEncoder wsenc = new GSWorkspaceEncoder(workspace);
         
-//        String body = wsenc.toString();
+        /* 
+         * If the 'enabled' element is not specified in the request body, it will be set to 'false' by GeoServer.
+         * To avoid unintentional disabling of layers, this method and its callers
+         * require that users specify whether the layer should be enabled.
+         */
         String body = "<" + xmlElementName +"><name>" + layerName + "</name>" + 
                 "<enabled>" + enabled + "</enabled></" + xmlElementName + ">";
+        
         String sendResult = HTTPUtils.putXml(sUrl, body, gsuser, gspass);
         boolean success = sendResult != null;
         return success;
