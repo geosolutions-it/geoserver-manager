@@ -3213,13 +3213,6 @@ public class GeoServerRESTPublisher {
      */
     public enum BBoxRecalculationMode {
         /**
-         * Do not calculate any fields, regardless of the projection, projection
-         * policy, etc. This might be useful to avoid slow recalculation when 
-         * operating against large datasets.
-         */
-        NONE(""),
-        
-        /**
          * Recalculate the native bounding box, but do not recalculate the 
          * lat/long bounding box.
          */
@@ -3229,7 +3222,14 @@ public class GeoServerRESTPublisher {
          * Recalculate both the native bounding box and the lat/long bounding 
          * box.
          */
-        NATIVE_AND_LAT_LON_BBOX("nativebbox,latlonbbox")
+        NATIVE_AND_LAT_LON_BBOX("nativebbox,latlonbbox"),
+        
+        /**
+         * Do not calculate any fields, regardless of the projection, projection
+         * policy, etc. This might be useful to avoid slow recalculation when 
+         * operating against large datasets.
+         */
+        NONE(""),
         ;
         
         private final String paramValue;
@@ -3256,24 +3256,36 @@ public class GeoServerRESTPublisher {
      * Recalculate the bounding box for a feature type or a coverage
      * 
      * @param type
+     * @param xmlElementName - either featureType or coverage
      * @param workspace
      * @param storeName
      * @param layerName
      * @param calculationMode
      * @return true if recalculation succeeded, false otherwise.
      */
-    private boolean recalculateBBox(StoreType type, String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode){
+    private boolean recalculateBBox(StoreType type, String xmlElementName, String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
         
-        String sUrl = restURL + "/rest/workspaces/" + workspace + "/" +
-                type.getType() +"s/" + storeName + "/" +
-                type.getTypeName() + "/" +
-                layerName + "." + Format.XML.toString() + "?recalculate=" +
-                calculationMode.getParamValue();
+        String baseUrl = restURL + "/rest/workspaces/" + workspace + "/" +
+                type.getType().toLowerCase() +"s/" + storeName + "/" +
+                type.getTypeName().toLowerCase() + "/" +
+                layerName + "." + Format.XML.toString();
                 
-        LOGGER.debug("Constructed the following url for bounding box recalculation: " + sUrl);
         
-        String sendResult = HTTPUtils.put(sUrl, "", "text/plain", gsuser,
-                gspass);
+//        LOGGER.debug("Retrieving current state of item from "+ baseUrl);
+//        String getResult = HTTPUtils.get(baseUrl, gsuser, gspass);
+        
+//        LOGGER.debug("Current state of item is:\n" + getResult);
+
+        String sUrl = baseUrl + "?recalculate=" + calculationMode.getParamValue();
+        LOGGER.debug("Constructed the following url for bounding box recalculation: " + sUrl);
+
+//        String body = getResult
+//        GSWorkspaceEncoder wsenc = new GSWorkspaceEncoder(workspace);
+        
+//        String body = wsenc.toString();
+        String body = "<" + xmlElementName +"><name>" + layerName + "</name>" + 
+                "<enabled>" + enabled + "</enabled></" + xmlElementName + ">";
+        String sendResult = HTTPUtils.putXml(sUrl, body, gsuser, gspass);
         boolean success = sendResult != null;
         return success;
     }
@@ -3284,10 +3296,10 @@ public class GeoServerRESTPublisher {
      * @param storeName
      * @param layerName
      * @param calculationMode
-     * @return 
+     * @return true if successful, false otherwise
      */
-    public boolean recalculateFeatureTypeBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode){
-        return recalculateBBox(StoreType.DATASTORES, workspace, storeName, layerName, calculationMode);
+    public boolean recalculateFeatureTypeBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
+        return recalculateBBox(StoreType.DATASTORES, "featureType", workspace, storeName, layerName, calculationMode, enabled);
     }
     
     /**
@@ -3296,9 +3308,9 @@ public class GeoServerRESTPublisher {
      * @param storeName
      * @param layerName
      * @param calculationMode
-     * @return 
+     * @return true if successful, false otherwise
      */
-    public boolean recalculateCoverageBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode){
-        return recalculateBBox(StoreType.COVERAGESTORES, workspace, storeName, layerName, calculationMode);
+    public boolean recalculateCoverageBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
+        return recalculateBBox(StoreType.COVERAGESTORES, "coverage", workspace, storeName, layerName, calculationMode, enabled);
     }
 }
