@@ -44,7 +44,7 @@ public class GSCoverageEncoder extends GSResourceEncoder {
     public final static String NATIVECOVERAGENAME = "nativeCoverageName";
 
     private final static String NATIVE_FORMAT="nativeFormat";
-    public final static String SUPPORTED_FORMATS="supportedFormats";
+    private final static String SUPPORTED_FORMATS="supportedFormats";
         
     private final static String REQUEST_SRS="requestSRS";
     private final static String RESPONSE_SRS="responseSRS";
