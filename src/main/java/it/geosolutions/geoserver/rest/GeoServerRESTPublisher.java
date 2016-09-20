@@ -3264,7 +3264,7 @@ public class GeoServerRESTPublisher {
      * @param enabled
      * @return true if recalculation succeeded, false otherwise.
      */
-    private boolean recalculateBBox(StoreType type, String xmlElementName, String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
+    private boolean recalculateBBox(StoreType type, GSResourceEncoder renc, String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode){
         
         String baseUrl = restURL + "/rest/workspaces/" + workspace + "/" +
                 type.getType().toLowerCase() +"s/" + storeName + "/" +
@@ -3274,14 +3274,14 @@ public class GeoServerRESTPublisher {
         String sUrl = baseUrl + "?recalculate=" + calculationMode.getParamValue();
         LOGGER.debug("Constructed the following url for bounding box recalculation: " + sUrl);
         
-        /* 
-         * If the 'enabled' element is not specified in the request body, it will be set to 'false' by GeoServer.
-         * To avoid unintentional disabling of layers, this method and its callers
-         * require that users specify whether the layer should be enabled.
-         */
-        String body = "<" + xmlElementName +"><name>" + layerName + "</name>" + 
-                "<enabled>" + enabled + "</enabled></" + xmlElementName + ">";
-        
+
+//        String body = wsenc.toString();
+//        String body = "<" + xmlElementName +"><name>" + layerName + "</name>" + 
+//                "<enabled>" + enabled + "</enabled></" + xmlElementName + ">";
+        renc.remove(GSResourceEncoder.KEYWORDS);
+        renc.remove(GSResourceEncoder.METADATA);
+        renc.remove(GSResourceEncoder.METADATALINKS);
+        String body = renc.toString();
         String sendResult = HTTPUtils.putXml(sUrl, body, gsuser, gspass);
         boolean success = sendResult != null;
         return success;
@@ -3297,7 +3297,11 @@ public class GeoServerRESTPublisher {
      * @return true if successful, false otherwise
      */
     public boolean recalculateFeatureTypeBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
-        return recalculateBBox(StoreType.DATASTORES, "featureType", workspace, storeName, layerName, calculationMode, enabled);
+        GSFeatureTypeEncoder fenc = new GSFeatureTypeEncoder();
+        fenc.remove(GSFeatureTypeEncoder.ATTRIBUTES);
+        fenc.setName(layerName);
+        fenc.setEnabled(enabled);
+        return recalculateBBox(StoreType.DATASTORES, fenc, workspace, storeName, layerName, calculationMode);
     }
     
     /**
@@ -3310,6 +3314,10 @@ public class GeoServerRESTPublisher {
      * @return true if successful, false otherwise
      */
     public boolean recalculateCoverageBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
-        return recalculateBBox(StoreType.COVERAGESTORES, "coverage", workspace, storeName, layerName, calculationMode, enabled);
+        GSCoverageEncoder cenc = new GSCoverageEncoder();
+        cenc.remove(GSCoverageEncoder.SUPPORTED_FORMATS);
+        cenc.setName(layerName);
+        cenc.setEnabled(enabled);
+        return recalculateBBox(StoreType.COVERAGESTORES, cenc, workspace, storeName, layerName, calculationMode);
     }
 }
