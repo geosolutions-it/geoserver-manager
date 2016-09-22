@@ -3292,7 +3292,6 @@ public class GeoServerRESTPublisher {
      */
     public boolean recalculateFeatureTypeBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
         GSFeatureTypeEncoder fenc = new GSFeatureTypeEncoder();
-        fenc.remove(GSFeatureTypeEncoder.ATTRIBUTES);
         fenc.setName(layerName);
         fenc.setEnabled(enabled);
         return recalculateBBox(StoreType.DATASTORES, fenc, workspace, storeName, layerName, calculationMode);
@@ -3309,7 +3308,6 @@ public class GeoServerRESTPublisher {
      */
     public boolean recalculateCoverageBBox(String workspace, String storeName, String layerName, BBoxRecalculationMode calculationMode, boolean enabled){
         GSCoverageEncoder cenc = new GSCoverageEncoder();
-        cenc.remove(GSCoverageEncoder.SUPPORTED_FORMATS);
         cenc.setName(layerName);
         cenc.setEnabled(enabled);
         return recalculateBBox(StoreType.COVERAGESTORES, cenc, workspace, storeName, layerName, calculationMode);

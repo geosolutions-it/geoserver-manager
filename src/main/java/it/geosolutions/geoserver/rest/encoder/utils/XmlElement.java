@@ -31,8 +31,6 @@ import java.util.List;
 import org.jdom.Content;
 import org.jdom.Element;
 import org.jdom.Text;
-import org.jdom.filter.ContentFilter;
-import org.jdom.filter.ElementFilter;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
@@ -126,6 +124,10 @@ public class XmlElement{
 			return false;
 	}
 	
+
+    /**
+     * Recursively removes all child nodes that have no contents.
+     */
     public void recursivelyRemoveEmptyChildren(){
         //must make a copy to avoid ConcurrentModificationException
         List<Content> children = new ArrayList<Content>(this.root.getContent());

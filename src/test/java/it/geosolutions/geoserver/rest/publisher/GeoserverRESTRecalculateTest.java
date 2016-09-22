@@ -41,11 +41,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 /**
- * Testcase for publishing layers on geoserver.
- * We need a running GeoServer to properly run the tests. 
- * If such geoserver instance cannot be contacted, tests will be skipped.
+ * Test case for recalculating the bounding box for features and coverages on 
+ * GeoServer. We need a running GeoServer to properly run the tests. 
+ * If such GeoServer instance cannot be contacted, tests will be skipped.
  *
-  * @author Carl Schroedl - cschroedl@usgs.gov
+ * @author Carl Schroedl - cschroedl@usgs.gov
  */
 public class GeoserverRESTRecalculateTest extends GeoserverRESTTest {
 
