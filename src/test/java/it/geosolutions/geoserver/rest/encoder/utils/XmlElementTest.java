@@ -2,40 +2,15 @@ package it.geosolutions.geoserver.rest.encoder.utils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class XmlElementTest {
-
-    public XmlElementTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     private XmlElement makeElement(String docString){
         Document doc;
