@@ -3273,14 +3273,8 @@ public class GeoServerRESTPublisher {
 
         String sUrl = baseUrl + "?recalculate=" + calculationMode.getParamValue();
         LOGGER.debug("Constructed the following url for bounding box recalculation: " + sUrl);
-        
 
-//        String body = wsenc.toString();
-//        String body = "<" + xmlElementName +"><name>" + layerName + "</name>" + 
-//                "<enabled>" + enabled + "</enabled></" + xmlElementName + ">";
-        renc.remove(GSResourceEncoder.KEYWORDS);
-        renc.remove(GSResourceEncoder.METADATA);
-        renc.remove(GSResourceEncoder.METADATALINKS);
+        renc.recursivelyRemoveEmptyChildren();
         String body = renc.toString();
         String sendResult = HTTPUtils.putXml(sUrl, body, gsuser, gspass);
         boolean success = sendResult != null;

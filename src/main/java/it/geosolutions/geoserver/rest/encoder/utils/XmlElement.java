@@ -26,9 +26,13 @@
 package it.geosolutions.geoserver.rest.encoder.utils;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import org.jdom.Content;
 import org.jdom.Element;
 import org.jdom.Text;
+import org.jdom.filter.ContentFilter;
+import org.jdom.filter.ElementFilter;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
@@ -122,6 +126,35 @@ public class XmlElement{
 			return false;
 	}
 	
+    public void recursivelyRemoveEmptyChildren(){
+        //must make a copy to avoid ConcurrentModificationException
+        List<Content> children = new ArrayList<Content>(this.root.getContent());
+  
+        for(Content child : children){
+            if(child instanceof Element){
+                recursivelyRemoveEmptyChildren(this.root, (Element)child);
+            }
+        }
+    }
+    private void recursivelyRemoveEmptyChildren(Element grandparent, Element parent){
+        //must make a copy to avoid ConcurrentModificationException
+        List<Content> childrenPreRemoval;
+        childrenPreRemoval = new ArrayList<Content>(parent.getContent());
+        
+        //base case: the parent has no children
+        for(Content child : childrenPreRemoval){
+            //recursive case: the parent has children
+            if(child instanceof Element){
+                recursivelyRemoveEmptyChildren(parent, (Element)child);
+            }
+        }
+        
+        //if the parent node contains no children, remove it from the parent
+        List<Content> childrenPostRemoval = parent.getContent();
+        if(childrenPostRemoval.isEmpty()){
+            grandparent.removeContent(parent);
+        }
+    }
 	/**
      * @return an xml String 
      */
