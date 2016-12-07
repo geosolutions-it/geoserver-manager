@@ -61,15 +61,28 @@ public class GSLayerGroupEncoder extends PropertyXMLEncoder {
     }
     
     public void addLayer(String layer, String styleName) {
-        initPublishables("layers");
+        initPublishables("publishables");
+        Element e = elem("published", elem("name", layer));
+        e.setAttribute("type", "layer");
         
-        publishablesElem.addContent(elem("layer", elem("name", layer)));
+        publishablesElem.addContent(e);
         
         Element style = new Element("style");
         stylesElem.addContent(style);
         if (styleName != null) {
             style.addContent(elem("name", styleName));         
         }
+    }
+    
+    public void addLayerGroup(String layer) {
+        initPublishables("publishables");
+        Element e = elem("published", elem("name", layer));
+        e.setAttribute("type", "layerGroup"); 
+        
+        publishablesElem.addContent(e);
+        
+        Element style = new Element("style");
+        stylesElem.addContent(style);
     }
     
     public void setBounds(String crs, double minx, double maxx, double miny, double maxy) {
