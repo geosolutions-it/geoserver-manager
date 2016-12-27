@@ -39,6 +39,7 @@ import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy
 import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
+import it.geosolutions.geoserver.rest.encoder.wmsstore.GSWMSTypeEncoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager.ConfigureCoveragesOption;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStyleManager;
@@ -562,8 +563,13 @@ public class GeoServerRESTPublisher {
          * Vector based data sources. Can be a file in the case of a Shapefile, a database connection in the case of PostGIS, or a server in the case
          * of a remote Web Feature Service.
          */
-        DATASTORES;
+        DATASTORES,
 
+        /**
+         * WMS-Service Based Data Source.
+         * Can be used to publish WMS data from other Servers.
+         */
+        WMSSTORES;
         /**
          * @deprecated use {@link StoreType#getTypeNameWithFormat(StoreType, Format)}
          * @param type
@@ -600,7 +606,13 @@ public class GeoServerRESTPublisher {
          * Vector based data sources. Can be a file in the case of a Shapefile, a database connection in the case of PostGIS, or a server in the case
          * of a remote Web Feature Service.
          */
-        DATASTORES;
+        DATASTORES,
+
+        /**
+         * WMS-Service Based Data Source.
+         * Can be used to publish WMS data from other Servers.
+         */
+        WMSSTORES;
 
         /**
          * Get the type name of a StoreType with the specified format.
@@ -632,12 +644,14 @@ public class GeoServerRESTPublisher {
          */
         public static String getTypeName(StoreType type) {
             switch (type) {
-            case COVERAGESTORES:
-                return "coverages"; // Format
-            case DATASTORES:
-                return "featureTypes";
-            default:
-                return "coverages";
+                case COVERAGESTORES:
+                    return "coverages"; // Format
+                case DATASTORES:
+                    return "featureTypes";
+                case WMSSTORES:
+                    return "wmsStore";
+                default:
+                    return "coverages";
             }
         }
 
@@ -649,12 +663,14 @@ public class GeoServerRESTPublisher {
          */
         public static String getType(StoreType type) {
             switch (type) {
-            case COVERAGESTORES:
-                return "coverageStore"; // Format
-            case DATASTORES:
-                return "dataStore";
-            default:
-                return "coverageStore";
+                case COVERAGESTORES:
+                    return "coverageStore"; // Format
+                case DATASTORES:
+                    return "dataStore";
+                case WMSSTORES:
+                    return "wmsStore";
+                default:
+                    return "coverageStore";
             }
         }
 
@@ -970,6 +986,48 @@ public class GeoServerRESTPublisher {
         return publishDBLayer(workspace, storename, fte, layerEncoder);
     }
 
+    public boolean publishWMSLayer(final String workspace, final String storename, final GSWMSTypeEncoder fte, final GSLayerEncoder layerEncoder){
+        String ftypeXml = fte.toString();
+
+        StringBuilder postUrl = new StringBuilder(restURL).append("/rest/workspaces/")
+                .append(workspace).append("/wmsstores/").append(storename).append("/wmslayers.xml");
+
+        final String layername = fte.getName();
+        if (layername == null || layername.isEmpty()) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error("GSFeatureTypeEncoder has no valid name associated, try using GSFeatureTypeEncoder.setName(String)");
+            return false;
+        }
+
+        String configuredResult = HTTPUtils.postXml(postUrl.toString(), ftypeXml, this.gsuser,
+                this.gspass);
+        boolean published = configuredResult != null;
+        boolean configured = false;
+
+        if (!published) {
+            LOGGER.warn("Error in publishing (" + configuredResult + ") " + workspace + ":"
+                    + storename + "/" + layername);
+        } else {
+            LOGGER.info("DB layer successfully added (layer:" + layername + ")");
+
+            if (layerEncoder == null) {
+                if (LOGGER.isErrorEnabled())
+                    LOGGER.error("GSLayerEncoder is null: Unable to find the defaultStyle for this layer");
+                return false;
+            }
+
+            configured = configureLayer(workspace, layername, layerEncoder);
+
+            if (!configured) {
+                LOGGER.warn("Error in configuring (" + configuredResult + ") " + workspace + ":"
+                        + storename + "/" + layername);
+            } else {
+                LOGGER.info("DB layer successfully configured (layer:" + layername + ")");
+            }
+        }
+
+        return published && configured;
+    }
     /**
      * Publish and configure a new layer from an existing DataStore (v. gr. a layer from a DB table).
      * 
