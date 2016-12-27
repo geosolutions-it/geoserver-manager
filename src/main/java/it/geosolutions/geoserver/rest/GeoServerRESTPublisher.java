@@ -562,8 +562,13 @@ public class GeoServerRESTPublisher {
          * Vector based data sources. Can be a file in the case of a Shapefile, a database connection in the case of PostGIS, or a server in the case
          * of a remote Web Feature Service.
          */
-        DATASTORES;
+        DATASTORES,
 
+        /**
+         * WMS-Service Based Data Source.
+         * Can be used to publish WMS data from other Servers.
+         */
+        WMSSTORES;
         /**
          * @deprecated use {@link StoreType#getTypeNameWithFormat(StoreType, Format)}
          * @param type
@@ -600,7 +605,13 @@ public class GeoServerRESTPublisher {
          * Vector based data sources. Can be a file in the case of a Shapefile, a database connection in the case of PostGIS, or a server in the case
          * of a remote Web Feature Service.
          */
-        DATASTORES;
+        DATASTORES,
+
+        /**
+         * WMS-Service Based Data Source.
+         * Can be used to publish WMS data from other Servers.
+         */
+        WMSSTORES;
 
         /**
          * Get the type name of a StoreType with the specified format.
@@ -632,12 +643,14 @@ public class GeoServerRESTPublisher {
          */
         public static String getTypeName(StoreType type) {
             switch (type) {
-            case COVERAGESTORES:
-                return "coverages"; // Format
-            case DATASTORES:
-                return "featureTypes";
-            default:
-                return "coverages";
+                case COVERAGESTORES:
+                    return "coverages"; // Format
+                case DATASTORES:
+                    return "featureTypes";
+                case WMSSTORES:
+                    return "wmsStore";
+                default:
+                    return "coverages";
             }
         }
 
@@ -649,12 +662,14 @@ public class GeoServerRESTPublisher {
          */
         public static String getType(StoreType type) {
             switch (type) {
-            case COVERAGESTORES:
-                return "coverageStore"; // Format
-            case DATASTORES:
-                return "dataStore";
-            default:
-                return "coverageStore";
+                case COVERAGESTORES:
+                    return "coverageStore"; // Format
+                case DATASTORES:
+                    return "dataStore";
+                case WMSSTORES:
+                    return "wmsStore";
+                default:
+                    return "coverageStore";
             }
         }
 
