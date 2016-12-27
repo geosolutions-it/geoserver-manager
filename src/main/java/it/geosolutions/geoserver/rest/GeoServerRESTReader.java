@@ -833,12 +833,6 @@ public class GeoServerRESTReader {
         return RESTFeatureTypeList.build(load(url));
     }
 
-    public RESTFeatureTypeList getWMSFeatureTypes(String workspace){
-        String url;
-
-        return null;
-    }
-
     /**
      * Get detailed info about a given Layer.
      * 
