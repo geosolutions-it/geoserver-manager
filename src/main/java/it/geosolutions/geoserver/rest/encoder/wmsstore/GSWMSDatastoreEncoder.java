@@ -1,4 +1,4 @@
-package it.geosolutions.geoserver.rest.encoder.datastore;
+package it.geosolutions.geoserver.rest.encoder.wmsstore;
 
 import it.geosolutions.geoserver.rest.encoder.GSAbstractStoreEncoder;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
