@@ -2911,37 +2911,21 @@ public class GeoServerRESTPublisher {
      */
     private String appendParameters(NameValuePair... params) {
         StringBuilder sbUrl = new StringBuilder();
-        // append parameters
-        if (params != null) {
-            final int paramsSize = params.length;
-            if (paramsSize > 0) {
-                int i = 0;
-                NameValuePair param = params[i];
-                while (param != null && i++ < paramsSize) {
-                    final String name = param.getName();
-                    final String value = param.getValue();
-                    // success
-                    if (name != null && !name.isEmpty() && value != null && !value.isEmpty()) {
-                        sbUrl.append(name).append("=").append(value);
-                        // end cycle
-                        param = null;
+        if (params != null && params.length > 0) {
+            boolean noLongerFirst = false;
+            for (NameValuePair param : params){
+                final String name = param.getName();
+                final String value = param.getValue();
+                if (name != null && !name.isEmpty() && value != null && !value.isEmpty()) {
+                    // valid parameter to pass
+                    if(noLongerFirst){
+                        // add successive parameters (if any)
+                        sbUrl.append("&").append(name).append("=").append(value);
                     } else {
-                        // next value
-                        param = params[i];
-                    }
-                }
-                for (; i < paramsSize; i++) {
-                    param = params[i];
-                    if (param != null) {
-                        final String name = param.getName();
-                        final String value = param.getValue();
+                        //add the first parameter
                         sbUrl.append(name).append("=").append(value);
-                        if (name != null && !name.isEmpty() && value != null && !value.isEmpty()) {
-                            sbUrl.append("&").append(name).append("=").append(value);
-                        }
-
+                        noLongerFirst = true;
                     }
-
                 }
             }
         }
