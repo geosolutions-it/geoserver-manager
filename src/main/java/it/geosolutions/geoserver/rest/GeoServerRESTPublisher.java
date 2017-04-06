@@ -486,6 +486,14 @@ public class GeoServerRESTPublisher {
     public boolean publishStyleInWorkspace(String workspace, String sldBody, String name) throws IllegalArgumentException {
         return styleManager.publishStyleInWorkspace(workspace, sldBody, name);
     }
+	
+	/**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#
+     */
+    public boolean publishStyleInWorkspace(String workspace, String sldBody, String name, boolean raw) throws IllegalArgumentException {
+        return styleManager.publishStyleInWorkspace(workspace, sldBody, name, raw);
+    }
 
     /**
      * @since GeoServer 2.2
@@ -502,6 +510,14 @@ public class GeoServerRESTPublisher {
     public boolean publishStyleInWorkspace(String workspace, File sldFile, String name) {
         return styleManager.publishStyleInWorkspace(workspace, sldFile, name);
     }
+	
+	/**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#publishStyleInWorkspace(java.lang.String, java.io.File, java.lang.String)
+     */
+    public boolean publishStyleInWorkspace(String workspace, File sldFile, String name, boolean raw) {
+        return styleManager.publishStyleInWorkspace(workspace, sldFile, name, raw);
+    }
 
     /**
      * @since GeoServer 2.2
@@ -510,6 +526,14 @@ public class GeoServerRESTPublisher {
     public boolean updateStyleInWorkspace(String workspace, String sldBody, String name) throws IllegalArgumentException {
         return styleManager.updateStyleInWorkspace(workspace, sldBody, name);
     }
+	
+	/**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#updateStyleInWorkspace(java.lang.String, java.lang.String, java.lang.String)
+     */
+    public boolean updateStyleInWorkspace(String workspace, String sldBody, String name, boolean raw) throws IllegalArgumentException {
+        return styleManager.updateStyleInWorkspace(workspace, sldBody, name, raw);
+    }
 
     /**
      * @since GeoServer 2.2
@@ -517,6 +541,14 @@ public class GeoServerRESTPublisher {
      */
     public boolean updateStyleInWorkspace(String workspace, File sldFile, String name) throws IllegalArgumentException {
         return styleManager.updateStyleInWorkspace(workspace, sldFile, name);
+    }
+	
+	/**
+     * @since GeoServer 2.2
+     * @see GeoServerRESTStyleManager#updateStyleInWorkspace(java.lang.String, java.io.File, java.lang.String)
+     */
+    public boolean updateStyleInWorkspace(String workspace, File sldFile, String name, boolean raw) throws IllegalArgumentException {
+        return styleManager.updateStyleInWorkspace(workspace, sldFile, name, raw);
     }
 
     /**

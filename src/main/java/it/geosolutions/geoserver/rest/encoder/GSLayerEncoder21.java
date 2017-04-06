@@ -37,6 +37,7 @@ import it.geosolutions.geoserver.rest.encoder.identifier.GSIdentifierInfoEncoder
 import it.geosolutions.geoserver.rest.encoder.identifier.IdentifierInfo;
 import it.geosolutions.geoserver.rest.encoder.utils.NestedElementEncoder;
 import it.geosolutions.geoserver.rest.encoder.utils.XmlElement;
+import java.util.LinkedHashMap;
 
 /**
  * Layer encoder for Geoserver = 2.1
@@ -102,7 +103,7 @@ public class GSLayerEncoder21 extends GSLayerEncoder {
 	 */
 	public void addAuthorityURL(GSAuthorityURLInfoEncoder authorityURLInfo){	
 		if(authorityURLList == null){
-			authorityURLList = new HashMap<String,String>();
+			authorityURLList = new LinkedHashMap<String,String>();
 		}
 		authorityURLList.put(authorityURLInfo.getHref(), authorityURLInfo.getName());
 		String jsonStr = "";
@@ -152,7 +153,7 @@ public class GSLayerEncoder21 extends GSLayerEncoder {
 	 */
 	public void addIdentifier(GSIdentifierInfoEncoder identifierInfo){
 		if(identifierList == null){
-			identifierList = new HashMap<String,List<String>>();
+			identifierList = new LinkedHashMap<String,List<String>>();
 		}
 		
 		String authority = identifierInfo.getAuthority();

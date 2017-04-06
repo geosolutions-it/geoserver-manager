@@ -351,6 +351,64 @@ public class GeoserverRESTStyleTest extends GeoserverRESTTest {
 		assertEquals(0, reader.getStyles().size());
 		assertEquals(1, reader.getStyles(WORKSPACE).size());
 	}
+	
+	@Test
+	public void testStylesInWorkspaceRaw() throws IOException {
+		if (!enabled())
+			return;
+		deleteAll();
+
+        final String WORKSPACE = "testWorkspace";
+		final String STYLENAME = "restteststyle";
+		File sldFile = new ClassPathResource("testdata/restteststyle.sld").getFile();
+
+        publisher.createWorkspace(WORKSPACE);
+
+		assertEquals(0, reader.getStyles().size());
+		assertEquals(0, reader.getStyles(WORKSPACE).size());
+
+
+		// insert style
+		assertTrue(publisher.publishStyleInWorkspace(WORKSPACE, sldFile, null, true));
+		assertTrue(reader.existsStyle(WORKSPACE, STYLENAME));
+		assertFalse(reader.existsStyle(STYLENAME));
+
+        // insert style again
+		assertFalse(publisher.publishStyleInWorkspace(WORKSPACE, sldFile, null, true));
+		assertTrue(reader.existsStyle(WORKSPACE, STYLENAME));
+		assertFalse(reader.existsStyle(STYLENAME));
+
+		String sld = reader.getSLD(WORKSPACE, STYLENAME);
+		assertNotNull(sld);
+
+        RESTStyle style = reader.getStyle(WORKSPACE, STYLENAME);
+        assertEquals(STYLENAME, style.getName());
+        assertEquals(WORKSPACE, style.getWorkspace());
+
+		Element styleEl = JDOMBuilder.buildElement(sld);
+		assertNotNull(styleEl);
+
+		Namespace SLDNS = Namespace.getNamespace("sld",
+				"http://www.opengis.net/sld");
+
+		try {
+
+			assertEquals(STYLENAME, styleEl.getChild("NamedLayer", SLDNS)
+					.getChild("Name", SLDNS).getText());
+			assertEquals(
+					"STYLE FOR TESTING PURPOSES",
+					styleEl.getChild("NamedLayer", SLDNS)
+							.getChild("UserStyle", SLDNS)
+							.getChild("Title", SLDNS).getText());
+		} catch (NullPointerException npe) {
+			fail("Error in SLD");
+		}
+
+		// assertEquals(1475, sld.length());
+
+		assertEquals(0, reader.getStyles().size());
+		assertEquals(1, reader.getStyles(WORKSPACE).size());
+	}
 
 	@Test
 	public void testRemoveStylesInWorkspace() throws IOException {
