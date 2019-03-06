@@ -50,7 +50,7 @@ If you are simply looking for the JAR to download and use you can find it [here]
 You can find some examples in the wiki.
 ## License
 
-geoserver-manager is released under a permissinve [MIT](https://opensource.org/licenses/MIT) license. See [wikipedia](https://en.wikipedia.org/wiki/MIT_License) for more information.
+geoserver-manager is released under a permissive [MIT](https://opensource.org/licenses/MIT) license. See [wikipedia](https://en.wikipedia.org/wiki/MIT_License) for more information.
 
 
 ## Mailing Lists
