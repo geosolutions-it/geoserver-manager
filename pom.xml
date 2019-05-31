@@ -255,7 +255,7 @@
     </reporting>
 
     <properties>
-        <slf4j.version>1.5.11</slf4j.version>
+        <slf4j.version>1.7.21</slf4j.version>
     </properties>
 
     <dependencies>
