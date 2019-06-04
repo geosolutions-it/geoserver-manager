@@ -29,14 +29,8 @@ import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.decoder.RESTStructuredCoverageGranulesList;
 import it.geosolutions.geoserver.rest.decoder.RESTStyleList;
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
-import it.geosolutions.geoserver.rest.encoder.GSBackupEncoder;
-import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
-import it.geosolutions.geoserver.rest.encoder.GSLayerGroupEncoder;
-import it.geosolutions.geoserver.rest.encoder.GSNamespaceEncoder;
-import it.geosolutions.geoserver.rest.encoder.GSPostGISDatastoreEncoder;
-import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
+import it.geosolutions.geoserver.rest.encoder.*;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy;
-import it.geosolutions.geoserver.rest.encoder.GSWorkspaceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 import it.geosolutions.geoserver.rest.manager.GeoServerRESTStructuredGridCoverageReaderManager;
@@ -587,6 +581,7 @@ public class GeoServerRESTPublisher {
      * <UL>
      * <LI>{@link #DATASTORES} vector based data sources.
      * <LI>{@link #COVERAGESTORES} raster based data sources.
+     * <LI>{@link #WMSSTORES} web map service data store</LI>
      * </UL>
      * 
      * @author Carlo Cancellieri - carlo.cancellieri@geo-solutions.it
@@ -600,8 +595,11 @@ public class GeoServerRESTPublisher {
          * Vector based data sources. Can be a file in the case of a Shapefile, a database connection in the case of PostGIS, or a server in the case
          * of a remote Web Feature Service.
          */
-        DATASTORES;
-
+        DATASTORES,
+        /**
+         * Remote Web Map Service data source
+         */
+        WMSSTORES;
         /**
          * Get the type name of a StoreType with the specified format.
          * 
@@ -636,6 +634,8 @@ public class GeoServerRESTPublisher {
                 return "coverages"; // Format
             case DATASTORES:
                 return "featureTypes";
+            case WMSSTORES:
+                return "wmslayers";
             default:
                 return "coverages";
             }
@@ -653,6 +653,8 @@ public class GeoServerRESTPublisher {
                 return "coverageStore"; // Format
             case DATASTORES:
                 return "dataStore";
+            case WMSSTORES:
+                return "wmsStore";
             default:
                 return "coverageStore";
             }
@@ -1024,6 +1026,66 @@ public class GeoServerRESTPublisher {
                         + storename + "/" + layername);
             } else {
                 LOGGER.info("DB layer successfully configured (layer:" + layername + ")");
+            }
+        }
+
+        return published && configured;
+    }
+
+    /**
+     * Publish and configure a new layer from an existing WMS DataStore.
+     *
+     * @param workspace Workspace name where DataStore is.
+     * @param storename DataStore name.
+     * @param lte WMSLayer configuration details using a {@link GSWMSLayerEncoder}.
+     * @return {@code true} if layer is successfully created.
+     */
+    public boolean publishWMSLayer(final String workspace, final String storename,
+                                  final GSWMSLayerEncoder lte, final GSLayerEncoder layerEncoder) {
+        /*
+         * This is the equivalent call with cUrl:
+         *
+         * {@code curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \ -d
+         * "<featureType><name>easia_gaul_1_aggr</name><nativeCRS>EPSG:4326</nativeCRS><enabled>true</enabled></featureType>" \
+         * http://localhost:8080/geoserver/rest/workspaces/it.geosolutions/ wmsstores/pg_kids/wmslayers }
+         *
+         * and a PUT to <BR> restURL + "/rest/layers/" workspace + : + layerName
+         */
+        String ftypeXml = lte.toString();
+        StringBuilder postUrl = new StringBuilder(restURL).append("/rest/workspaces/")
+                .append(workspace).append("/wmsstores/").append(storename).append("/wmslayers");
+
+        final String layername = lte.getName();
+        if (layername == null || layername.isEmpty()) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error("GSWMSLayerEncoder has no valid name associated, try using GSWMSLayerEncoder.setName(String)");
+            return false;
+        }
+
+        String configuredResult = HTTPUtils.postXml(postUrl.toString(), ftypeXml, this.gsuser,
+                this.gspass);
+        boolean published = configuredResult != null;
+        boolean configured = false;
+
+        if (!published) {
+            LOGGER.warn("Error in publishing (" + configuredResult + ") " + workspace + ":"
+                    + storename + "/" + layername);
+        } else {
+            LOGGER.info("WMS layer successfully added (layer:" + layername + ")");
+
+            if (layerEncoder == null) {
+                if (LOGGER.isErrorEnabled())
+                    LOGGER.error("GSLayerEncoder is null: Unable to find the defaultStyle for this layer");
+                return false;
+            }
+
+            configured = configureLayer(workspace, layername, layerEncoder);
+
+            if (!configured) {
+                LOGGER.warn("Error in configuring (" + configuredResult + ") " + workspace + ":"
+                        + storename + "/" + layername);
+            } else {
+                LOGGER.info("WMS layer successfully configured (layer:" + layername + ")");
             }
         }
 
@@ -2202,6 +2264,63 @@ public class GeoServerRESTPublisher {
     }
 
     /**
+     * Removes the wms layer.
+     * <P>
+     * You may also want to {@link #removeDatastore(String, String) remove the datastore}.
+     *
+     * @return true if the operation completed successfully.
+     */
+    public boolean unpublishWmsLayer(String workspace, String storename, String layerName) {
+        try {
+
+            final String fqLayerName;
+            // this null check is here only for backward compatibility.
+            // workspace
+            // shall be mandatory.
+            if (workspace == null) {
+
+                fqLayerName = layerName;
+
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("Null workspace while configuring layer : " + layerName
+                            + " -- This behavior is deprecated.");
+                }
+            } else {
+                fqLayerName = workspace + ":" + layerName;
+            }
+            // delete related layer
+            URL deleteLayerUrl = new URL(restURL + "/rest/layers/" + fqLayerName);
+            boolean layerDeleted = HTTPUtils
+                    .delete(deleteLayerUrl.toExternalForm(), gsuser, gspass);
+            if (!layerDeleted) {
+                LOGGER.warn("Could not delete layer '" + fqLayerName + "'");
+                return false;
+            }
+            // delete the wms layer
+            URL deleteFtUrl = new URL(restURL + "/rest/workspaces/" + workspace + "/wmsstores/"
+                    + storename + "/wmslayers/" + layerName);
+            boolean ftDeleted = HTTPUtils.delete(deleteFtUrl.toExternalForm(), gsuser, gspass);
+            if (!ftDeleted) {
+                LOGGER.warn("Could not delete wms layer " + workspace + ":" + storename + "/"
+                        + layerName + ", but layer was deleted.");
+            } else {
+                LOGGER.info("Wms layer successfully deleted " + workspace + ":" + storename + "/"
+                        + layerName);
+            }
+
+            return ftDeleted;
+
+            // the store is still there: should we delete it?
+
+        } catch (MalformedURLException ex) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error(ex.getLocalizedMessage(), ex);
+            return false;
+        }
+    }
+
+
+    /**
      * Removes the featuretype and the associated layer.
      * <P>
      * You may also want to {@link #removeDatastore(String, String) remove the datastore}.
@@ -2812,6 +2931,79 @@ public class GeoServerRESTPublisher {
         } else {
             if (LOGGER.isWarnEnabled())
                 LOGGER.warn("Error configuring coverage " + wsname + ":" + csname + ":" + coverageName
+                        + " (" + sendResult + ")");
+        }
+
+        return sendResult != null;
+    }
+
+    /**
+     * Configure an existing coverage in a given workspace and coverage store
+     *
+     * @param ce contains the coverage name to configure and the configuration to apply
+     * @param wsname the workspace to search for existent coverage
+     * @param csname the coverage store to search for existent coverage
+     * @return true if success
+     */
+    public boolean configureWmsLayer(final GSCoverageEncoder ce, final String wsname,
+                                     final String wmsStoreName) {
+        return configureWmsLayer(ce, wsname, wmsStoreName, ce.getName());
+    }
+
+    private boolean configureWmsLayer(GSCoverageEncoder ce, String wsname, String wmsStoreName, String layerName) {
+        if (wsname == null) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error("Unable to configure a wmsstore with no name try using GSCoverageEncoder.setName(String)");
+            return false;
+        }
+        // retrieve coverage name
+        GeoServerRESTReader reader;
+        try {
+            reader = new GeoServerRESTReader(restURL, gsuser, gspass);
+        } catch (MalformedURLException e) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error(e.getLocalizedMessage(), e);
+            return false;
+        }
+
+        // optimized search, left the old code for reference
+        RESTCoverage coverage = reader.getCoverage(wsname, wmsStoreName, layerName);
+//        final RESTCoverageList covList = reader.getCoverages(wsname, csname);
+//        if (covList==null||covList.isEmpty()) {
+//            if (LOGGER.isErrorEnabled())
+//                LOGGER.error("No coverages found in new coveragestore " + csname);
+//            return false;
+//        }
+//        final Iterator<NameLinkElem> it = covList.iterator();
+//        while (it.hasNext()) {
+//            NameLinkElem nameElem = it.next();
+//            if (nameElem.getName().equals(coverageName)) {
+//                found = true;
+//                break;
+//            }
+//        }
+        // if no coverage to configure is found return false
+        if (coverage==null) {
+            if (LOGGER.isErrorEnabled())
+                LOGGER.error("No layers found in new coveragestore " + wmsStoreName + " called "
+                        + layerName);
+            return false;
+        }
+
+        // configure the selected coverage
+        final String url = restURL + "/rest/workspaces/" + wsname + "/wmsstores/" + wmsStoreName
+                + "/wmslayers/" + layerName + ".xml";
+
+        final String xmlBody = ce.toString();
+        final String sendResult = HTTPUtils.putXml(url, xmlBody, gsuser, gspass);
+        if (sendResult != null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Wms layer successfully configured " + wsname + ":" + wmsStoreName + ":"
+                        + layerName);
+            }
+        } else {
+            if (LOGGER.isWarnEnabled())
+                LOGGER.warn("Error configuring coverage " + wsname + ":" + wmsStoreName + ":" + layerName
                         + " (" + sendResult + ")");
         }
 
