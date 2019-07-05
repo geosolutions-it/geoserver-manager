@@ -128,6 +128,42 @@ public class GeoserverRESTGeoTiffTest extends GeoserverRESTTest {
         // Test not exists
         assertFalse(reader.existsCoveragestore(DEFAULT_WS, storeName));
     }
+
+    @Test
+    public void testGeotiffWithEmptyCoverageName() throws FileNotFoundException, IOException {
+        if (!enabled()) return;
+        deleteAll();
+
+        File geotiff = new ClassPathResource("testdata/resttestdem.tif").getFile();
+
+        assertTrue(reader.getWorkspaces().isEmpty());
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));
+
+        // known state?
+        assertFalse("Cleanup failed", existsLayer(layerName));
+
+        // test insert
+        boolean pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName, geotiff);
+
+        assertNotNull("publish() failed", pub);
+        // Test exists
+        assertTrue(reader.existsCoveragestore(DEFAULT_WS, storeName));
+        assertTrue(reader.existsCoverage(DEFAULT_WS, storeName, storeName));
+
+        pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another", "", geotiff);
+
+        assertTrue("publish() with empty string coverageName failed", pub);
+
+        double[] bbox = {-103.85, 44.38, -103.62, 44.50};
+        pub = publisher.publishGeoTIFF(DEFAULT_WS, storeName+"another_complex", "", geotiff, "EPSG:4326", ProjectionPolicy.REPROJECT_TO_DECLARED, "raster", bbox);
+
+        assertTrue("publish() ith empty string coverageName failed", pub);
+
+        //delete
+        assertTrue("Unpublish() failed", publisher.removeCoverageStore(DEFAULT_WS, storeName,true));
+        // Test not exists
+        assertFalse(reader.existsCoveragestore(DEFAULT_WS, storeName));
+    }
     
     @Test
     public void testGeoTiffWithStyleInWorkspace() throws IOException
