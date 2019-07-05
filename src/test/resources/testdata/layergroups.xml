@@ -1,0 +1,47 @@
+<layerGroup>
+    <name>lg003</name>
+    <mode>SINGLE</mode>
+    <workspace>
+        <name>geo</name>
+    </workspace>
+    <publishables>
+        <published type="layer">
+            <name>layer001</name>
+            <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost/geoserver/rest/layers/layer001.xml" type="application/xml"/>
+        </published>
+        <published type="layer">
+            <name>layer002</name>
+            <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost/geoserver/rest/layers/layer002.xml" type="application/xml"/>
+        </published>
+        <published type="layer">
+            <name>layer003</name>
+            <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost/geoserver/rest/layers/layer003.xml" type="application/xml"/>
+        </published>
+        <published type="layerGroup">
+            <name>geo:lg001</name>
+        </published>
+        <published type="layerGroup">
+            <name>geo:lg002</name>
+        </published>
+    </publishables>
+    <styles>
+        <style>
+            <name>grass</name>
+            <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost/geoserver/rest/styles/grass.xml" type="application/xml"/>
+        </style>
+        <style/>
+        <style>
+            <name>raster</name>
+            <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost/geoserver/rest/styles/raster.xml" type="application/xml"/>
+        </style>
+        <style/>
+        <style/>
+    </styles>
+    <bounds>
+        <minx>-2.00375083428E7</minx>
+        <maxx>2.00375083428E7</maxx>
+        <miny>-2.00375083428E7</miny>
+        <maxy>2.00375083428E7</maxy>
+        <crs class="projected">EPSG:3857</crs>
+    </bounds>
+</layerGroup>
