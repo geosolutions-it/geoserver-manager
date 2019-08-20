@@ -819,6 +819,20 @@ public class GeoServerRESTReader {
         }
         return RESTLayerList.build(load(url));
     }
+    
+    /**
+     * Get summary info about layers from a given workspace.
+     *
+     * @return summary info about Layers as a {@link RESTLayerList}
+     */
+    public RESTLayerList getLayers(String workspace) {
+        String url = "/rest/workspaces/" + workspace + "/layers.xml";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("### Retrieving layers from " + url);
+        }
+        return RESTLayerList.build(load(url));
+    }
+
 	
 	/**
      * Get summary info about all FeatureTypes of a workspace.

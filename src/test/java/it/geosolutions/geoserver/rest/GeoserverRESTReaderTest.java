@@ -30,14 +30,16 @@ import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerList;
 import it.geosolutions.geoserver.rest.decoder.RESTNamespaceList;
 import it.geosolutions.geoserver.rest.decoder.RESTWorkspaceList;
+import it.geosolutions.geoserver.rest.decoder.about.GSVersionDecoder;
 import it.geosolutions.geoserver.rest.decoder.utils.NameLinkElem;
-
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.core.io.ClassPathResource;
 import static org.junit.Assert.*;
 
 
@@ -48,7 +50,6 @@ import static org.junit.Assert.*;
 public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(GeoserverRESTReaderTest.class);
-
 	/**
 	 * Test of getLayers method, of class GeoServerRESTReader.
 	 */
@@ -70,6 +71,28 @@ public class GeoserverRESTReaderTest extends GeoserverRESTTest {
 //		for (Element layer : (List<Element>)result.getChildren("layer")) {
 //			System.out.print(layer.getChildText("name") + " ");
 //		}
+        LOGGER.debug("");
+	}
+	
+	/**
+	 * Test of getLayers method with a given workspace, of class GeoServerRESTReader.
+	 * Requires Geoserver > 2.13
+	 * @throws IOException 
+	 */
+	@Test
+	public void testGetLayersWithWorkspace() throws IOException {
+        if(!enabled()) return;
+        // Skip the test if Geoserver < 2.13
+        if(GSVersionDecoder.VERSION.v213.compareTo(GSVersionDecoder.VERSION.getVersion(GS_VERSION)) > 0) {
+            return;
+        }
+        deleteAllWorkspacesRecursively();
+        
+        assertTrue(publisher.createWorkspace(DEFAULT_WS));        
+        File zipFile = new ClassPathResource("testdata/resttestshp.zip").getFile(); 
+        // test insert
+        assertTrue(publisher.publishShp(DEFAULT_WS, "resttestshp", "cities", zipFile));		
+        assertTrue(reader.getLayers(DEFAULT_WS).size() == 1);
         LOGGER.debug("");
 	}
 
