@@ -154,6 +154,7 @@ public class GSVersionDecoder extends XmlElement {
         v26(26, "2\\.6([^0-9]|$).*"),
         v27(27, "2\\.7([^0-9]|$).*"),
         v28(28, "2\\.8([^0-9]|$).*"),
+        v213(213, "2\\.13([^0-9]|$).*"),
         ABOVE(9999, "2\\..+"),
         UNRECOGNIZED(-1, null);
 
