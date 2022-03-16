@@ -30,11 +30,18 @@ In order to include the lib and its dependencies in a Maven project, the reposit
 and the dependency tag for your pom is as follows:
 
 ```xml
-  <dependency>
-    <groupId>it.geosolutions</groupId>
-    <artifactId>geoserver-manager</artifactId>
-    <version>1.7.0</version>
-  </dependency>
+  <dependencies>
+    <dependency>
+      <groupId>it.geosolutions</groupId>
+      <artifactId>geoserver-manager</artifactId>
+      <version>1.7.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>2.0.0-alpha6</version>
+    </dependency>
+  </dependencies>
 ```
 ### Direct Link to JAR
 If you are simply looking for the JAR to download and use you can find it [here](http://maven.geo-solutions.it/it/geosolutions/geoserver-manager/1.7.0/geoserver-manager-1.7.0.jar).
