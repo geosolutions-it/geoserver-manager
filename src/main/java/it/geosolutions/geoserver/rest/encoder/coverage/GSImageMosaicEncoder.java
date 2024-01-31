@@ -265,7 +265,7 @@ public class GSImageMosaicEncoder extends GSCoverageEncoder {
 
     public void setOutputTransparentColor(final String val) {
         removeParameter(outputTransparentColorFilter);
-        addInputTransparentColor(val);
+        addOutputTransparentColor(val);
     }
     public Boolean getOutputTransparentColor() {
         Element el = getParameter(outputTransparentColorFilter);
